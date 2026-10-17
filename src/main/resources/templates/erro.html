@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Erro')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+<main>
+    <h1>Ops!</h1>
+    <p th:text="${mensagem}">Mensagem de erro</p>
+    <a class="btn" th:href="@{/}">Voltar ao início</a>
+</main>
+</body>
+</html>

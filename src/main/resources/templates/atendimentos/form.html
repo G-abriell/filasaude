@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Emitir senha')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+<main>
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+    <h1>Emitir senha</h1>
+    <form method="post" th:action="@{/atendimentos}">
+        <label>Paciente</label>
+        <select name="pacienteId" required>
+            <option value="">Selecione...</option>
+            <option th:each="p : ${pacientes}" th:value="${p.id}" th:selected="${p.id == pacienteId}"
+                    th:text="${p.nome} + ' — ' + ${p.cpf}"></option>
+        </select>
+        <p><a th:href="@{/pacientes/novo}">Paciente não cadastrado? Cadastrar</a></p>
+        <label>Fila</label>
+        <select name="filaId" required>
+            <option value="">Selecione...</option>
+            <option th:each="f : ${filas}" th:value="${f.id}" th:text="${f.sigla} + ' — ' + ${f.nome}"></option>
+        </select>
+        <label>Prioridade</label>
+        <select name="prioridade">
+            <option th:each="pr : ${prioridades}" th:value="${pr}" th:text="${pr.descricao}"></option>
+        </select>
+        <p><small>Pacientes com 60 anos ou mais recebem prioridade preferencial automaticamente.</small></p>
+        <p><button>Emitir senha</button></p>
+    </form>
+</main>
+</body>
+</html>

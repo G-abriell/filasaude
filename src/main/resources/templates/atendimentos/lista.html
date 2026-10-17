@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Atendimentos do dia')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+<main>
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+    <h1>Atendimentos do dia</h1>
+    <form method="get" th:action="@{/atendimentos}">
+        <select name="filaId" onchange="this.form.submit()">
+            <option value="">Todas as filas</option>
+            <option th:each="f : ${filas}" th:value="${f.id}" th:selected="${f.id == filaId}" th:text="${f.nome}"></option>
+        </select>
+    </form>
+    <br>
+    <table>
+        <thead>
+        <tr><th>Senha</th><th>Paciente</th><th>Fila</th><th>Chegada</th><th>Status</th><th>Atendente</th><th>Guichê</th><th></th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="a : ${atendimentos}">
+            <td th:text="${a.senha}" th:classappend="${a.prioridade.name() == 'PREFERENCIAL'} ? 'preferencial'"></td>
+            <td th:text="${a.paciente.nome}"></td>
+            <td th:text="${a.fila.nome}"></td>
+            <td th:text="${#temporals.format(a.dataHoraChegada, 'HH:mm')}"></td>
+            <td th:text="${a.status.descricao}"></td>
+            <td th:text="${a.atendente?.nome}"></td>
+            <td th:text="${a.guiche}"></td>
+            <td>
+                <form class="inline" method="post"
+                      th:if="${a.status.name() == 'AGUARDANDO' or a.status.name() == 'CHAMADO'}"
+                      th:action="@{/atendimentos/{id}/cancelar(id=${a.id})}"
+                      onsubmit="return confirm('Cancelar este atendimento?')">
+                    <button class="btn-perigo">Cancelar</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(atendimentos)}"><td colspan="8">Nenhum atendimento hoje.</td></tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

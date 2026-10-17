@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Guichê')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+<main>
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+    <h1>Guichê de atendimento</h1>
+
+    <form method="get" th:action="@{/atendimentos/guiche}">
+        <label>Fila</label>
+        <select name="filaId" onchange="this.form.submit()">
+            <option value="">Selecione a fila...</option>
+            <option th:each="f : ${filas}" th:value="${f.id}" th:selected="${f.id == filaId}" th:text="${f.nome}"></option>
+        </select>
+    </form>
+
+    <div th:if="${filaId != null}">
+        <h2>Chamar próximo</h2>
+        <form method="post" th:action="@{/atendimentos/chamar}">
+            <input type="hidden" name="filaId" th:value="${filaId}">
+            <!-- Provisório: será o usuário autenticado quando o Spring Security for configurado -->
+            <label>Atendente</label>
+            <select name="atendenteId" required>
+                <option th:each="u : ${usuarios}" th:value="${u.id}" th:text="${u.nome}"></option>
+            </select>
+            <label>Guichê / Sala</label>
+            <input name="guiche" placeholder="Guichê 1">
+            <p><button>Chamar próximo</button></p>
+        </form>
+
+        <h2>Aguardando (<span th:text="${#lists.size(aguardando)}">0</span>)</h2>
+        <table>
+            <thead><tr><th>Senha</th><th>Paciente</th><th>Prioridade</th><th>Chegada</th><th>Espera (min)</th></tr></thead>
+            <tbody>
+            <tr th:each="a : ${aguardando}">
+                <td th:text="${a.senha}" th:classappend="${a.prioridade.name() == 'PREFERENCIAL'} ? 'preferencial'"></td>
+                <td th:text="${a.paciente.nome}"></td>
+                <td th:text="${a.prioridade.descricao}"></td>
+                <td th:text="${#temporals.format(a.dataHoraChegada, 'HH:mm')}"></td>
+                <td th:text="${a.minutosEspera}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(aguardando)}"><td colspan="5">Ninguém aguardando.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Chamados / em atendimento</h2>
+    <table>
+        <thead><tr><th>Senha</th><th>Paciente</th><th>Fila</th><th>Guichê</th><th>Atendente</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        <tr th:each="a : ${emAndamento}">
+            <td th:text="${a.senha}"></td>
+            <td th:text="${a.paciente.nome}"></td>
+            <td th:text="${a.fila.nome}"></td>
+            <td th:text="${a.guiche}"></td>
+            <td th:text="${a.atendente?.nome}"></td>
+            <td th:text="${a.status.descricao}"></td>
+            <td th:if="${a.status.name() == 'CHAMADO'}">
+                <form class="inline" method="post" th:action="@{/atendimentos/{id}/iniciar(id=${a.id})}">
+                    <input type="hidden" name="filaId" th:value="${filaId}">
+                    <button>Iniciar</button>
+                </form>
+                <form class="inline" method="post" th:action="@{/atendimentos/{id}/nao-compareceu(id=${a.id})}">
+                    <input type="hidden" name="filaId" th:value="${filaId}">
+                    <button class="btn-sec">Não compareceu</button>
+                </form>
+            </td>
+            <td th:if="${a.status.name() == 'EM_ATENDIMENTO'}">
+                <form class="inline" method="post" th:action="@{/atendimentos/{id}/finalizar(id=${a.id})}">
+                    <input type="hidden" name="filaId" th:value="${filaId}">
+                    <input name="observacao" placeholder="Observação (opcional)">
+                    <button>Finalizar</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(emAndamento)}"><td colspan="7">Nenhum atendimento em andamento.</td></tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

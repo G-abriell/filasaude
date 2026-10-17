@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Paciente')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+<main>
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+    <h1 th:text="${paciente.id == null} ? 'Novo paciente' : 'Editar paciente'">Paciente</h1>
+    <form method="post" th:action="@{/pacientes}" th:object="${paciente}">
+        <input type="hidden" th:field="*{id}">
+        <label>Nome</label>
+        <input th:field="*{nome}">
+        <div class="campo-erro" th:errors="*{nome}"></div>
+        <label>CPF (somente números)</label>
+        <input th:field="*{cpf}" maxlength="11">
+        <div class="campo-erro" th:errors="*{cpf}"></div>
+        <label>Cartão SUS (opcional)</label>
+        <input th:field="*{cartaoSus}" maxlength="15">
+        <div class="campo-erro" th:errors="*{cartaoSus}"></div>
+        <label>Data de nascimento</label>
+        <input type="date" th:field="*{dataNascimento}">
+        <div class="campo-erro" th:errors="*{dataNascimento}"></div>
+        <label>Telefone</label>
+        <input th:field="*{telefone}">
+        <div class="campo-erro" th:errors="*{telefone}"></div>
+        <p><button>Salvar</button> <a class="btn btn-sec" th:href="@{/pacientes}">Cancelar</a></p>
+    </form>
+</main>
+</body>
+</html>

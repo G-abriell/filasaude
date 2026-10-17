@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Usuário')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+<main>
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+    <h1 th:text="${usuario.id == null} ? 'Novo usuário' : 'Editar usuário'">Usuário</h1>
+    <form method="post" th:action="@{/usuarios}" th:object="${usuario}">
+        <input type="hidden" th:field="*{id}">
+        <input type="hidden" th:field="*{ativo}">
+        <label>Nome</label>
+        <input th:field="*{nome}">
+        <div class="campo-erro" th:errors="*{nome}"></div>
+        <label>E-mail</label>
+        <input type="email" th:field="*{email}">
+        <div class="campo-erro" th:errors="*{email}"></div>
+        <label th:text="${usuario.id == null} ? 'Senha' : 'Nova senha (deixe em branco para manter)'">Senha</label>
+        <input type="password" name="senha" autocomplete="new-password">
+        <label>Perfil</label>
+        <select th:field="*{perfil.id}">
+            <option value="">Selecione...</option>
+            <option th:each="p : ${perfis}" th:value="${p.id}" th:text="${p.nome}"></option>
+        </select>
+        <div class="campo-erro" th:errors="*{perfil}"></div>
+        <p><button>Salvar</button> <a class="btn btn-sec" th:href="@{/usuarios}">Cancelar</a></p>
+    </form>
+</main>
+</body>
+</html>
