@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações · FilaSaúde</title>
+    <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%230F3D44"/><rect x="14" y="16" width="7" height="32" rx="3.5" fill="%23FAF8F4"/><rect x="27" y="16" width="23" height="7" rx="3.5" fill="%23CB7440"/><rect x="27" y="28.5" width="15" height="7" rx="3.5" fill="%23FAF8F4"/><circle cx="30.5" cy="44.5" r="3.5" fill="%236B9784"/></svg>'>
+
+    <!-- Google Fonts: Newsreader & Figtree -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('fs-tema-manual');
+                document.documentElement.dataset.theme = (t === 'dark') ? 'dark' : 'light';
+            } catch (e) {
+                document.documentElement.dataset.theme = 'light';
+            }
+        })();
+    </script>
+
+    <style>
+        /* ============================================================
+           FilaSaúde — Design System Tokens (Manual da Marca v1.0)
+           ============================================================ */
+        :root {
+            /* Paleta de cores */
+            --petroleo-900: #0A2A30;
+            --petroleo-700: #0F3D44;
+            --petroleo-500: #2A6B72;
+            --petroleo-100: #E1EEEE;
+            --cobre-600:    #98481A;
+            --cobre-500:    #CB7440;
+            --cobre-100:    #F6E3D5;
+            --salvia-600:   #2F5547;
+            --salvia-500:   #6B9784;
+            --salvia-100:   #E4EDE8;
+            --nevoa-50:     #FAF8F4;
+            --nevoa-100:    #F1EEE7;
+            --areia-200:    #DDD8CC;
+            --grafite-900:  #16262A;
+            --grafite-600:  #4B5F64;
+            --grafite-400:  #6F8286;
+
+            /* Tokens semânticos (Tema Claro) */
+            --surface:          var(--nevoa-50);
+            --surface-raised:   #FFFFFF;
+            --surface-sunken:   var(--nevoa-100);
+            --ink:              var(--grafite-900);
+            --ink-muted:        var(--grafite-600);
+            --line:             var(--areia-200);
+            --line-strong:      var(--grafite-400);
+            --brand:            var(--petroleo-700);
+            --on-brand:         #FFFFFF;
+            --brand-fill:       var(--petroleo-700);
+            --brand-soft:       var(--petroleo-100);
+            --accent:           var(--cobre-500);
+            --on-accent:        var(--grafite-900);
+            --accent-text:      var(--cobre-600);
+            --accent-soft:      var(--cobre-100);
+            --support:          var(--salvia-500);
+            --support-soft:     var(--salvia-100);
+            --support-ink:      var(--salvia-600);
+            --status-wait-bg:   #FBEBCB;
+            --status-wait-fg:   #6B3B00;
+            --status-error-bg:  #F8E1DC;
+            --status-error-fg:  #8A2A1E;
+            --focus-ring:       var(--petroleo-700);
+
+            /* Espaçamento e raios */
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-6: 24px;
+            --space-8: 32px;
+            --space-12: 48px;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-pill: 999px;
+
+            /* Tipografia */
+            --font-display: "Newsreader", Georgia, serif;
+            --font-sans: "Figtree", "Segoe UI", system-ui, sans-serif;
+        }
+
+        [data-theme="dark"] {
+            --surface:          #06171A;
+            --surface-raised:   #0F2D33;
+            --surface-sunken:   #091F24;
+            --ink:              #F5F3EC;
+            --ink-muted:        #96ACB0;
+            --line:             rgba(255, 255, 255, 0.09);
+            --line-strong:      rgba(255, 255, 255, 0.18);
+            --brand:            #8CC8CB;
+            --on-brand:         #0A2A30;
+            --brand-fill:       #041214;
+            --brand-soft:       #123840;
+            --accent:           #D97D48;
+            --on-accent:        #16262A;
+            --accent-soft:      #382418;
+            --support:          #6B9784;
+            --support-soft:     #163E38;
+            --support-ink:      #B5DACB;
+            --status-wait-bg:   #4A3511;
+            --status-wait-fg:   #F5CF8A;
+            --focus-ring:       #8CC8CB;
+        }
+
+        [data-theme="dark"] .fs-card,
+        [data-theme="dark"] .ticket-preview {
+            background-color: var(--surface-raised);
+            border-color: rgba(255, 255, 255, 0.09);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        }
+
+        [data-theme="dark"] .fs-input {
+            background-color: var(--surface-sunken);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: var(--ink);
+        }
+
+        [data-theme="dark"] .btn-fs-secondary {
+            background-color: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.16);
+            color: var(--ink);
+        }
+        [data-theme="dark"] .btn-fs-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--surface);
+            color: var(--ink);
+            font-family: var(--font-sans);
+            font-size: 16px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============================================================
+           Estrutura de Layout (Sidebar + Conteúdo)
+           ============================================================ */
+        .app-shell {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .app-sidebar {
+            width: 260px;
+            background-color: var(--brand-fill);
+            color: var(--nevoa-50);
+            display: flex;
+            flex-direction: column;
+            padding: var(--space-6) var(--space-4);
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--nevoa-50);
+            padding: var(--space-2) var(--space-3);
+            margin-bottom: var(--space-6);
+        }
+
+        .sidebar-brand:hover {
+            color: var(--nevoa-50);
+        }
+
+        .brand-mark {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .brand-name {
+            font-family: var(--font-display);
+            font-weight: 500;
+            font-size: 24px;
+            letter-spacing: -0.01em;
+            line-height: 1;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: var(--radius-md);
+            color: rgba(250, 248, 244, 0.86);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: background-color 150ms ease, color 150ms ease;
+        }
+
+        .sidebar-link:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--nevoa-50);
+        }
+
+        .sidebar-link.is-active {
+            background-color: var(--surface-raised);
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        .sidebar-link svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+            flex-shrink: 0;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: var(--space-4);
+        }
+
+        .profile-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: rgba(255, 255, 255, 0.07);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+        }
+
+        .profile-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--nevoa-50);
+            color: var(--brand);
+            display: grid;
+            place-items: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .profile-meta {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.3;
+        }
+
+        .profile-role {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--nevoa-50);
+        }
+
+        .profile-logout {
+            font-size: 13px;
+            color: rgba(250, 248, 244, 0.8);
+            text-decoration: underline;
+            background: none;
+            border: 0;
+            padding: 0;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .profile-logout:hover {
+            color: #FFFFFF;
+        }
+
+        /* ============================================================
+           Área Principal e Cabeçalho
+           ============================================================ */
+        .app-main {
+            flex: 1;
+            padding: var(--space-12);
+            max-width: 1180px;
+        }
+
+        .page-header {
+            margin-bottom: var(--space-6);
+        }
+
+        .page-title {
+            font-family: var(--font-display);
+            font-size: 30px;
+            line-height: 36px;
+            font-weight: 500;
+            color: var(--ink);
+            margin: 0 0 6px 0;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            line-height: 24px;
+            color: var(--ink-muted);
+            margin: 0;
+        }
+
+        /* ============================================================
+           Faixas de Mensagem (Feedback)
+           ============================================================ */
+        .feedback-banner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: var(--space-6);
+        }
+
+        .feedback-banner--success {
+            background-color: var(--support-soft);
+            color: var(--support-ink);
+        }
+
+        .feedback-banner--error {
+            background-color: var(--status-error-bg);
+            color: var(--status-error-fg);
+        }
+
+        /* ============================================================
+           Cartões de Configuração
+           ============================================================ */
+        .fs-card {
+            background-color: var(--surface-raised);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+
+        .fs-card-title {
+            font-family: var(--font-sans);
+            font-size: 22px;
+            line-height: 28px;
+            font-weight: 600;
+            color: var(--ink);
+            margin: 0 0 4px 0;
+        }
+
+        .fs-card-desc {
+            font-size: 14px;
+            line-height: 20px;
+            color: var(--ink-muted);
+            margin: 0 0 20px 0;
+        }
+
+        /* ============================================================
+           Campos de Formulário (48px, radius-md, line-strong)
+           ============================================================ */
+        .fs-label {
+            display: block;
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 6px;
+        }
+
+        .fs-input {
+            width: 100%;
+            height: 48px;
+            padding: 0 14px;
+            font-family: var(--font-sans);
+            font-size: 16px;
+            color: var(--ink);
+            background-color: var(--surface-raised);
+            border: 1px solid var(--line-strong);
+            border-radius: var(--radius-md);
+            transition: border-color 150ms ease, box-shadow 150ms ease;
+        }
+
+        .fs-input::placeholder {
+            color: var(--ink-muted);
+            opacity: 0.75;
+            text-transform: none;
+        }
+
+        .fs-input:focus {
+            outline: 2px solid var(--focus-ring);
+            outline-offset: 2px;
+            border-color: var(--brand);
+        }
+
+        .fs-input--tabular {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .fs-help {
+            display: block;
+            font-size: 14px;
+            line-height: 20px;
+            color: var(--ink-muted);
+            margin-top: 6px;
+        }
+
+        /* Opções de alternância (Notificações e Painel) */
+        .fs-option-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: var(--space-4);
+            padding: 14px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .fs-option-row:first-of-type {
+            padding-top: 4px;
+        }
+
+        .fs-option-row:last-of-type {
+            border-bottom: 0;
+            padding-bottom: 4px;
+        }
+
+        .fs-option-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 2px;
+        }
+
+        .fs-option-sub {
+            font-size: 14px;
+            color: var(--ink-muted);
+            margin: 0;
+        }
+
+        .form-check-input.fs-switch {
+            width: 48px;
+            height: 26px;
+            cursor: pointer;
+            border: 1px solid var(--line-strong);
+            flex-shrink: 0;
+        }
+
+        .form-check-input.fs-switch:checked {
+            background-color: var(--brand);
+            border-color: var(--brand);
+        }
+
+        .form-check-input.fs-switch:focus {
+            box-shadow: none;
+            outline: 2px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+        /* ============================================================
+           Cartão de Pré-visualização da Senha (Coluna Direita)
+           ============================================================ */
+        .ticket-preview {
+            background-color: var(--surface-raised);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            text-align: center;
+            position: sticky;
+            top: var(--space-6);
+        }
+
+        .ticket-caption {
+            font-size: 13px;
+            line-height: 18px;
+            font-weight: 500;
+            color: var(--ink-muted);
+            margin-bottom: 8px;
+        }
+
+        .ticket-number {
+            font-family: var(--font-display);
+            font-size: 72px;
+            line-height: 72px;
+            font-weight: 500;
+            color: var(--ink);
+            font-variant-numeric: tabular-nums;
+            margin: 4px 0 14px 0;
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 600;
+            background-color: var(--status-wait-bg);
+            color: var(--status-wait-fg);
+            margin-bottom: 14px;
+        }
+
+        .ticket-meta {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+
+        .ticket-unit {
+            font-size: 14px;
+            color: var(--ink-muted);
+            margin-bottom: 16px;
+        }
+
+        .ticket-summary {
+            border-top: 1px solid var(--line);
+            padding-top: 16px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--ink-muted);
+        }
+
+        .ticket-summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .ticket-summary-row strong {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        /* ============================================================
+           Botões (Primário em Petróleo, Secundário em Surface)
+           ============================================================ */
+        .fs-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: var(--space-2);
+        }
+
+        .btn-fs-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 48px;
+            padding: 0 24px;
+            background-color: var(--brand);
+            color: var(--on-brand);
+            border: 1px solid var(--brand);
+            border-radius: var(--radius-md);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 150ms ease;
+        }
+
+        .btn-fs-primary:hover {
+            background-color: var(--petroleo-900);
+            color: var(--on-brand);
+        }
+
+        .btn-fs-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 48px;
+            padding: 0 24px;
+            background-color: var(--surface-raised);
+            color: var(--ink);
+            border: 1px solid var(--line-strong);
+            border-radius: var(--radius-md);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 150ms ease, border-color 150ms ease;
+        }
+
+        .btn-fs-secondary:hover {
+            background-color: var(--surface-sunken);
+            color: var(--ink);
+        }
+
+        .required-note {
+            font-size: 14px;
+            color: var(--ink-muted);
+            margin-top: var(--space-4);
+        }
+
+        /* ============================================================
+           Responsividade (Abaixo de 760px navegação vai para o topo)
+           ============================================================ */
+        @media (max-width: 760px) {
+            .app-shell {
+                flex-direction: column;
+            }
+
+            .app-sidebar {
+                width: 100%;
+                padding: var(--space-4);
+            }
+
+            .sidebar-brand {
+                margin-bottom: var(--space-3);
+            }
+
+            .sidebar-nav {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 4px;
+            }
+
+            .sidebar-link {
+                white-space: nowrap;
+                padding: 8px 12px;
+            }
+
+            .sidebar-footer {
+                display: none;
+            }
+
+            .app-main {
+                padding: var(--space-8) var(--space-4);
+            }
+
+            .fs-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-fs-primary,
+            .btn-fs-secondary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-shell">
+    <!-- ==================== Barra Lateral (Mockup MVP) ==================== -->
+    <aside class="app-sidebar" aria-label="Navegação principal">
+        <a th:href="@{/}" class="sidebar-brand">
+            <svg class="brand-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="3" y="4" width="5" height="24" rx="2.5" fill="#FAF8F4"/>
+                <rect x="12" y="4" width="17" height="5.5" rx="2.75" fill="#CB7440"/>
+                <rect x="12" y="13.25" width="11.5" height="5.5" rx="2.75" fill="#FAF8F4"/>
+                <circle cx="14.75" cy="25.25" r="2.75" fill="#6B9784"/>
+            </svg>
+            <span class="brand-name">FilaSaúde</span>
+        </a>
+
+        <ul class="sidebar-nav">
+            <li>
+                <a href="#" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <span>Pacientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="M12 8v8M8 12h8"/>
+                    </svg>
+                    <span>Nova entrada</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+                    </svg>
+                    <span>Fila</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="sidebar-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M9 11l3 3L22 4"/>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                    <span>Atendimento</span>
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/configuracoes}" class="sidebar-link is-active" aria-current="page">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    <span>Configurações</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="profile-box">
+                <div class="profile-avatar" aria-hidden="true">G</div>
+                <div class="profile-meta">
+                    <span class="profile-role">Perfil: Gestor</span>
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="profile-logout">Sair</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ==================== Conteúdo Principal ==================== -->
+    <main class="app-main">
+        <header class="page-header">
+            <h1 class="page-title">Configurações</h1>
+            <p class="page-subtitle">Parâmetros da unidade e regras da fila de atendimento.</p>
+        </header>
+
+        <!-- Faixa de Sucesso -->
+        <div th:if="${mensagemSucesso}" style="display: none;" th:style="''" class="feedback-banner feedback-banner--success" role="status">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="m9 12 2 2 4-4"/>
+            </svg>
+            <span th:text="${mensagemSucesso}">Configurações salvas com sucesso.</span>
+        </div>
+
+        <!-- Faixa de Erro -->
+        <div th:if="${mensagemErro}" style="display: none;" th:style="''" class="feedback-banner feedback-banner--error" role="alert">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 8v4M12 16h.01"/>
+            </svg>
+            <span th:text="${mensagemErro}">Não foi possível salvar. Confira os campos em destaque.</span>
+        </div>
+
+        <form th:action="@{/configuracoes}" method="post">
+            <div class="row g-4">
+                <!-- Coluna dos Cartões de Formulário -->
+                <div class="col-12 col-lg-8">
+
+                    <!-- Cartão 1 — Dados da Unidade de Saúde -->
+                    <section class="fs-card" aria-labelledby="card-unidade-title">
+                        <h2 id="card-unidade-title" class="fs-card-title">Dados da unidade de saúde</h2>
+                        <p class="fs-card-desc">Identificação exibida nos comprovantes de senha e no painel de chamada.</p>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="nomeUnidade" class="fs-label">Nome da clínica ou unidade *</label>
+                                <input type="text"
+                                       id="nomeUnidade"
+                                       name="nomeUnidade"
+                                       class="fs-input"
+                                       th:value="${nomeUnidade}"
+                                       placeholder="Ex.: Unidade de Saúde Central"
+                                       maxlength="120"
+                                       required>
+                            </div>
+
+                            <div class="col-12 col-md-5">
+                                <label for="telefone" class="fs-label">Telefone</label>
+                                <input type="tel"
+                                       id="telefone"
+                                       name="telefone"
+                                       class="fs-input fs-input--tabular"
+                                       th:value="${telefone}"
+                                       placeholder="(00) 0000-0000"
+                                       maxlength="15"
+                                       inputmode="numeric"
+                                       autocomplete="tel">
+                            </div>
+
+                            <div class="col-12 col-md-7">
+                                <label for="endereco" class="fs-label">Endereço</label>
+                                <input type="text"
+                                       id="endereco"
+                                       name="endereco"
+                                       class="fs-input"
+                                       th:value="${endereco}"
+                                       placeholder="Ex.: Rua das Palmeiras, 120, Centro"
+                                       maxlength="180">
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Cartão 2 — Parâmetros da Fila -->
+                    <section class="fs-card" aria-labelledby="card-fila-title">
+                        <h2 id="card-fila-title" class="fs-card-title">Parâmetros da fila</h2>
+                        <p class="fs-card-desc">Defina o formato das senhas geradas na recepção e o expediente da unidade.</p>
+
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-6">
+                                <label for="prefixoSenha" class="fs-label">Prefixo das senhas *</label>
+                                <input type="text"
+                                       id="prefixoSenha"
+                                       name="prefixoSenha"
+                                       class="fs-input fs-input--tabular text-uppercase"
+                                       th:value="${prefixoSenha}"
+                                       placeholder="Ex.: A"
+                                       maxlength="2"
+                                       required>
+                                <span class="fs-help">Uma letra seguida de três números (ex.: A001).</span>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <label for="tempoMedioConsulta" class="fs-label">Tempo médio estimado (min) *</label>
+                                <input type="number"
+                                       id="tempoMedioConsulta"
+                                       name="tempoMedioConsulta"
+                                       class="fs-input fs-input--tabular"
+                                       th:value="${tempoMedioConsulta}"
+                                       min="1"
+                                       max="180"
+                                       required>
+                                <span class="fs-help">Usado como referência inicial para o tempo de espera.</span>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <label for="horarioAbertura" class="fs-label">Início do expediente *</label>
+                                <input type="time"
+                                       id="horarioAbertura"
+                                       name="horarioAbertura"
+                                       class="fs-input fs-input--tabular"
+                                       th:value="${horarioAbertura}"
+                                       required>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <label for="horarioFechamento" class="fs-label">Término do expediente *</label>
+                                <input type="time"
+                                       id="horarioFechamento"
+                                       name="horarioFechamento"
+                                       class="fs-input fs-input--tabular"
+                                       th:value="${horarioFechamento}"
+                                       required>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Cartão 3 — Notificações e Painel -->
+                    <section class="fs-card" aria-labelledby="card-painel-title">
+                        <h2 id="card-painel-title" class="fs-card-title">Notificações e painel</h2>
+                        <p class="fs-card-desc">Comportamento visual e sonoro do painel de chamada na sala de espera.</p>
+
+                        <div class="fs-option-row">
+                            <div>
+                                <div class="fs-option-title">Alerta sonoro na chamada</div>
+                                <p class="fs-option-sub">Emitir aviso sonoro discreto sempre que o profissional chamar o próximo paciente.</p>
+                            </div>
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input fs-switch"
+                                       type="checkbox"
+                                       role="switch"
+                                       id="alertaSonoro"
+                                       name="alertaSonoro"
+                                       value="true"
+                                       th:checked="${alertaSonoro}"
+                                       aria-label="Ativar alerta sonoro na chamada">
+                            </div>
+                        </div>
+
+                        <div class="fs-option-row">
+                            <div>
+                                <div class="fs-option-title">Histórico de senhas chamadas</div>
+                                <p class="fs-option-sub">Mostrar as últimas senhas chamadas no rodapé do painel da recepção.</p>
+                            </div>
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input fs-switch"
+                                       type="checkbox"
+                                       role="switch"
+                                       id="exibirHistoricoPainel"
+                                       name="exibirHistoricoPainel"
+                                       value="true"
+                                       th:checked="${exibirHistoricoPainel}"
+                                       aria-label="Mostrar histórico de senhas chamadas">
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Ações -->
+                    <div class="fs-actions">
+                        <button type="submit" class="btn-fs-primary">Salvar configurações</button>
+                        <a th:href="@{/configuracoes}" class="btn-fs-secondary">Cancelar</a>
+                    </div>
+                    <p class="required-note">* Campos obrigatórios</p>
+                </div>
+
+                <!-- Coluna de Pré-visualização (Padrão Mockup MVP) -->
+                <div class="col-12 col-lg-4">
+                    <aside class="ticket-preview" aria-label="Pré-visualização da senha gerada">
+                        <div class="ticket-caption">Exemplo de senha gerada</div>
+                        <div class="ticket-number" id="preview-senha" th:text="${prefixoSenha + '001'}">A001</div>
+                        <div>
+                            <span class="status-pill">Aguardando</span>
+                        </div>
+                        <div class="ticket-meta">Maria Silva · Consulta</div>
+                        <div class="ticket-unit" id="preview-unidade" th:text="${nomeUnidade}">Unidade de Saúde Central</div>
+
+                        <div class="ticket-summary">
+                            <div class="ticket-summary-row">
+                                <span>Tempo médio estimado</span>
+                                <strong id="preview-tempo" th:text="${tempoMedioConsulta + ' min'}">15 min</strong>
+                            </div>
+                            <div class="ticket-summary-row">
+                                <span>Funcionamento</span>
+                                <strong id="preview-horario" th:text="${horarioAbertura + ' às ' + horarioFechamento}">07:00 às 17:00</strong>
+                            </div>
+                            <div class="ticket-summary-row">
+                                <span>Alerta sonoro</span>
+                                <strong id="preview-som" th:text="${alertaSonoro ? 'Ativado' : 'Silencioso'}">Ativado</strong>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </form>
+    </main>
+</div>
+
+<script>
+    (function () {
+        var inputPrefixo = document.getElementById('prefixoSenha');
+        var inputUnidade = document.getElementById('nomeUnidade');
+        var inputTempo = document.getElementById('tempoMedioConsulta');
+        var inputAbertura = document.getElementById('horarioAbertura');
+        var inputFechamento = document.getElementById('horarioFechamento');
+        var inputSom = document.getElementById('alertaSonoro');
+
+        var previewSenha = document.getElementById('preview-senha');
+        var previewUnidade = document.getElementById('preview-unidade');
+        var previewTempo = document.getElementById('preview-tempo');
+        var previewHorario = document.getElementById('preview-horario');
+        var previewSom = document.getElementById('preview-som');
+
+        function atualizarPreview() {
+            var prefixo = (inputPrefixo.value || 'A').trim().toUpperCase();
+            previewSenha.textContent = prefixo + '001';
+            previewUnidade.textContent = (inputUnidade.value || 'Unidade de Saúde').trim();
+            previewTempo.textContent = (inputTempo.value || '15') + ' min';
+            previewHorario.textContent = (inputAbertura.value || '07:00') + ' às ' + (inputFechamento.value || '17:00');
+            previewSom.textContent = inputSom.checked ? 'Ativado' : 'Silencioso';
+        }
+
+        [inputPrefixo, inputUnidade, inputTempo, inputAbertura, inputFechamento].forEach(function (el) {
+            if (el) el.addEventListener('input', atualizarPreview);
+        });
+        if (inputSom) inputSom.addEventListener('change', atualizarPreview);
+
+        /* ==================== Máscara e Validação de Telefone ==================== */
+        var inputTelefone = document.getElementById('telefone');
+
+        function formatarTelefone(valor, isDelete) {
+            var digitos = (valor || '').replace(/\D/g, '').slice(0, 11);
+            if (!digitos) return '';
+            if (digitos.length <= 2) {
+                return isDelete ? '(' + digitos : (digitos.length === 2 ? '(' + digitos + ') ' : '(' + digitos);
+            }
+            if (digitos.length <= 6) {
+                return '(' + digitos.slice(0, 2) + ') ' + digitos.slice(2);
+            }
+            if (digitos.length <= 10) {
+                return '(' + digitos.slice(0, 2) + ') ' + digitos.slice(2, 6) + '-' + digitos.slice(6);
+            }
+            return '(' + digitos.slice(0, 2) + ') ' + digitos.slice(2, 7) + '-' + digitos.slice(7);
+        }
+
+        if (inputTelefone) {
+            // Bloqueia qualquer caractere que não seja número (0-9) diretamente no teclado
+            inputTelefone.addEventListener('keydown', function (e) {
+                if (e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Tab' || e.key === 'Enter' ||
+                    e.key === 'Escape' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
+                    e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'Home' || e.key === 'End' ||
+                    e.ctrlKey || e.metaKey || e.altKey) {
+                    return;
+                }
+                if (!/^\d$/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+
+            // Aplica a máscara e preenche no formato correto automaticamente ao digitar
+            inputTelefone.addEventListener('input', function (e) {
+                var isDelete = e && (e.inputType === 'deleteContentBackward' || e.inputType === 'deleteContentForward');
+                this.value = formatarTelefone(this.value, isDelete);
+            });
+
+            // Trata colagem (paste) removendo qualquer caractere especial e formatando imediatamente
+            inputTelefone.addEventListener('paste', function (e) {
+                e.preventDefault();
+                var clipboardData = e.clipboardData || window.clipboardData;
+                var pastedText = clipboardData ? clipboardData.getData('text') : '';
+                this.value = formatarTelefone(pastedText, false);
+            });
+
+            // Ajusta o formato se o campo perder o foco
+            inputTelefone.addEventListener('blur', function () {
+                var d = this.value.replace(/\D/g, '');
+                if (d.length === 0) {
+                    this.value = '';
+                } else {
+                    this.value = formatarTelefone(this.value, false);
+                }
+            });
+
+            // Formata o valor pré-carregado no início
+            if (inputTelefone.value) {
+                inputTelefone.value = formatarTelefone(inputTelefone.value, false);
+            }
+        }
+    })();
+</script>
+
+</body>
+</html>
