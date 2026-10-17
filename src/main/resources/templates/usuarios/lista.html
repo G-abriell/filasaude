@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Usuários')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+<main>
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+    <h1>Usuários</h1>
+    <p><a class="btn" th:href="@{/usuarios/novo}">Novo usuário</a></p>
+    <table>
+        <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Situação</th><th></th></tr></thead>
+        <tbody>
+        <tr th:each="u : ${usuarios}">
+            <td th:text="${u.nome}"></td>
+            <td th:text="${u.email}"></td>
+            <td th:text="${u.perfil.nome}"></td>
+            <td th:text="${u.ativo} ? 'Ativo' : 'Inativo'"></td>
+            <td>
+                <a class="btn btn-sec" th:href="@{/usuarios/{id}/editar(id=${u.id})}">Editar</a>
+                <form class="inline" method="post" th:action="@{/usuarios/{id}/alternar-ativo(id=${u.id})}">
+                    <button class="btn-sec" th:text="${u.ativo} ? 'Desativar' : 'Ativar'"></button>
+                </form>
+                <form class="inline" method="post" th:action="@{/usuarios/{id}/excluir(id=${u.id})}"
+                      onsubmit="return confirm('Excluir este usuário?')">
+                    <button class="btn-perigo">Excluir</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(usuarios)}"><td colspan="5">Nenhum usuário cadastrado.</td></tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

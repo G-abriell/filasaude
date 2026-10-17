@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Paciente')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+<main>
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+    <h1 th:text="${paciente.nome}">Paciente</h1>
+    <p>
+        CPF: <span th:text="${paciente.cpf}"></span> ·
+        Cartão SUS: <span th:text="${paciente.cartaoSus} ?: '-'"></span> ·
+        Nascimento: <span th:text="${#temporals.format(paciente.dataNascimento, 'dd/MM/yyyy')}"></span>
+        (<span th:text="${paciente.idade}"></span> anos) ·
+        Telefone: <span th:text="${paciente.telefone} ?: '-'"></span>
+    </p>
+    <p>
+        <a class="btn" th:href="@{/atendimentos/novo(pacienteId=${paciente.id})}">Emitir senha</a>
+        <a class="btn btn-sec" th:href="@{/pacientes/{id}/editar(id=${paciente.id})}">Editar</a>
+    </p>
+    <form method="post" th:action="@{/pacientes/{id}/excluir(id=${paciente.id})}"
+          onsubmit="return confirm('Excluir este paciente?')">
+        <button class="btn-perigo">Excluir paciente</button>
+    </form>
+
+    <h2>Histórico de atendimentos</h2>
+    <table>
+        <thead><tr><th>Data</th><th>Senha</th><th>Fila</th><th>Status</th><th>Observação</th></tr></thead>
+        <tbody>
+        <tr th:each="a : ${atendimentos}">
+            <td th:text="${#temporals.format(a.dataHoraChegada, 'dd/MM/yyyy HH:mm')}"></td>
+            <td th:text="${a.senha}"></td>
+            <td th:text="${a.fila.nome}"></td>
+            <td th:text="${a.status.descricao}"></td>
+            <td th:text="${a.observacao}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(atendimentos)}"><td colspan="5">Nenhum atendimento.</td></tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

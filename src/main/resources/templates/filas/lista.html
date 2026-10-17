@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Filas')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+<main>
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+    <h1>Filas</h1>
+    <p><a class="btn" th:href="@{/filas/novo}">Nova fila</a></p>
+    <table>
+        <thead><tr><th>Sigla</th><th>Nome</th><th>Descrição</th><th>Situação</th><th></th></tr></thead>
+        <tbody>
+        <tr th:each="f : ${filas}">
+            <td th:text="${f.sigla}"></td>
+            <td th:text="${f.nome}"></td>
+            <td th:text="${f.descricao}"></td>
+            <td th:text="${f.ativa} ? 'Ativa' : 'Inativa'"></td>
+            <td>
+                <a class="btn btn-sec" th:href="@{/filas/{id}/editar(id=${f.id})}">Editar</a>
+                <form class="inline" method="post" th:action="@{/filas/{id}/alternar-ativa(id=${f.id})}">
+                    <button class="btn-sec" th:text="${f.ativa} ? 'Desativar' : 'Ativar'"></button>
+                </form>
+                <form class="inline" method="post" th:action="@{/filas/{id}/excluir(id=${f.id})}"
+                      onsubmit="return confirm('Excluir esta fila?')">
+                    <button class="btn-perigo">Excluir</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(filas)}"><td colspan="5">Nenhuma fila cadastrada.</td></tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

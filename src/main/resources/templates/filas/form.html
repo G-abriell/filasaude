@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Fila')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+<main>
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+    <h1 th:text="${fila.id == null} ? 'Nova fila' : 'Editar fila'">Fila</h1>
+    <form method="post" th:action="@{/filas}" th:object="${fila}">
+        <input type="hidden" th:field="*{id}">
+        <input type="hidden" th:field="*{ativa}">
+        <label>Nome</label>
+        <input th:field="*{nome}" placeholder="Clínico Geral">
+        <div class="campo-erro" th:errors="*{nome}"></div>
+        <label>Sigla (prefixo da senha)</label>
+        <input th:field="*{sigla}" maxlength="5" placeholder="CG">
+        <div class="campo-erro" th:errors="*{sigla}"></div>
+        <label>Descrição</label>
+        <input th:field="*{descricao}">
+        <div class="campo-erro" th:errors="*{descricao}"></div>
+        <p><button>Salvar</button> <a class="btn btn-sec" th:href="@{/filas}">Cancelar</a></p>
+    </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Perfis')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+<main>
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+    <h1>Perfis</h1>
+    <p><a class="btn" th:href="@{/perfis/novo}">Novo perfil</a></p>
+    <table>
+        <thead><tr><th>Nome</th><th>Descrição</th><th></th></tr></thead>
+        <tbody>
+        <tr th:each="p : ${perfis}">
+            <td th:text="${p.nome}"></td>
+            <td th:text="${p.descricao}"></td>
+            <td>
+                <a class="btn btn-sec" th:href="@{/perfis/{id}/editar(id=${p.id})}">Editar</a>
+                <form class="inline" method="post" th:action="@{/perfis/{id}/excluir(id=${p.id})}"
+                      onsubmit="return confirm('Excluir este perfil?')">
+                    <button class="btn-perigo">Excluir</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(perfis)}"><td colspan="3">Nenhum perfil cadastrado.</td></tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

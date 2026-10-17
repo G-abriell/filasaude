@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Pacientes')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+<main>
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+    <h1>Pacientes</h1>
+    <form method="get" th:action="@{/pacientes}">
+        <input name="busca" th:value="${busca}" placeholder="Buscar por nome ou CPF">
+        <button>Buscar</button>
+        <a class="btn" th:href="@{/pacientes/novo}">Novo paciente</a>
+    </form>
+    <br>
+    <table>
+        <thead><tr><th>Nome</th><th>CPF</th><th>Idade</th><th>Telefone</th><th></th></tr></thead>
+        <tbody>
+        <tr th:each="p : ${pacientes}">
+            <td><a th:href="@{/pacientes/{id}(id=${p.id})}" th:text="${p.nome}"></a></td>
+            <td th:text="${p.cpf}"></td>
+            <td th:text="${p.idade}"></td>
+            <td th:text="${p.telefone}"></td>
+            <td>
+                <a class="btn" th:href="@{/atendimentos/novo(pacienteId=${p.id})}">Emitir senha</a>
+                <a class="btn btn-sec" th:href="@{/pacientes/{id}/editar(id=${p.id})}">Editar</a>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(pacientes)}"><td colspan="5">Nenhum paciente encontrado.</td></tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

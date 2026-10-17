@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Perfil')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: menu}"></nav>
+<main>
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+    <h1 th:text="${perfil.id == null} ? 'Novo perfil' : 'Editar perfil'">Perfil</h1>
+    <form method="post" th:action="@{/perfis}" th:object="${perfil}">
+        <input type="hidden" th:field="*{id}">
+        <label>Nome</label>
+        <input th:field="*{nome}" placeholder="ADMIN, RECEPCAO, ATENDENTE...">
+        <div class="campo-erro" th:errors="*{nome}"></div>
+        <label>Descrição</label>
+        <input th:field="*{descricao}">
+        <div class="campo-erro" th:errors="*{descricao}"></div>
+        <p><button>Salvar</button> <a class="btn btn-sec" th:href="@{/perfis}">Cancelar</a></p>
+    </form>
+</main>
+</body>
+</html>
