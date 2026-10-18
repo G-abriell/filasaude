@@ -5,6 +5,7 @@ import br.com.filasaude.exceptions.RecursoNaoEncontradoException;
 import br.com.filasaude.exceptions.RegraNegocioException;
 import br.com.filasaude.repositories.AtendimentoRepository;
 import br.com.filasaude.repositories.UsuarioRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +19,16 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final AtendimentoRepository atendimentoRepository;
     private final PerfilService perfilService;
+    private final PasswordEncoder passwordEncoder;
 
     public UsuarioService(UsuarioRepository usuarioRepository,
                           AtendimentoRepository atendimentoRepository,
-                          PerfilService perfilService) {
+                          PerfilService perfilService,
+                          PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.atendimentoRepository = atendimentoRepository;
         this.perfilService = perfilService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(readOnly = true)
@@ -68,7 +72,7 @@ public class UsuarioService {
             if (usuario.getSenha().length() < TAMANHO_MINIMO_SENHA) {
                 throw new RegraNegocioException("A senha deve ter ao menos " + TAMANHO_MINIMO_SENHA + " caracteres");
             }
-            // TODO: codificar com PasswordEncoder (BCrypt) quando o Spring Security for configurado
+            usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         } else {
             usuario.setSenha(buscarPorId(usuario.getId()).getSenha());
         }
