@@ -9,7 +9,7 @@
     <form method="post" th:action="@{/perfis}" th:object="${perfil}">
         <input type="hidden" th:field="*{id}">
         <label>Nome</label>
-        <input th:field="*{nome}" placeholder="ADMIN, RECEPCAO, ATENDENTE...">
+        <input th:field="*{nome}" placeholder="ADMIN, RECEPCAO, PROFISSIONAL_DE_SAUDE...">
         <div class="campo-erro" th:errors="*{nome}"></div>
         <label>Descrição</label>
         <input th:field="*{descricao}">

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 /**
- * Perfil de acesso (ex.: ADMIN, RECEPCAO, ATENDENTE).
+ * Perfil de acesso (ex.: ADMIN, RECEPCAO, PROFISSIONAL_DE_SAUDE).
  * Será usado como "role" pelo Spring Security.
  */
 @Entity

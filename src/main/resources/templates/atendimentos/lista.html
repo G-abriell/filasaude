@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/layout :: head('Atendimentos do dia')}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: menu}"></nav>
@@ -27,7 +27,7 @@
             <td th:text="${a.atendente?.nome}"></td>
             <td th:text="${a.guiche}"></td>
             <td>
-                <form class="inline" method="post"
+                <form class="inline" method="post" sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')"
                       th:if="${a.status.name() == 'AGUARDANDO' or a.status.name() == 'CHAMADO'}"
                       th:action="@{/atendimentos/{id}/cancelar(id=${a.id})}"
                       onsubmit="return confirm('Cancelar este atendimento?')">

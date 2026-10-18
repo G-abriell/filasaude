@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Guichê')}"></head>
+<head th:replace="~{fragments/layout :: head('Atendimento')}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: menu}"></nav>
 <main>
     <div th:replace="~{fragments/layout :: mensagens}"></div>
-    <h1>Guichê de atendimento</h1>
+    <h1>Painel de atendimento</h1>
 
     <form method="get" th:action="@{/atendimentos/guiche}">
         <label>Fila</label>
@@ -19,13 +19,8 @@
         <h2>Chamar próximo</h2>
         <form method="post" th:action="@{/atendimentos/chamar}">
             <input type="hidden" name="filaId" th:value="${filaId}">
-            <!-- Provisório: será o usuário autenticado quando o Spring Security for configurado -->
-            <label>Atendente</label>
-            <select name="atendenteId" required>
-                <option th:each="u : ${usuarios}" th:value="${u.id}" th:text="${u.nome}"></option>
-            </select>
-            <label>Guichê / Sala</label>
-            <input name="guiche" placeholder="Guichê 1">
+            <label>Sala / Consultório</label>
+            <input name="guiche" placeholder="Consultório 1">
             <p><button>Chamar próximo</button></p>
         </form>
 

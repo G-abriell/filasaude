@@ -2,10 +2,11 @@ package br.com.filasaude.controllers;
 
 import br.com.filasaude.entities.Atendimento;
 import br.com.filasaude.entities.enums.Prioridade;
+import br.com.filasaude.security.UsuarioAutenticado;
 import br.com.filasaude.services.AtendimentoService;
 import br.com.filasaude.services.FilaService;
 import br.com.filasaude.services.PacienteService;
-import br.com.filasaude.services.UsuarioService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,14 +19,12 @@ public class AtendimentoController {
     private final AtendimentoService atendimentoService;
     private final FilaService filaService;
     private final PacienteService pacienteService;
-    private final UsuarioService usuarioService;
 
     public AtendimentoController(AtendimentoService atendimentoService, FilaService filaService,
-                                 PacienteService pacienteService, UsuarioService usuarioService) {
+                                 PacienteService pacienteService) {
         this.atendimentoService = atendimentoService;
         this.filaService = filaService;
         this.pacienteService = pacienteService;
-        this.usuarioService = usuarioService;
     }
 
     /** Atendimentos do dia, com filtro opcional por fila. */
@@ -60,7 +59,6 @@ public class AtendimentoController {
     @GetMapping("/guiche")
     public String guiche(@RequestParam(required = false) Long filaId, Model model) {
         model.addAttribute("filas", filaService.listarAtivas());
-        model.addAttribute("usuarios", usuarioService.listarAtivos());
         model.addAttribute("emAndamento", atendimentoService.listarEmAndamento());
         model.addAttribute("filaId", filaId);
         if (filaId != null) {
@@ -69,11 +67,11 @@ public class AtendimentoController {
         return "atendimentos/guiche";
     }
 
-    // TODO: quando o Spring Security estiver configurado, obter o atendente via @AuthenticationPrincipal
+    /** O atendente é o usuário autenticado. */
     @PostMapping("/chamar")
-    public String chamarProximo(@RequestParam Long filaId, @RequestParam Long atendenteId,
-                                @RequestParam(required = false) String guiche, RedirectAttributes attrs) {
-        Atendimento atendimento = atendimentoService.chamarProximo(filaId, atendenteId, guiche);
+    public String chamarProximo(@RequestParam Long filaId, @RequestParam(required = false) String guiche,
+                                @AuthenticationPrincipal UsuarioAutenticado usuario, RedirectAttributes attrs) {
+        Atendimento atendimento = atendimentoService.chamarProximo(filaId, usuario.getId(), guiche);
         attrs.addFlashAttribute("sucesso", "Chamando " + atendimento.getSenha());
         return redirectGuiche(filaId);
     }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:fragment="head(titulo)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,17 +22,27 @@
         .erro { background: #f8d7da; }
         .campo-erro { color: #b02a37; font-size: .9em; }
         .preferencial { font-weight: bold; color: #b35c00; }
+        nav .usuario-logado { margin-left: auto; color: #fff; display: flex; gap: 10px; align-items: center; }
+        nav .btn-sair { background: transparent; border: 1px solid #fff; padding: 3px 10px; }
+        .login { max-width: 360px; margin: 80px auto; background: #fff; padding: 24px; border-radius: 6px; }
+        .login input { width: 100%; min-width: 0; box-sizing: border-box; }
     </style>
 </head>
 <body>
 <nav th:fragment="menu">
-    <a th:href="@{/atendimentos/guiche}">Guichê</a>
-    <a th:href="@{/atendimentos/novo}">Emitir senha</a>
-    <a th:href="@{/atendimentos}">Atendimentos do dia</a>
-    <a th:href="@{/pacientes}">Pacientes</a>
-    <a th:href="@{/filas}">Filas</a>
-    <a th:href="@{/usuarios}">Usuários</a>
-    <a th:href="@{/perfis}">Perfis</a>
+    <a th:href="@{/atendimentos/guiche}" sec:authorize="hasAnyRole('PROFISSIONAL_DE_SAUDE', 'ADMIN')">Atendimento</a>
+    <a th:href="@{/atendimentos/novo}" sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')">Emitir senha</a>
+    <a th:href="@{/atendimentos}" sec:authorize="isAuthenticated()">Atendimentos do dia</a>
+    <a th:href="@{/pacientes}" sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')">Pacientes</a>
+    <a th:href="@{/filas}" sec:authorize="hasRole('ADMIN')">Filas</a>
+    <a th:href="@{/usuarios}" sec:authorize="hasRole('ADMIN')">Usuários</a>
+    <a th:href="@{/perfis}" sec:authorize="hasRole('ADMIN')">Perfis</a>
+    <span class="usuario-logado" sec:authorize="isAuthenticated()">
+        <span sec:authentication="principal.nome">Usuário</span>
+        <form class="inline" method="post" th:action="@{/logout}">
+            <button class="btn-sair">Sair</button>
+        </form>
+    </span>
 </nav>
 
 <div th:fragment="mensagens">

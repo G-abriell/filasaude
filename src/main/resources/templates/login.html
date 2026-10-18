@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Entrar')}"></head>
+<body>
+<main>
+    <div class="login">
+        <h1>FilaSaúde</h1>
+        <div class="alerta erro" th:if="${param.error}">E-mail ou senha inválidos, ou usuário inativo.</div>
+        <div class="alerta sucesso" th:if="${param.logout}">Você saiu do sistema.</div>
+        <form method="post" th:action="@{/login}">
+            <label for="email">E-mail</label>
+            <input id="email" name="email" type="email" required autofocus>
+            <label for="senha">Senha</label>
+            <input id="senha" name="senha" type="password" required>
+            <p><button>Entrar</button></p>
+        </form>
+    </div>
+</main>
+</body>
+</html>
