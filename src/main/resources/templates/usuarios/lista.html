@@ -2,33 +2,52 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Usuários')}"></head>
 <body>
-<nav th:replace="~{fragments/layout :: menu}"></nav>
-<main>
-    <div th:replace="~{fragments/layout :: mensagens}"></div>
-    <h1>Usuários</h1>
-    <p><a class="btn" th:href="@{/usuarios/novo}">Novo usuário</a></p>
-    <table>
-        <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Situação</th><th></th></tr></thead>
-        <tbody>
-        <tr th:each="u : ${usuarios}">
-            <td th:text="${u.nome}"></td>
-            <td th:text="${u.email}"></td>
-            <td th:text="${u.perfil.nome}"></td>
-            <td th:text="${u.ativo} ? 'Ativo' : 'Inativo'"></td>
-            <td>
-                <a class="btn btn-sec" th:href="@{/usuarios/{id}/editar(id=${u.id})}">Editar</a>
-                <form class="inline" method="post" th:action="@{/usuarios/{id}/alternar-ativo(id=${u.id})}">
-                    <button class="btn-sec" th:text="${u.ativo} ? 'Desativar' : 'Ativar'"></button>
-                </form>
-                <form class="inline" method="post" th:action="@{/usuarios/{id}/excluir(id=${u.id})}"
-                      onsubmit="return confirm('Excluir este usuário?')">
-                    <button class="btn-perigo">Excluir</button>
-                </form>
-            </td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(usuarios)}"><td colspan="5">Nenhum usuário cadastrado.</td></tr>
-        </tbody>
-    </table>
-</main>
+<div class="app">
+    <nav th:replace="~{fragments/layout :: menu('usuarios')}"></nav>
+    <main class="conteudo">
+        <header class="cabecalho-pagina">
+            <div>
+                <h1>Usuários</h1>
+                <p>Quem acessa o FilaSaúde e com qual perfil.</p>
+            </div>
+            <a class="btn btn-primario" th:href="@{/usuarios/novo}">Cadastrar usuário</a>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+        <p th:if="${#lists.isEmpty(usuarios)}" class="estado-vazio">Nenhum usuário cadastrado.</p>
+        <div class="tabela-caixa" th:unless="${#lists.isEmpty(usuarios)}">
+            <table class="tabela">
+                <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Acesso</th><th><span class="visualmente-oculto">Ações</span></th></tr></thead>
+                <tbody>
+                <tr th:each="u : ${usuarios}">
+                    <td th:text="${u.nome}">Ana Souza</td>
+                    <td th:text="${u.email}">recepcao@clinica.com</td>
+                    <td th:text="${u.perfil.nome}">RECEPCAO</td>
+                    <td th:classappend="${!u.ativo} ? 'apoio'" th:text="${u.ativo} ? 'Liberado' : 'Bloqueado'">Liberado</td>
+                    <td class="acoes-celula">
+                        <div class="acoes">
+                            <a class="btn btn-secundario btn-compacto" th:href="@{/usuarios/{id}/editar(id=${u.id})}">Editar</a>
+                            <form method="post" th:action="@{/usuarios/{id}/alternar-ativo(id=${u.id})}"
+                                  th:data-confirmar="${u.ativo} ? |Bloquear o acesso de ${u.nome}?| : null"
+                                  data-consequencia="A pessoa não conseguirá mais entrar no FilaSaúde."
+                                  data-acao="Sim, bloquear">
+                                <button class="btn btn-secundario btn-compacto" th:text="${u.ativo} ? 'Bloquear' : 'Liberar'">Bloquear</button>
+                            </form>
+                            <form method="post" th:action="@{/usuarios/{id}/excluir(id=${u.id})}"
+                                  th:data-confirmar="|Excluir o usuário ${u.nome}?|"
+                                  data-consequencia="O usuário será apagado e não poderá ser recuperado."
+                                  data-acao="Sim, excluir">
+                                <button class="btn btn-secundario btn-compacto">Excluir</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<dialog th:replace="~{fragments/layout :: confirmacao}"></dialog>
 </body>
 </html>

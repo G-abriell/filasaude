@@ -2,29 +2,60 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Paciente')}"></head>
 <body>
-<nav th:replace="~{fragments/layout :: menu}"></nav>
-<main>
-    <div th:replace="~{fragments/layout :: mensagens}"></div>
-    <h1 th:text="${paciente.id == null} ? 'Novo paciente' : 'Editar paciente'">Paciente</h1>
-    <form method="post" th:action="@{/pacientes}" th:object="${paciente}">
-        <input type="hidden" th:field="*{id}">
-        <label>Nome</label>
-        <input th:field="*{nome}">
-        <div class="campo-erro" th:errors="*{nome}"></div>
-        <label>CPF (somente números)</label>
-        <input th:field="*{cpf}" maxlength="11">
-        <div class="campo-erro" th:errors="*{cpf}"></div>
-        <label>Cartão SUS (opcional)</label>
-        <input th:field="*{cartaoSus}" maxlength="15">
-        <div class="campo-erro" th:errors="*{cartaoSus}"></div>
-        <label>Data de nascimento</label>
-        <input type="date" th:field="*{dataNascimento}">
-        <div class="campo-erro" th:errors="*{dataNascimento}"></div>
-        <label>Telefone</label>
-        <input th:field="*{telefone}">
-        <div class="campo-erro" th:errors="*{telefone}"></div>
-        <p><button>Salvar</button> <a class="btn btn-sec" th:href="@{/pacientes}">Cancelar</a></p>
-    </form>
-</main>
+<div class="app">
+    <nav th:replace="~{fragments/layout :: menu('pacientes')}"></nav>
+    <main class="conteudo">
+        <header class="cabecalho-pagina">
+            <div>
+                <h1 th:text="${paciente.id == null} ? 'Cadastrar paciente' : 'Editar paciente'">Cadastrar paciente</h1>
+                <p>Registre apenas informações do processo de atendimento.</p>
+            </div>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+        <div class="mensagem mensagem-erro" role="alert" th:if="${#fields.hasErrors('${paciente.*}')}">
+            <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg>
+            <span>Não foi possível salvar. Confira os campos em destaque.</span>
+        </div>
+
+        <form class="cartao cartao-formulario" method="post" th:action="@{/pacientes}" th:object="${paciente}">
+            <input type="hidden" th:field="*{id}">
+            <div class="campo">
+                <label for="nome">Nome<span class="obrigatorio" aria-hidden="true">*</span></label>
+                <input class="entrada" th:field="*{nome}" th:errorclass="campo-invalido" autocomplete="off" required>
+                <p th:replace="~{fragments/layout :: erro-campo('nome')}"></p>
+            </div>
+            <div class="campo">
+                <label for="cpf">CPF<span class="obrigatorio" aria-hidden="true">*</span></label>
+                <input class="entrada num" th:field="*{cpf}" th:errorclass="campo-invalido" inputmode="numeric"
+                       maxlength="11" placeholder="12345678900" required>
+                <p class="dica">Somente os 11 números.</p>
+                <p th:replace="~{fragments/layout :: erro-campo('cpf')}"></p>
+            </div>
+            <div class="campo">
+                <label for="cartaoSus">Cartão SUS</label>
+                <input class="entrada num" th:field="*{cartaoSus}" th:errorclass="campo-invalido" inputmode="numeric" maxlength="15">
+                <p class="dica">Opcional. Somente os 15 números.</p>
+                <p th:replace="~{fragments/layout :: erro-campo('cartaoSus')}"></p>
+            </div>
+            <div class="campo">
+                <label for="dataNascimento">Data de nascimento<span class="obrigatorio" aria-hidden="true">*</span></label>
+                <input class="entrada num" type="date" th:field="*{dataNascimento}" th:errorclass="campo-invalido" required>
+                <p th:replace="~{fragments/layout :: erro-campo('dataNascimento')}"></p>
+            </div>
+            <div class="campo">
+                <label for="telefone">Telefone</label>
+                <input class="entrada num" type="tel" th:field="*{telefone}" th:errorclass="campo-invalido" placeholder="(11) 98888-0000">
+                <p th:replace="~{fragments/layout :: erro-campo('telefone')}"></p>
+            </div>
+            <p class="nota-obrigatorios">* Campos obrigatórios</p>
+            <div class="acoes-formulario">
+                <button class="btn btn-primario">Salvar paciente</button>
+                <a class="btn btn-secundario" th:href="${paciente.id == null} ? @{/pacientes} : @{/pacientes/{id}(id=${paciente.id})}">Cancelar</a>
+            </div>
+        </form>
+    </main>
+</div>
+<dialog th:replace="~{fragments/layout :: confirmacao}"></dialog>
 </body>
 </html>

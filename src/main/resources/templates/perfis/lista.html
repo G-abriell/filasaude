@@ -2,28 +2,44 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Perfis')}"></head>
 <body>
-<nav th:replace="~{fragments/layout :: menu}"></nav>
-<main>
-    <div th:replace="~{fragments/layout :: mensagens}"></div>
-    <h1>Perfis</h1>
-    <p><a class="btn" th:href="@{/perfis/novo}">Novo perfil</a></p>
-    <table>
-        <thead><tr><th>Nome</th><th>Descrição</th><th></th></tr></thead>
-        <tbody>
-        <tr th:each="p : ${perfis}">
-            <td th:text="${p.nome}"></td>
-            <td th:text="${p.descricao}"></td>
-            <td>
-                <a class="btn btn-sec" th:href="@{/perfis/{id}/editar(id=${p.id})}">Editar</a>
-                <form class="inline" method="post" th:action="@{/perfis/{id}/excluir(id=${p.id})}"
-                      onsubmit="return confirm('Excluir este perfil?')">
-                    <button class="btn-perigo">Excluir</button>
-                </form>
-            </td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(perfis)}"><td colspan="3">Nenhum perfil cadastrado.</td></tr>
-        </tbody>
-    </table>
-</main>
+<div class="app">
+    <nav th:replace="~{fragments/layout :: menu('perfis')}"></nav>
+    <main class="conteudo">
+        <header class="cabecalho-pagina">
+            <div>
+                <h1>Perfis</h1>
+                <p>Cada perfil libera um conjunto de telas.</p>
+            </div>
+            <a class="btn btn-primario" th:href="@{/perfis/novo}">Cadastrar perfil</a>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+        <p th:if="${#lists.isEmpty(perfis)}" class="estado-vazio">Nenhum perfil cadastrado.</p>
+        <div class="tabela-caixa" th:unless="${#lists.isEmpty(perfis)}">
+            <table class="tabela">
+                <thead><tr><th>Nome</th><th>Descrição</th><th><span class="visualmente-oculto">Ações</span></th></tr></thead>
+                <tbody>
+                <tr th:each="p : ${perfis}">
+                    <td th:text="${p.nome}">RECEPCAO</td>
+                    <td th:text="${p.descricao} ?: '—'">Cadastro de pacientes e senhas</td>
+                    <td class="acoes-celula">
+                        <div class="acoes">
+                            <a class="btn btn-secundario btn-compacto" th:href="@{/perfis/{id}/editar(id=${p.id})}">Editar</a>
+                            <form method="post" th:action="@{/perfis/{id}/excluir(id=${p.id})}"
+                                  th:data-confirmar="|Excluir o perfil ${p.nome}?|"
+                                  data-consequencia="O perfil será apagado e não poderá ser recuperado."
+                                  data-acao="Sim, excluir">
+                                <button class="btn btn-secundario btn-compacto">Excluir</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<dialog th:replace="~{fragments/layout :: confirmacao}"></dialog>
 </body>
 </html>

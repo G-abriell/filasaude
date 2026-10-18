@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- filasaude-icone-app: a marca negativa sobre o petróleo -->
+  <rect width="64" height="64" rx="14" fill="#0F3D44"/>
+  <g transform="translate(15.2 14.6) scale(0.75)">
+    <rect x="0" y="0" width="10.66" height="46.4" rx="5.33" fill="#FAF8F4"/>
+    <rect x="14.93" y="0" width="29.86" height="10.55" rx="5.275" fill="#E39A66"/>
+    <rect x="14.93" y="17.93" width="19.19" height="10.55" rx="5.275" fill="#FAF8F4"/>
+    <circle cx="20.26" cy="41.13" r="5.3" fill="#6B9784"/>
+  </g>
+</svg>

@@ -54,7 +54,7 @@ public class Atendimento {
     @Column(name = "numero", nullable = false)
     private Integer numero;
 
-    /** Senha exibida no painel, ex.: "CG-P003". */
+    /** Senha exibida no painel: uma letra e três números, sem espaço (ex.: "A001"). */
     @Column(name = "senha", nullable = false, length = 20)
     private String senha;
 
@@ -87,7 +87,7 @@ public class Atendimento {
         this.dataHoraChegada = chegada;
         this.dataReferencia = chegada.toLocalDate();
         this.status = StatusAtendimento.AGUARDANDO;
-        this.senha = String.format("%s-%s%03d", fila.getSigla(), prioridade.getCodigo(), numero);
+        this.senha = String.format("%s%03d", fila.getSigla(), numero);
     }
 
     // ---------- Transições de estado ----------
@@ -121,7 +121,7 @@ public class Atendimento {
 
     public void cancelar() {
         if (status != StatusAtendimento.AGUARDANDO && status != StatusAtendimento.CHAMADO) {
-            throw new RegraNegocioException("Não é possível cancelar um atendimento com status " + status.getDescricao());
+            throw new RegraNegocioException("Não é possível cancelar um atendimento com status " + status.getDescricao() + ".");
         }
         this.dataHoraFim = LocalDateTime.now();
         this.status = StatusAtendimento.CANCELADO;
@@ -130,7 +130,7 @@ public class Atendimento {
     private void exigirStatus(StatusAtendimento esperado, String acao) {
         if (status != esperado) {
             throw new RegraNegocioException(String.format(
-                    "Não é possível %s o atendimento %s: status atual é %s", acao, senha, status.getDescricao()));
+                    "Não é possível %s o atendimento %s: status atual é %s", acao, senha, status.getDescricao()) + ".");
         }
     }
 

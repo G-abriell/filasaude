@@ -2,20 +2,40 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Perfil')}"></head>
 <body>
-<nav th:replace="~{fragments/layout :: menu}"></nav>
-<main>
-    <div th:replace="~{fragments/layout :: mensagens}"></div>
-    <h1 th:text="${perfil.id == null} ? 'Novo perfil' : 'Editar perfil'">Perfil</h1>
-    <form method="post" th:action="@{/perfis}" th:object="${perfil}">
-        <input type="hidden" th:field="*{id}">
-        <label>Nome</label>
-        <input th:field="*{nome}" placeholder="ADMIN, RECEPCAO, PROFISSIONAL_DE_SAUDE...">
-        <div class="campo-erro" th:errors="*{nome}"></div>
-        <label>Descrição</label>
-        <input th:field="*{descricao}">
-        <div class="campo-erro" th:errors="*{descricao}"></div>
-        <p><button>Salvar</button> <a class="btn btn-sec" th:href="@{/perfis}">Cancelar</a></p>
-    </form>
-</main>
+<div class="app">
+    <nav th:replace="~{fragments/layout :: menu('perfis')}"></nav>
+    <main class="conteudo">
+        <header class="cabecalho-pagina">
+            <div>
+                <h1 th:text="${perfil.id == null} ? 'Cadastrar perfil' : 'Editar perfil'">Cadastrar perfil</h1>
+                <p>O nome do perfil é usado nas regras de acesso.</p>
+            </div>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+        <form class="cartao cartao-formulario" method="post" th:action="@{/perfis}" th:object="${perfil}">
+            <input type="hidden" th:field="*{id}">
+            <div class="campo">
+                <label for="nome">Nome<span class="obrigatorio" aria-hidden="true">*</span></label>
+                <input class="entrada" th:field="*{nome}" th:errorclass="campo-invalido"
+                       placeholder="RECEPCAO" required>
+                <p class="dica">Os perfis do sistema são ADMIN, RECEPCAO e PROFISSIONAL_DE_SAUDE.</p>
+                <p th:replace="~{fragments/layout :: erro-campo('nome')}"></p>
+            </div>
+            <div class="campo">
+                <label for="descricao">Descrição</label>
+                <input class="entrada" th:field="*{descricao}" th:errorclass="campo-invalido">
+                <p th:replace="~{fragments/layout :: erro-campo('descricao')}"></p>
+            </div>
+            <p class="nota-obrigatorios">* Campos obrigatórios</p>
+            <div class="acoes-formulario">
+                <button class="btn btn-primario">Salvar perfil</button>
+                <a class="btn btn-secundario" th:href="@{/perfis}">Cancelar</a>
+            </div>
+        </form>
+    </main>
+</div>
+<dialog th:replace="~{fragments/layout :: confirmacao}"></dialog>
 </body>
 </html>

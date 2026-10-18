@@ -8,7 +8,7 @@ public enum StatusAtendimento {
     AGUARDANDO("Aguardando"),
     CHAMADO("Chamado"),
     EM_ATENDIMENTO("Em atendimento"),
-    FINALIZADO("Finalizado"),
+    FINALIZADO("Concluído"),
     NAO_COMPARECEU("Não compareceu"),
     CANCELADO("Cancelado");
 

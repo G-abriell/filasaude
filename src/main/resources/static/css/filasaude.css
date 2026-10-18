@@ -1,0 +1,590 @@
+/*
+ * FilaSaúde · estilos da interface
+ * Segue o Manual da marca v1.0: use sempre os tokens semânticos, nunca valores soltos.
+ */
+
+/* ---------- Paleta ---------- */
+:root {
+    --petroleo-900: #0A2A30;
+    --petroleo-700: #0F3D44;
+    --petroleo-500: #2A6B72;
+    --petroleo-300: #8CC8CB;
+    --petroleo-200: #B7D3D5;
+    --petroleo-100: #E1EEEE;
+    --cobre-600: #98481A;
+    --cobre-500: #CB7440;
+    --cobre-300: #E39A66;
+    --cobre-100: #F6E3D5;
+    --salvia-600: #2F5547;
+    --salvia-500: #6B9784;
+    --salvia-100: #E4EDE8;
+    --nevoa-50: #FAF8F4;
+    --nevoa-100: #F1EEE7;
+    --areia-200: #DDD8CC;
+    --grafite-900: #16262A;
+    --grafite-600: #4B5F64;
+    --grafite-400: #6F8286;
+
+    /* ---------- Tokens semânticos · tema claro ---------- */
+    --surface: #FAF8F4;
+    --surface-raised: #FFFFFF;
+    --surface-sunken: #F1EEE7;
+    --ink: #16262A;
+    --ink-muted: #4B5F64;
+    --line: #DDD8CC;
+    --line-strong: #6F8286;
+    --brand: #0F3D44;
+    --on-brand: #FFFFFF;
+    --brand-fill: #0F3D44;
+    --brand-soft: #E1EEEE;
+    --accent: #CB7440;
+    --on-accent: #16262A;
+    --accent-text: #98481A;
+    --accent-soft: #F6E3D5;
+    --support: #6B9784;
+    --support-soft: #E4EDE8;
+    --support-ink: #2F5547;
+    --status-wait-bg: #FBEBCB;
+    --status-wait-fg: #6B3B00;
+    --status-active-bg: #DCE9F5;
+    --status-active-fg: #123F6B;
+    --status-done-bg: #DAEEE2;
+    --status-done-fg: #17543A;
+    --status-error-bg: #F8E1DC;
+    --status-error-fg: #8A2A1E;
+    --focus-ring: #0F3D44;
+
+    /* Marca (logotipo): versão positiva */
+    --marca-haste: var(--petroleo-700);
+    --marca-vez: var(--cobre-500);
+    --marca-ponto: var(--salvia-500);
+    --marca-nome: var(--brand);
+
+    /* ---------- Tipografia ---------- */
+    --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+    --font-sans: "Figtree", "Segoe UI", system-ui, sans-serif;
+
+    /* ---------- Espaçamento, raios e sombras ---------- */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-12: 48px;
+    --space-16: 64px;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-pill: 999px;
+    --shadow-card: 0 1px 2px rgba(22, 38, 42, 0.08);
+    --shadow-pop: 0 8px 24px rgba(10, 42, 48, 0.14);
+
+    color-scheme: light;
+}
+
+/* ---------- Tokens semânticos · tema escuro ----------
+   O tema claro é o padrão. O escuro só entra quando a pessoa escolhe no botão
+   "Tema escuro" (filasaude.js grava a escolha e aplica data-tema no <html>). */
+:root[data-tema="escuro"] {
+    --surface: #0A2A30;
+    --surface-raised: #113840;
+    --surface-sunken: #071F24;
+    --ink: #F2EFE8;
+    --ink-muted: #A9BEC1;
+    --line: #1F4A52;
+    --line-strong: #6F9296;
+    --brand: #8CC8CB;
+    --on-brand: #0A2A30;
+    --brand-fill: #2A6B72;
+    --brand-soft: #17454D;
+    --accent: #E39A66;
+    --on-accent: #0A2A30;
+    --accent-text: #F0B07F;
+    --accent-soft: #3A2A1F;
+    --support: #8DB5A5;
+    --support-soft: #17413B;
+    --support-ink: #B5DACB;
+    --status-wait-bg: #4A3511;
+    --status-wait-fg: #F5CF8A;
+    --status-active-bg: #17395A;
+    --status-active-fg: #A9CCF0;
+    --status-done-bg: #14402D;
+    --status-done-fg: #9CDDB9;
+    --status-error-bg: #5A231B;
+    --status-error-fg: #F5B3A8;
+    --focus-ring: #8CC8CB;
+    /* No tema escuro, sombras dão lugar a bordas */
+    --shadow-card: none;
+    --shadow-pop: 0 0 0 1px var(--line);
+
+    /* Marca negativa */
+    --marca-haste: var(--nevoa-50);
+    --marca-vez: var(--cobre-300);
+    --marca-nome: var(--nevoa-50);
+
+    color-scheme: dark;
+}
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+    margin: 0;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 24px;
+}
+
+h1, h2, h3, p { margin: 0; }
+
+a { color: var(--brand); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+.num { font-variant-numeric: tabular-nums; }
+.apoio { color: var(--ink-muted); }
+.caption { font-size: 13px; line-height: 18px; font-weight: 500; color: var(--ink-muted); }
+.body-sm { font-size: 14px; line-height: 20px; }
+
+.visualmente-oculto {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+.icone {
+    width: 20px; height: 20px; flex: none;
+    fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ---------- Marca ---------- */
+.marca .marca-haste { fill: var(--marca-haste); }
+.marca .marca-vez { fill: var(--marca-vez); }
+.marca .marca-ponto { fill: var(--marca-ponto); }
+
+/* Assinatura horizontal: marca + nome em Newsreader 500, −0,01em.
+   Espaço entre marca e nome: 1/4 da altura da marca. Altura das maiúsculas: metade da marca. */
+.assinatura {
+    --altura-marca: 32px;
+    display: inline-flex; align-items: center;
+    gap: calc(var(--altura-marca) / 4);
+    padding: calc(var(--altura-marca) / 4);
+    margin: calc(var(--altura-marca) / -4);
+    color: var(--marca-nome);
+    text-decoration: none;
+}
+.assinatura:hover { text-decoration: none; }
+.assinatura .marca { height: var(--altura-marca); width: auto; }
+.assinatura-nome {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: calc(var(--altura-marca) * 0.78);
+    line-height: 1;
+    letter-spacing: -0.01em;
+}
+
+/* Versão negativa, para fundos escuros (brand-fill, petroleo-900) */
+.negativa {
+    --marca-haste: var(--nevoa-50);
+    --marca-vez: var(--cobre-300);
+    --marca-nome: var(--nevoa-50);
+}
+
+/* ---------- Estrutura de tela ---------- */
+.app { display: flex; min-height: 100vh; }
+
+.nav-lateral {
+    flex: none;
+    width: 248px;
+    background: var(--surface-sunken);
+    border-right: 1px solid var(--line);
+    padding: var(--space-6) var(--space-4);
+    display: flex; flex-direction: column; gap: var(--space-8);
+    position: sticky; top: 0; height: 100vh;
+}
+.nav-lateral .assinatura { margin-left: calc(var(--altura-marca) / -4 + var(--space-2)); }
+
+.nav-itens { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.nav-itens a {
+    display: flex; align-items: center; gap: var(--space-3);
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-md);
+    color: var(--ink);
+    font-size: 14px; line-height: 20px; font-weight: 600;
+    text-decoration: none;
+    transition: background-color 150ms ease, color 150ms ease;
+}
+.nav-itens a:hover { background: var(--surface-raised); }
+.nav-itens a.ativo { background: var(--brand-soft); color: var(--brand); }
+
+.nav-usuario {
+    margin-top: auto;
+    display: flex; flex-direction: column; gap: var(--space-3);
+    padding: var(--space-4) var(--space-2) 0;
+    border-top: 1px solid var(--line);
+}
+.nav-usuario-nome { font-size: 14px; line-height: 20px; font-weight: 600; }
+
+.conteudo {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-12);
+    display: flex; flex-direction: column; gap: var(--space-6);
+}
+
+.cabecalho-pagina {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: var(--space-4); flex-wrap: wrap;
+}
+.cabecalho-pagina h1 {
+    font-family: var(--font-display);
+    font-size: 30px; line-height: 36px; font-weight: 500;
+    color: var(--ink);
+}
+.cabecalho-pagina p { color: var(--ink-muted); margin-top: var(--space-1); max-width: 65ch; }
+
+h2.titulo-secao { font-size: 18px; line-height: 26px; font-weight: 600; }
+
+/* ---------- Cartões ---------- */
+.cartao {
+    background: var(--surface-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+}
+.cartao-titulo { font-size: 22px; line-height: 28px; font-weight: 600; }
+.cartao > * + * { margin-top: var(--space-4); }
+
+.cartao-cabecalho { display: flex; align-items: center; gap: var(--space-3); }
+.icone-caixa {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; flex: none;
+    border-radius: var(--radius-md);
+    background: var(--surface-sunken);
+    color: var(--ink);
+}
+
+/* Recepção: cartão do exemplo, com os campos em um grupo rebaixado */
+.cartao-recepcao { max-width: 520px; }
+.cartao-recepcao .grupo-campos { display: flex; flex-direction: column; gap: var(--space-4); }
+.cartao-recepcao .grupo-campos .campo + .campo { margin-top: 0; }
+.cartao-recepcao .nota-obrigatorios { margin-top: 0; }
+
+.senha-gerada-caixa {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-md);
+}
+.senha-gerada-valor {
+    font-family: var(--font-display);
+    font-size: 22px; line-height: 28px; font-weight: 600;
+    color: var(--brand);
+    font-variant-numeric: tabular-nums;
+}
+
+.grade-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
+
+.cartao-formulario { max-width: 640px; }
+
+.dados-paciente { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-8); }
+.dados-paciente dt { font-size: 13px; line-height: 18px; font-weight: 500; color: var(--ink-muted); }
+.dados-paciente dd { margin: 0; }
+
+/* ---------- Botões ---------- */
+.btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+    height: 48px;
+    padding: 0 var(--space-6);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-family: var(--font-sans);
+    font-size: 14px; line-height: 20px; font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.btn:hover { text-decoration: none; }
+.btn:disabled, .btn[aria-disabled="true"] { color: var(--ink-muted); cursor: not-allowed; }
+
+.btn-primario { background: var(--brand); color: var(--on-brand); }
+.btn-primario:hover { background: var(--petroleo-500); }
+
+/* Destaque: só um por tela, para a ação da vez */
+.btn-destaque {
+    height: 52px;
+    background: var(--accent); color: var(--on-accent);
+    font-size: 16px; line-height: 24px; font-weight: 600;
+}
+
+.btn-secundario { background: var(--surface-raised); color: var(--ink); border-color: var(--line-strong); }
+.btn-secundario:hover { background: var(--surface-sunken); }
+
+.btn-link {
+    height: auto; padding: 0; border: 0; background: none;
+    color: var(--brand); font-size: 14px;
+}
+.btn-link:hover { text-decoration: underline; }
+
+.btn-compacto { height: 44px; padding: 0 var(--space-4); }
+.btn-bloco { width: 100%; }
+
+:root[data-tema="escuro"] .btn-primario:hover { background: var(--petroleo-200); }
+
+.acoes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.acoes-formulario { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-6); }
+
+form.inline { display: inline; }
+
+/* ---------- Campos de formulário ---------- */
+.campo { display: flex; flex-direction: column; gap: var(--space-2); }
+.campo + .campo { margin-top: var(--space-4); }
+
+.campo label, .rotulo {
+    font-size: 14px; line-height: 20px; font-weight: 600; color: var(--ink);
+}
+.obrigatorio { color: var(--ink); margin-left: 2px; }
+
+.entrada {
+    width: 100%;
+    height: 48px;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-raised);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 16px; line-height: 24px;
+    transition: border-color 150ms ease;
+}
+textarea.entrada { height: auto; min-height: 96px; padding: var(--space-3) var(--space-4); resize: vertical; }
+select.entrada { cursor: pointer; }
+.entrada::placeholder { color: var(--ink-muted); }
+
+.entrada.campo-invalido { border-color: var(--status-error-fg); border-width: 2px; }
+.msg-erro-campo {
+    display: flex; gap: var(--space-1); align-items: flex-start;
+    color: var(--status-error-fg);
+    font-size: 14px; line-height: 20px;
+}
+
+.dica { font-size: 14px; line-height: 20px; color: var(--ink-muted); }
+.nota-obrigatorios { font-size: 13px; line-height: 18px; font-weight: 500; color: var(--ink-muted); margin-top: var(--space-4); }
+
+/* Fundo de grupos de campos */
+.grupo-campos {
+    background: var(--surface-sunken);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+}
+
+.busca { display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: flex-end; }
+.busca .campo { flex: 1 1 280px; }
+
+/* ---------- Mensagens ---------- */
+.mensagem {
+    display: flex; gap: var(--space-3); align-items: flex-start;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    max-width: 75ch;
+}
+.mensagem-sucesso { background: var(--support-soft); color: var(--support-ink); }
+.mensagem-erro { background: var(--status-error-bg); color: var(--status-error-fg); }
+.mensagem .icone { margin-top: 2px; }
+
+/* ---------- Etiquetas de status ---------- */
+.status {
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    font-size: 14px; line-height: 20px; font-weight: 600;
+    white-space: nowrap;
+    transition: background-color 200ms ease, color 200ms ease;
+}
+.status .icone { width: 16px; height: 16px; }
+.status-aguardando { background: var(--status-wait-bg); color: var(--status-wait-fg); }
+.status-atendimento { background: var(--status-active-bg); color: var(--status-active-fg); }
+.status-concluido { background: var(--status-done-bg); color: var(--status-done-fg); }
+.status-erro { background: var(--status-error-bg); color: var(--status-error-fg); }
+.status-neutro { background: var(--surface-sunken); color: var(--ink-muted); }
+
+/* ---------- Fila e tabelas ---------- */
+.tabela-caixa {
+    overflow-x: auto;
+    background: var(--surface-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+}
+.tabela { width: 100%; border-collapse: collapse; }
+.tabela th {
+    text-align: left;
+    font-size: 13px; line-height: 18px; font-weight: 500;
+    color: var(--ink-muted);
+    background: var(--surface-sunken);
+    padding: var(--space-3) var(--space-4);
+    white-space: nowrap;
+}
+.tabela td {
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--line);
+    vertical-align: middle;
+}
+.tabela td.acoes-celula { text-align: right; white-space: nowrap; }
+.tabela td.acoes-celula .acoes { justify-content: flex-end; flex-wrap: nowrap; }
+.tabela .vazio td { color: var(--ink-muted); }
+
+/* A linha do próximo a ser chamado */
+.tabela tr.proximo td { background: var(--accent-soft); }
+
+/* Senhas em title ou maior, com números tabulares */
+.senha-celula {
+    font-size: 22px; line-height: 28px; font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* Cartão de atendimento ativo: contorno reforça o status */
+.cartao-ativo { border: 2px solid var(--status-active-fg); }
+
+.lista-andamento { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-4); }
+.lista-andamento .cartao > * + * { margin-top: var(--space-3); }
+.linha-senha { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+
+/* ---------- Cartão de senha ---------- */
+.cartao-senha {
+    background: var(--surface-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: var(--space-2);
+}
+.senha-grande {
+    font-family: var(--font-display);
+    font-size: 72px; line-height: 72px; font-weight: 500;
+    color: var(--brand);
+    font-variant-numeric: tabular-nums;
+}
+
+.estado-vazio {
+    background: var(--support-soft);
+    color: var(--support-ink);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+}
+
+/* ---------- Confirmação crítica ---------- */
+.confirmacao {
+    width: min(440px, calc(100vw - 2 * var(--space-4)));
+    padding: var(--space-6);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xl);
+    background: var(--surface-raised);
+    color: var(--ink);
+    box-shadow: var(--shadow-pop);
+}
+.confirmacao::backdrop { background: rgba(10, 42, 48, 0.4); }
+.confirmacao h2 { font-size: 22px; line-height: 28px; font-weight: 600; }
+.confirmacao p { color: var(--ink-muted); margin-top: var(--space-2); }
+.confirmacao .acoes-formulario { justify-content: flex-end; }
+
+/* ---------- Login ---------- */
+.tela-login { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); min-height: 100vh; }
+
+.painel-marca {
+    background: var(--brand-fill);
+    color: var(--nevoa-50);
+    padding: var(--space-12);
+    display: flex; flex-direction: column; gap: var(--space-12);
+}
+.painel-marca .tagline {
+    font-family: var(--font-display);
+    font-size: 40px; line-height: 44px; font-weight: 500;
+    margin-top: auto;
+}
+.painel-marca .fila-pilulas { margin-top: auto; }
+.painel-marca .descritor { color: var(--petroleo-200); margin-top: var(--space-3); max-width: 40ch; }
+
+/* Padrão gráfico: a fila de pílulas. Nunca atrás de texto. */
+.fila-pilulas { display: flex; flex-direction: column; gap: var(--space-4); }
+.fila-pilulas span {
+    display: block;
+    height: var(--space-4);
+    border-radius: var(--radius-pill);
+    background: var(--petroleo-500);
+}
+.fila-pilulas span:first-child { background: var(--cobre-300); }
+:root[data-tema="escuro"] .fila-pilulas span { background: var(--petroleo-300); opacity: .35; }
+:root[data-tema="escuro"] .fila-pilulas span:first-child { opacity: 1; }
+
+.area-login {
+    display: flex; align-items: center; justify-content: center;
+    padding: var(--space-12) var(--space-8);
+}
+.formulario-login { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: var(--space-6); }
+.formulario-login h1 {
+    font-family: var(--font-display);
+    font-size: 40px; line-height: 44px; font-weight: 500;
+}
+
+/* ---------- Página de erro ---------- */
+.pagina-erro { max-width: 560px; margin: var(--space-16) auto; padding: 0 var(--space-4); display: flex; flex-direction: column; gap: var(--space-6); }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 760px) {
+    .app { flex-direction: column; }
+    .nav-lateral {
+        width: auto; height: auto; position: static;
+        border-right: 0; border-bottom: 1px solid var(--line);
+        padding: var(--space-4);
+        gap: var(--space-4);
+    }
+    .nav-itens { flex-direction: row; flex-wrap: wrap; }
+    .nav-usuario { flex-direction: row; align-items: center; justify-content: space-between; padding-top: var(--space-3); }
+    .conteudo { padding: var(--space-8) var(--space-4); }
+    .grade-2 { grid-template-columns: minmax(0, 1fr); }
+    .btn-bloco-movel, .acoes-formulario .btn, .cabecalho-pagina .btn { width: 100%; }
+
+    .tela-login { grid-template-columns: minmax(0, 1fr); }
+    .painel-marca { padding: var(--space-8) var(--space-4); gap: var(--space-6); }
+    .painel-marca .tagline { font-size: 30px; line-height: 36px; margin-top: 0; }
+    .painel-marca .fila-pilulas { display: none; }
+    .area-login { padding: var(--space-8) var(--space-4); align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+/* ---------- Alternar tema ---------- */
+.botao-tema {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    border: 0; border-radius: var(--radius-md);
+    background: none;
+    color: var(--ink-muted);
+    font-family: var(--font-sans);
+    font-size: 14px; line-height: 20px; font-weight: 600;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+}
+.botao-tema:hover { background: var(--surface-raised); color: var(--ink); }
+.botao-tema .icone-sol { display: none; }
+:root[data-tema="escuro"] .botao-tema .icone-sol { display: block; }
+:root[data-tema="escuro"] .botao-tema .icone-lua { display: none; }
+
+.area-login { position: relative; }
+.area-login .botao-tema { position: absolute; top: var(--space-6); right: var(--space-6); }

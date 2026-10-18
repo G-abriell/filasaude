@@ -23,9 +23,9 @@ public class Fila {
     @Column(name = "nome", nullable = false, unique = true, length = 100)
     private String nome;
 
-    /** Prefixo usado na senha impressa, ex.: "CG" gera "CG-P003". */
+    /** Letra usada na senha, ex.: "A" gera "A001" (Manual da marca: uma letra e três números). */
     @NotBlank
-    @Pattern(regexp = "[A-Za-z]{1,5}", message = "Sigla deve ter de 1 a 5 letras")
+    @Pattern(regexp = "[A-Za-z]", message = "Use uma única letra, como A.")
     @Column(name = "sigla", nullable = false, unique = true, length = 5)
     private String sigla;
 

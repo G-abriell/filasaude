@@ -51,11 +51,16 @@ public class AtendimentoController {
                               @RequestParam(required = false) Prioridade prioridade,
                               RedirectAttributes attrs) {
         Atendimento atendimento = atendimentoService.emitirSenha(pacienteId, filaId, prioridade);
-        attrs.addFlashAttribute("sucesso", "Senha emitida: " + atendimento.getSenha());
+        attrs.addFlashAttribute("sucesso",
+                "Paciente adicionado à fila com sucesso. Senha gerada: " + atendimento.getSenha() + ".");
+        // Dados do cartão de senha exibido na recepção
+        attrs.addFlashAttribute("senhaGerada", atendimento.getSenha());
+        attrs.addFlashAttribute("senhaPaciente", atendimento.getPaciente().getNome());
+        attrs.addFlashAttribute("senhaFila", atendimento.getFila().getNome());
         return "redirect:/atendimentos/novo";
     }
 
-    /** Tela do atendente/guichê: fila de espera e atendimentos em andamento. */
+    /** Painel do profissional de saúde: fila de espera e atendimentos em andamento. */
     @GetMapping("/guiche")
     public String guiche(@RequestParam(required = false) Long filaId, Model model) {
         model.addAttribute("filas", filaService.listarAtivas());
@@ -72,7 +77,7 @@ public class AtendimentoController {
     public String chamarProximo(@RequestParam Long filaId, @RequestParam(required = false) String guiche,
                                 @AuthenticationPrincipal UsuarioAutenticado usuario, RedirectAttributes attrs) {
         Atendimento atendimento = atendimentoService.chamarProximo(filaId, usuario.getId(), guiche);
-        attrs.addFlashAttribute("sucesso", "Chamando " + atendimento.getSenha());
+        attrs.addFlashAttribute("sucesso", atendimento.getSenha() + " chamada.");
         return redirectGuiche(filaId);
     }
 
@@ -84,8 +89,9 @@ public class AtendimentoController {
 
     @PostMapping("/{id}/finalizar")
     public String finalizar(@PathVariable Long id, @RequestParam(required = false) String observacao,
-                            @RequestParam(required = false) Long filaId) {
+                            @RequestParam(required = false) Long filaId, RedirectAttributes attrs) {
         atendimentoService.finalizar(id, observacao);
+        attrs.addFlashAttribute("sucesso", "Atendimento finalizado com sucesso.");
         return redirectGuiche(filaId);
     }
 
@@ -98,7 +104,7 @@ public class AtendimentoController {
     @PostMapping("/{id}/cancelar")
     public String cancelar(@PathVariable Long id, RedirectAttributes attrs) {
         atendimentoService.cancelar(id);
-        attrs.addFlashAttribute("sucesso", "Atendimento cancelado");
+        attrs.addFlashAttribute("sucesso", "Atendimento cancelado.");
         return "redirect:/atendimentos";
     }
 

@@ -50,21 +50,21 @@ public class FilaController {
             model.addAttribute("erro", e.getMessage());
             return "filas/form";
         }
-        attrs.addFlashAttribute("sucesso", "Fila salva com sucesso");
+        attrs.addFlashAttribute("sucesso", "Fila salva.");
         return "redirect:/filas";
     }
 
     @PostMapping("/{id}/alternar-ativa")
     public String alternarAtiva(@PathVariable Long id, RedirectAttributes attrs) {
         filaService.alternarAtiva(id);
-        attrs.addFlashAttribute("sucesso", "Situação da fila atualizada");
+        attrs.addFlashAttribute("sucesso", "Situação da fila atualizada.");
         return "redirect:/filas";
     }
 
     @PostMapping("/{id}/excluir")
     public String excluir(@PathVariable Long id, RedirectAttributes attrs) {
         filaService.excluir(id);
-        attrs.addFlashAttribute("sucesso", "Fila excluída");
+        attrs.addFlashAttribute("sucesso", "Fila excluída.");
         return "redirect:/filas";
     }
 }

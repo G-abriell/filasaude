@@ -38,7 +38,7 @@ public class PerfilService {
         perfilRepository.findByNomeIgnoreCase(perfil.getNome())
                 .filter(existente -> !existente.getId().equals(perfil.getId()))
                 .ifPresent(existente -> {
-                    throw new RegraNegocioException("Já existe um perfil com o nome " + perfil.getNome());
+                    throw new RegraNegocioException("Já existe um perfil com o nome " + perfil.getNome() + ".");
                 });
         return perfilRepository.save(perfil);
     }
@@ -47,7 +47,7 @@ public class PerfilService {
     public void excluir(Long id) {
         Perfil perfil = buscarPorId(id);
         if (usuarioRepository.existsByPerfilId(id)) {
-            throw new RegraNegocioException("O perfil " + perfil.getNome() + " possui usuários vinculados");
+            throw new RegraNegocioException("O perfil " + perfil.getNome() + " possui usuários vinculados.");
         }
         perfilRepository.delete(perfil);
     }

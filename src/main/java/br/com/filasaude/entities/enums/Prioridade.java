@@ -6,22 +6,16 @@ package br.com.filasaude.entities.enums;
  */
 public enum Prioridade {
 
-    NORMAL("Normal", "N"),
-    PREFERENCIAL("Preferencial", "P");
+    NORMAL("Normal"),
+    PREFERENCIAL("Preferencial");
 
     private final String descricao;
-    private final String codigo;
 
-    Prioridade(String descricao, String codigo) {
+    Prioridade(String descricao) {
         this.descricao = descricao;
-        this.codigo = codigo;
     }
 
     public String getDescricao() {
         return descricao;
-    }
-
-    public String getCodigo() {
-        return codigo;
     }
 }
