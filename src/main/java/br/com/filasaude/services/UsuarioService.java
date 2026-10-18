@@ -56,21 +56,21 @@ public class UsuarioService {
         usuarioRepository.findByEmailIgnoreCase(usuario.getEmail())
                 .filter(existente -> !existente.getId().equals(usuario.getId()))
                 .ifPresent(existente -> {
-                    throw new RegraNegocioException("Já existe um usuário com o e-mail " + usuario.getEmail());
+                    throw new RegraNegocioException("Já existe um usuário com o e-mail " + usuario.getEmail() + ".");
                 });
 
         if (usuario.getPerfil() == null || usuario.getPerfil().getId() == null) {
-            throw new RegraNegocioException("Selecione um perfil");
+            throw new RegraNegocioException("Selecione um perfil.");
         }
         usuario.setPerfil(perfilService.buscarPorId(usuario.getPerfil().getId()));
 
         boolean senhaInformada = usuario.getSenha() != null && !usuario.getSenha().isBlank();
         if (usuario.getId() == null && !senhaInformada) {
-            throw new RegraNegocioException("A senha é obrigatória no cadastro");
+            throw new RegraNegocioException("A senha é obrigatória no cadastro.");
         }
         if (senhaInformada) {
             if (usuario.getSenha().length() < TAMANHO_MINIMO_SENHA) {
-                throw new RegraNegocioException("A senha deve ter ao menos " + TAMANHO_MINIMO_SENHA + " caracteres");
+                throw new RegraNegocioException("A senha deve ter ao menos " + TAMANHO_MINIMO_SENHA + " caracteres.");
             }
             usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         } else {
@@ -89,7 +89,7 @@ public class UsuarioService {
     public void excluir(Long id) {
         Usuario usuario = buscarPorId(id);
         if (atendimentoRepository.existsByAtendenteId(id)) {
-            throw new RegraNegocioException("O usuário possui atendimentos registrados; desative-o em vez de excluir");
+            throw new RegraNegocioException("Este usuário tem atendimentos registrados. Desative o usuário em vez de excluir.");
         }
         usuarioRepository.delete(usuario);
     }

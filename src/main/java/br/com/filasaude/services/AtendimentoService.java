@@ -79,10 +79,10 @@ public class AtendimentoService {
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Fila", filaId));
 
         if (!fila.isAtiva()) {
-            throw new RegraNegocioException("A fila " + fila.getNome() + " está inativa");
+            throw new RegraNegocioException("A fila " + fila.getNome() + " está inativa.");
         }
         if (atendimentoRepository.existsByPacienteIdAndStatusIn(pacienteId, StatusAtendimento.ATIVOS)) {
-            throw new RegraNegocioException("O paciente " + paciente.getNome() + " já possui um atendimento em andamento");
+            throw new RegraNegocioException("O paciente " + paciente.getNome() + " já possui um atendimento em andamento.");
         }
 
         Prioridade prioridadeFinal = paciente.isIdoso() ? Prioridade.PREFERENCIAL
@@ -103,12 +103,12 @@ public class AtendimentoService {
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Fila", filaId));
         Usuario atendente = usuarioService.buscarPorId(atendenteId);
         if (!atendente.isAtivo()) {
-            throw new RegraNegocioException("O usuário " + atendente.getNome() + " está inativo");
+            throw new RegraNegocioException("O usuário " + atendente.getNome() + " está inativo.");
         }
 
         Atendimento proximo = atendimentoRepository.findAguardandoNaFila(filaId).stream()
                 .findFirst()
-                .orElseThrow(() -> new RegraNegocioException("Não há pacientes aguardando nesta fila"));
+                .orElseThrow(() -> new RegraNegocioException("Ninguém aguardando agora."));
 
         proximo.chamar(atendente, guiche);
         return proximo;

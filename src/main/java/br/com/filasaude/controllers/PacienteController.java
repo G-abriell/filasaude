@@ -61,14 +61,14 @@ public class PacienteController {
             model.addAttribute("erro", e.getMessage());
             return "pacientes/form";
         }
-        attrs.addFlashAttribute("sucesso", "Paciente salvo com sucesso");
+        attrs.addFlashAttribute("sucesso", "Paciente salvo.");
         return "redirect:/pacientes/" + paciente.getId();
     }
 
     @PostMapping("/{id}/excluir")
     public String excluir(@PathVariable Long id, RedirectAttributes attrs) {
         pacienteService.excluir(id);
-        attrs.addFlashAttribute("sucesso", "Paciente excluído");
+        attrs.addFlashAttribute("sucesso", "Paciente excluído.");
         return "redirect:/pacientes";
     }
 }

@@ -2,32 +2,53 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Pacientes')}"></head>
 <body>
-<nav th:replace="~{fragments/layout :: menu}"></nav>
-<main>
-    <div th:replace="~{fragments/layout :: mensagens}"></div>
-    <h1>Pacientes</h1>
-    <form method="get" th:action="@{/pacientes}">
-        <input name="busca" th:value="${busca}" placeholder="Buscar por nome ou CPF">
-        <button>Buscar</button>
-        <a class="btn" th:href="@{/pacientes/novo}">Novo paciente</a>
-    </form>
-    <br>
-    <table>
-        <thead><tr><th>Nome</th><th>CPF</th><th>Idade</th><th>Telefone</th><th></th></tr></thead>
-        <tbody>
-        <tr th:each="p : ${pacientes}">
-            <td><a th:href="@{/pacientes/{id}(id=${p.id})}" th:text="${p.nome}"></a></td>
-            <td th:text="${p.cpf}"></td>
-            <td th:text="${p.idade}"></td>
-            <td th:text="${p.telefone}"></td>
-            <td>
-                <a class="btn" th:href="@{/atendimentos/novo(pacienteId=${p.id})}">Emitir senha</a>
-                <a class="btn btn-sec" th:href="@{/pacientes/{id}/editar(id=${p.id})}">Editar</a>
-            </td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(pacientes)}"><td colspan="5">Nenhum paciente encontrado.</td></tr>
-        </tbody>
-    </table>
-</main>
+<div class="app">
+    <nav th:replace="~{fragments/layout :: menu('pacientes')}"></nav>
+    <main class="conteudo">
+        <header class="cabecalho-pagina">
+            <div>
+                <h1>Pacientes</h1>
+                <p>Busque por nome ou CPF antes de cadastrar.</p>
+            </div>
+            <a class="btn btn-primario" th:href="@{/pacientes/novo}">Cadastrar paciente</a>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+        <form class="busca" method="get" th:action="@{/pacientes}" role="search">
+            <div class="campo">
+                <label for="busca">Buscar paciente</label>
+                <input class="entrada" id="busca" name="busca" type="search" th:value="${busca}" placeholder="Nome ou CPF">
+            </div>
+            <button class="btn btn-secundario">Buscar</button>
+        </form>
+
+        <p class="caption" th:text="${#lists.size(pacientes)} == 1 ? '1 paciente encontrado' : |${#lists.size(pacientes)} pacientes encontrados|">3 pacientes encontrados</p>
+
+        <p th:if="${#lists.isEmpty(pacientes)}" class="estado-vazio">Nenhum paciente encontrado. Confira a busca ou cadastre um novo paciente.</p>
+        <div class="tabela-caixa" th:unless="${#lists.isEmpty(pacientes)}">
+            <table class="tabela">
+                <thead>
+                <tr><th>Nome</th><th>CPF</th><th>Idade</th><th>Telefone</th><th><span class="visualmente-oculto">Ações</span></th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${pacientes}">
+                    <td><a th:href="@{/pacientes/{id}(id=${p.id})}" th:text="${p.nome}">Maria Silva</a></td>
+                    <td class="num" th:text="${p.cpfFormatado}">123.456.789-00</td>
+                    <td class="num" th:text="|${p.idade} anos|">34 anos</td>
+                    <td class="num" th:text="${p.telefone} ?: '—'">(11) 98888-0000</td>
+                    <td class="acoes-celula">
+                        <div class="acoes">
+                            <a class="btn btn-secundario btn-compacto" th:href="@{/atendimentos/novo(pacienteId=${p.id})}">Adicionar à fila</a>
+                            <a class="btn btn-secundario btn-compacto" th:href="@{/pacientes/{id}/editar(id=${p.id})}">Editar</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<dialog th:replace="~{fragments/layout :: confirmacao}"></dialog>
 </body>
 </html>

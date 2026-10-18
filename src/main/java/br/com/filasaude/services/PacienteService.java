@@ -41,13 +41,13 @@ public class PacienteService {
         pacienteRepository.findByCpf(paciente.getCpf())
                 .filter(existente -> !existente.getId().equals(paciente.getId()))
                 .ifPresent(existente -> {
-                    throw new RegraNegocioException("Já existe um paciente com o CPF informado");
+                    throw new RegraNegocioException("Já existe um paciente com o CPF informado.");
                 });
         if (paciente.getCartaoSus() != null) {
             pacienteRepository.findByCartaoSus(paciente.getCartaoSus())
                     .filter(existente -> !existente.getId().equals(paciente.getId()))
                     .ifPresent(existente -> {
-                        throw new RegraNegocioException("Já existe um paciente com o Cartão SUS informado");
+                        throw new RegraNegocioException("Já existe um paciente com o Cartão SUS informado.");
                     });
         }
         if (paciente.getId() != null) {
@@ -67,7 +67,7 @@ public class PacienteService {
     public void excluir(Long id) {
         Paciente paciente = buscarPorId(id);
         if (atendimentoRepository.existsByPacienteId(id)) {
-            throw new RegraNegocioException("O paciente possui histórico de atendimentos e não pode ser excluído");
+            throw new RegraNegocioException("O paciente possui histórico de atendimentos e não pode ser excluído.");
         }
         pacienteRepository.delete(paciente);
     }

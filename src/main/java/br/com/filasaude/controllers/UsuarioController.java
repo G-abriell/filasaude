@@ -53,21 +53,21 @@ public class UsuarioController {
             model.addAttribute("erro", e.getMessage());
             return form(usuario, model);
         }
-        attrs.addFlashAttribute("sucesso", "Usuário salvo com sucesso");
+        attrs.addFlashAttribute("sucesso", "Usuário salvo.");
         return "redirect:/usuarios";
     }
 
     @PostMapping("/{id}/alternar-ativo")
     public String alternarAtivo(@PathVariable Long id, RedirectAttributes attrs) {
         usuarioService.alternarAtivo(id);
-        attrs.addFlashAttribute("sucesso", "Situação do usuário atualizada");
+        attrs.addFlashAttribute("sucesso", "Situação do usuário atualizada.");
         return "redirect:/usuarios";
     }
 
     @PostMapping("/{id}/excluir")
     public String excluir(@PathVariable Long id, RedirectAttributes attrs) {
         usuarioService.excluir(id);
-        attrs.addFlashAttribute("sucesso", "Usuário excluído");
+        attrs.addFlashAttribute("sucesso", "Usuário excluído.");
         return "redirect:/usuarios";
     }
 

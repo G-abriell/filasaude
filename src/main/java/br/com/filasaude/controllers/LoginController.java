@@ -21,7 +21,7 @@ public class LoginController {
     /** Também atende POSTs recusados (ex.: token CSRF inválido), que chegam aqui por forward. */
     @RequestMapping("/acesso-negado")
     public String acessoNegado(Model model) {
-        model.addAttribute("mensagem", "Você não tem permissão para acessar esta página.");
+        model.addAttribute("mensagem", "Seu perfil não tem acesso a esta tela.");
         return "erro";
     }
 }

@@ -2,42 +2,63 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/layout :: head('Atendimentos do dia')}"></head>
 <body>
-<nav th:replace="~{fragments/layout :: menu}"></nav>
-<main>
-    <div th:replace="~{fragments/layout :: mensagens}"></div>
-    <h1>Atendimentos do dia</h1>
-    <form method="get" th:action="@{/atendimentos}">
-        <select name="filaId" onchange="this.form.submit()">
-            <option value="">Todas as filas</option>
-            <option th:each="f : ${filas}" th:value="${f.id}" th:selected="${f.id == filaId}" th:text="${f.nome}"></option>
-        </select>
-    </form>
-    <br>
-    <table>
-        <thead>
-        <tr><th>Senha</th><th>Paciente</th><th>Fila</th><th>Chegada</th><th>Status</th><th>Atendente</th><th>Guichê</th><th></th></tr>
-        </thead>
-        <tbody>
-        <tr th:each="a : ${atendimentos}">
-            <td th:text="${a.senha}" th:classappend="${a.prioridade.name() == 'PREFERENCIAL'} ? 'preferencial'"></td>
-            <td th:text="${a.paciente.nome}"></td>
-            <td th:text="${a.fila.nome}"></td>
-            <td th:text="${#temporals.format(a.dataHoraChegada, 'HH:mm')}"></td>
-            <td th:text="${a.status.descricao}"></td>
-            <td th:text="${a.atendente?.nome}"></td>
-            <td th:text="${a.guiche}"></td>
-            <td>
-                <form class="inline" method="post" sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')"
-                      th:if="${a.status.name() == 'AGUARDANDO' or a.status.name() == 'CHAMADO'}"
-                      th:action="@{/atendimentos/{id}/cancelar(id=${a.id})}"
-                      onsubmit="return confirm('Cancelar este atendimento?')">
-                    <button class="btn-perigo">Cancelar</button>
-                </form>
-            </td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(atendimentos)}"><td colspan="8">Nenhum atendimento hoje.</td></tr>
-        </tbody>
-    </table>
-</main>
+<div class="app">
+    <nav th:replace="~{fragments/layout :: menu('dia')}"></nav>
+    <main class="conteudo">
+        <header class="cabecalho-pagina">
+            <div>
+                <h1>Atendimentos do dia</h1>
+                <p>Todas as senhas de hoje, da chegada à finalização.</p>
+            </div>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+        <form class="busca" method="get" th:action="@{/atendimentos}">
+            <div class="campo">
+                <label for="filaId">Fila</label>
+                <select class="entrada" id="filaId" name="filaId" onchange="this.form.submit()">
+                    <option value="">Todas as filas</option>
+                    <option th:each="f : ${filas}" th:value="${f.id}" th:selected="${f.id == filaId}" th:text="${f.nome}">Consulta</option>
+                </select>
+            </div>
+            <noscript><button class="btn btn-secundario">Filtrar</button></noscript>
+        </form>
+
+        <p th:if="${#lists.isEmpty(atendimentos)}" class="estado-vazio">Nenhum atendimento hoje.</p>
+        <div class="tabela-caixa" th:unless="${#lists.isEmpty(atendimentos)}">
+            <table class="tabela">
+                <thead>
+                <tr>
+                    <th>Senha</th><th>Paciente</th><th>Fila</th><th>Chegada</th><th>Status</th>
+                    <th>Profissional</th><th>Sala</th><th><span class="visualmente-oculto">Ações</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="a : ${atendimentos}">
+                    <td class="senha-celula" th:text="${a.senha}">A001</td>
+                    <td th:text="${a.paciente.nome}">Maria Silva</td>
+                    <td th:text="${a.fila.nome}">Consulta</td>
+                    <td class="num" th:text="${#temporals.format(a.dataHoraChegada, 'HH:mm')}">08:42</td>
+                    <td><span th:replace="~{fragments/layout :: status(${a.status})}"></span></td>
+                    <td th:text="${a.atendente?.nome} ?: '—'">Dra. Ana</td>
+                    <td th:text="${a.guiche} ?: '—'">Consultório 1</td>
+                    <td class="acoes-celula">
+                        <form method="post" sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')"
+                              th:if="${a.status.name() == 'AGUARDANDO' or a.status.name() == 'CHAMADO'}"
+                              th:action="@{/atendimentos/{id}/cancelar(id=${a.id})}"
+                              th:data-confirmar="|Cancelar a senha ${a.senha}?|"
+                              data-consequencia="A senha sai da fila e o status passará para Cancelado."
+                              data-acao="Sim, cancelar">
+                            <button class="btn btn-secundario btn-compacto">Cancelar senha</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<dialog th:replace="~{fragments/layout :: confirmacao}"></dialog>
 </body>
 </html>

@@ -2,29 +2,57 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Usuário')}"></head>
 <body>
-<nav th:replace="~{fragments/layout :: menu}"></nav>
-<main>
-    <div th:replace="~{fragments/layout :: mensagens}"></div>
-    <h1 th:text="${usuario.id == null} ? 'Novo usuário' : 'Editar usuário'">Usuário</h1>
-    <form method="post" th:action="@{/usuarios}" th:object="${usuario}">
-        <input type="hidden" th:field="*{id}">
-        <input type="hidden" th:field="*{ativo}">
-        <label>Nome</label>
-        <input th:field="*{nome}">
-        <div class="campo-erro" th:errors="*{nome}"></div>
-        <label>E-mail</label>
-        <input type="email" th:field="*{email}">
-        <div class="campo-erro" th:errors="*{email}"></div>
-        <label th:text="${usuario.id == null} ? 'Senha' : 'Nova senha (deixe em branco para manter)'">Senha</label>
-        <input type="password" name="senha" autocomplete="new-password">
-        <label>Perfil</label>
-        <select th:field="*{perfil.id}">
-            <option value="">Selecione...</option>
-            <option th:each="p : ${perfis}" th:value="${p.id}" th:text="${p.nome}"></option>
-        </select>
-        <div class="campo-erro" th:errors="*{perfil}"></div>
-        <p><button>Salvar</button> <a class="btn btn-sec" th:href="@{/usuarios}">Cancelar</a></p>
-    </form>
-</main>
+<div class="app">
+    <nav th:replace="~{fragments/layout :: menu('usuarios')}"></nav>
+    <main class="conteudo">
+        <header class="cabecalho-pagina">
+            <div>
+                <h1 th:text="${usuario.id == null} ? 'Cadastrar usuário' : 'Editar usuário'">Cadastrar usuário</h1>
+                <p>O perfil define quais telas a pessoa vê.</p>
+            </div>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+        <form class="cartao cartao-formulario" method="post" th:action="@{/usuarios}" th:object="${usuario}">
+            <input type="hidden" th:field="*{id}">
+            <input type="hidden" th:field="*{ativo}">
+            <div class="campo">
+                <label for="nome">Nome<span class="obrigatorio" aria-hidden="true">*</span></label>
+                <input class="entrada" th:field="*{nome}" th:errorclass="campo-invalido" required>
+                <p th:replace="~{fragments/layout :: erro-campo('nome')}"></p>
+            </div>
+            <div class="campo">
+                <label for="email">E-mail<span class="obrigatorio" aria-hidden="true">*</span></label>
+                <input class="entrada" type="email" th:field="*{email}" th:errorclass="campo-invalido"
+                       placeholder="recepcao@clinica.com" autocomplete="off" required>
+                <p th:replace="~{fragments/layout :: erro-campo('email')}"></p>
+            </div>
+            <div class="campo">
+                <label for="senha">
+                    <th:block th:text="${usuario.id == null} ? 'Senha' : 'Nova senha'">Senha</th:block><span
+                        th:if="${usuario.id == null}" class="obrigatorio" aria-hidden="true">*</span>
+                </label>
+                <input class="entrada" id="senha" type="password" name="senha" autocomplete="new-password"
+                       th:required="${usuario.id == null}">
+                <p class="dica" th:text="${usuario.id == null} ? 'Pelo menos 6 caracteres.' : 'Deixe em branco para manter a senha atual.'">Pelo menos 6 caracteres.</p>
+            </div>
+            <div class="campo">
+                <label for="perfil">Perfil<span class="obrigatorio" aria-hidden="true">*</span></label>
+                <select class="entrada" id="perfil" th:field="*{perfil.id}" th:errorclass="campo-invalido" required>
+                    <option value="">Selecione o perfil</option>
+                    <option th:each="p : ${perfis}" th:value="${p.id}" th:text="${p.nome}">RECEPCAO</option>
+                </select>
+                <p th:replace="~{fragments/layout :: erro-campo('perfil')}"></p>
+            </div>
+            <p class="nota-obrigatorios">* Campos obrigatórios</p>
+            <div class="acoes-formulario">
+                <button class="btn btn-primario">Salvar usuário</button>
+                <a class="btn btn-secundario" th:href="@{/usuarios}">Cancelar</a>
+            </div>
+        </form>
+    </main>
+</div>
+<dialog th:replace="~{fragments/layout :: confirmacao}"></dialog>
 </body>
 </html>

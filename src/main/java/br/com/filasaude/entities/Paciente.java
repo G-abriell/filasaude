@@ -28,11 +28,11 @@ public class Paciente {
     private String nome;
 
     @NotBlank
-    @Pattern(regexp = "\\d{11}", message = "CPF deve conter 11 dígitos (somente números)")
+    @Pattern(regexp = "\\d{11}", message = "Informe os 11 números do CPF, sem pontos ou traço.")
     @Column(name = "cpf", nullable = false, unique = true, length = 11)
     private String cpf;
 
-    @Pattern(regexp = "^$|\\d{15}", message = "Cartão SUS deve conter 15 dígitos (somente números)")
+    @Pattern(regexp = "^$|\\d{15}", message = "Informe os 15 números do Cartão SUS, sem espaços.")
     @Column(name = "cartao_sus", unique = true, length = 15)
     private String cartaoSus;
 
@@ -58,6 +58,14 @@ public class Paciente {
 
     public int getIdade() {
         return dataNascimento == null ? 0 : Period.between(dataNascimento, LocalDate.now()).getYears();
+    }
+
+    /** CPF no formato 000.000.000-00, para exibição. */
+    public String getCpfFormatado() {
+        if (cpf == null || cpf.length() != 11) {
+            return cpf;
+        }
+        return cpf.substring(0, 3) + "." + cpf.substring(3, 6) + "." + cpf.substring(6, 9) + "-" + cpf.substring(9);
     }
 
     /** Idosos têm direito a atendimento preferencial (Lei 10.048/2000). */

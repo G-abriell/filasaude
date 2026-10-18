@@ -50,14 +50,14 @@ public class PerfilController {
             model.addAttribute("erro", e.getMessage());
             return "perfis/form";
         }
-        attrs.addFlashAttribute("sucesso", "Perfil salvo com sucesso");
+        attrs.addFlashAttribute("sucesso", "Perfil salvo.");
         return "redirect:/perfis";
     }
 
     @PostMapping("/{id}/excluir")
     public String excluir(@PathVariable Long id, RedirectAttributes attrs) {
         perfilService.excluir(id);
-        attrs.addFlashAttribute("sucesso", "Perfil excluído");
+        attrs.addFlashAttribute("sucesso", "Perfil excluído.");
         return "redirect:/perfis";
     }
 }

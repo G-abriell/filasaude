@@ -43,12 +43,12 @@ public class FilaService {
         filaRepository.findByNomeIgnoreCase(fila.getNome())
                 .filter(existente -> !existente.getId().equals(fila.getId()))
                 .ifPresent(existente -> {
-                    throw new RegraNegocioException("Já existe uma fila com o nome " + fila.getNome());
+                    throw new RegraNegocioException("Já existe uma fila com o nome " + fila.getNome() + ".");
                 });
         filaRepository.findBySiglaIgnoreCase(fila.getSigla())
                 .filter(existente -> !existente.getId().equals(fila.getId()))
                 .ifPresent(existente -> {
-                    throw new RegraNegocioException("A sigla " + fila.getSigla() + " já está em uso pela fila " + existente.getNome());
+                    throw new RegraNegocioException("A sigla " + fila.getSigla() + " já está em uso pela fila " + existente.getNome() + ".");
                 });
         return filaRepository.save(fila);
     }
@@ -63,7 +63,7 @@ public class FilaService {
     public void excluir(Long id) {
         Fila fila = buscarPorId(id);
         if (atendimentoRepository.existsByFilaId(id)) {
-            throw new RegraNegocioException("A fila possui atendimentos registrados; desative-a em vez de excluir");
+            throw new RegraNegocioException("A fila tem atendimentos registrados. Desative a fila em vez de excluir.");
         }
         filaRepository.delete(fila);
     }
