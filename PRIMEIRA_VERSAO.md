@@ -75,11 +75,14 @@ Um simulador funcional na própria página que permite ao usuário interagir com
 ---
 
 ### 3.5. Tela Interna de Configurações da Unidade
-Área autenticada do sistema onde o administrador gerencia as informações do estabelecimento:
+Área autenticada do sistema onde o Gestor administra as informações do estabelecimento e os parâmetros da fila:
 
-* **Barra Lateral Institucional:** Padronizada com logotipo, navegação por ícones, indicador da sessão ativa (`Perfil: Gestor`) e botão de logout (`Sair`).
+* **Identificação Cadastral Completa:** Inclusão dos campos de **CNPJ da clínica** (com máscara automática `00.000.000/0000-00`, validação e bloqueio de não dígitos) e seleção do **Tipo de estabelecimento** (Clínica Geral, Policlínica, Consultório, UBS, etc.), ambos refletidos em tempo real na prévia do comprovante de atendimento.
 * **Máscara Inteligente de Telefone:** Bloqueia automaticamente letras e caracteres especiais no momento da digitação e aplica a máscara dinâmica para telefone fixo `(XX) XXXX-XXXX` ou celular `(XX) XXXXX-XXXX`, com sanitização correspondente no backend Spring Boot em [`ConfiguracaoController.java`](file:///E:/filasaude/filasaude/src/main/java/br/com/filasaude/controllers/ConfiguracaoController.java).
-* **Placeholders Padronizados:** Texto de exemplo do prefixo em caixa baixa e alta suave (`Ex.: A`).
+* **Painel de Acessibilidade e Usabilidade:** Configurações ergonômicas para operadores e pacientes, incluindo escala de fonte (100%, 112%, 125%), modo de alto contraste, foco visual reforçado para digitação ágil sem mouse via teclado, redução de animações e espaçamento ampliado para facilidade de leitura (dislexia).
+* **Widget Flutuante de Acessibilidade Universal:** Botão com o ícone internacional de acessibilidade e atalho rápido (`Alt + A`) para alternância instantânea das preferências em tempo real.
+* **Tradução em Libras com Avatar 3D (VLibras):** Integração oficial do widget de acessibilidade do Governo Federal (MGI/SGD/UFPB), disponibilizando tradução interativa para Língua Brasileira de Sinais via avatar 3D, acionável diretamente pela aba flutuante ou pelo painel ergonômico.
+* **Barra Lateral Institucional:** Padronizada com logotipo, navegação por ícones, indicador da sessão ativa (`Perfil: Gestor`) e botão de logout (`Sair`).
 
 ![Tela de Configurações da Unidade](docs/prints/pv_05_configuracoes.png)
 

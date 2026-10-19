@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>FilaSaúde · Gestão de atendimento</title>
 <meta name="description" content="FilaSaúde é um sistema web simples para clínicas e unidades de atendimento organizarem a recepção e a fila, do cadastro aos indicadores. Cada pessoa na sua vez.">
 <meta name="theme-color" content="#FAF8F4">
@@ -16,9 +17,18 @@
   try {
     localStorage.removeItem('fs-tema');
     var t = localStorage.getItem('fs-tema-manual');
-    document.documentElement.dataset.theme = (t === 'dark') ? 'dark' : 'light';
+    var theme = (t === 'dark') ? 'dark' : 'light';
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+
+    var m = localStorage.getItem('fs-a11y-motion');
+    if (m === 'true' || (m === null && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+      document.documentElement.classList.add('no-anim');
+      document.documentElement.setAttribute('data-motion-reduced', 'true');
+    }
   } catch (e) {
     document.documentElement.dataset.theme = 'light';
+    document.documentElement.style.colorScheme = 'light';
   }
   document.documentElement.classList.add("js");
 })();
@@ -28,6 +38,7 @@
    FilaSaúde: tokens da marca
    ============================================================ */
 :root {
+  color-scheme: light;
   --petroleo-700: #0F3D44;
   --petroleo-900: #0A2A30;
   --cobre-500:    #CB7440;
@@ -68,6 +79,7 @@
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   --petroleo-700: #1B5862;
   --cobre-500:    #D97D48;
   --bg:           #06171A;
@@ -1449,6 +1461,7 @@ dialog.access::backdrop { background: rgba(10, 42, 48, .55); backdrop-filter: bl
   $(".theme-toggle").addEventListener("click", function () {
     var next = root.dataset.theme === "dark" ? "light" : "dark";
     root.dataset.theme = next;
+    root.style.colorScheme = next;
     try { localStorage.setItem("fs-tema-manual", next); } catch (e) {}
     applyThemeMeta(next);
   });
@@ -1725,5 +1738,26 @@ dialog.access::backdrop { background: rgba(10, 42, 48, .55); backdrop-filter: bl
   $("#ano").textContent = String(new Date().getFullYear());
 })();
 </script>
+
+<!-- Widget VLibras: Tradução em Libras com avatar 3D (Governo Federal) -->
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+    if (window.VLibras) {
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    } else {
+        window.addEventListener('load', function () {
+            if (window.VLibras) {
+                new window.VLibras.Widget('https://vlibras.gov.br/app');
+            }
+        });
+    }
+</script>
+
 </body>
 </html>

@@ -16,6 +16,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ConfiguracaoController {
 
     private String nomeUnidade = "Unidade de Saúde Central";
+    private String cnpj = "12.345.678/0001-90";
+    private String tipoClinica = "Clínica Médica Geral";
     private String telefone = "(83) 3221-4000";
     private String endereco = "Av. Epitácio Pessoa, 1200, Centro";
 
@@ -27,9 +29,18 @@ public class ConfiguracaoController {
     private boolean alertaSonoro = true;
     private boolean exibirHistoricoPainel = true;
 
+    // Preferências de Acessibilidade (IHC / WCAG 2.2)
+    private String tamanhoFonte = "padrao"; // padrao, medio, grande
+    private boolean altoContraste = false;
+    private boolean focoReforcado = true;
+    private boolean reducaoMovimento = false;
+    private boolean legibilidadeAprimorada = false;
+
     @GetMapping
     public String exibirConfiguracoes(Model model) {
         model.addAttribute("nomeUnidade", nomeUnidade);
+        model.addAttribute("cnpj", cnpj);
+        model.addAttribute("tipoClinica", tipoClinica);
         model.addAttribute("telefone", telefone);
         model.addAttribute("endereco", endereco);
         model.addAttribute("prefixoSenha", prefixoSenha);
@@ -38,12 +49,21 @@ public class ConfiguracaoController {
         model.addAttribute("horarioFechamento", horarioFechamento);
         model.addAttribute("alertaSonoro", alertaSonoro);
         model.addAttribute("exibirHistoricoPainel", exibirHistoricoPainel);
+
+        // Acessibilidade
+        model.addAttribute("tamanhoFonte", tamanhoFonte);
+        model.addAttribute("altoContraste", altoContraste);
+        model.addAttribute("focoReforcado", focoReforcado);
+        model.addAttribute("reducaoMovimento", reducaoMovimento);
+        model.addAttribute("legibilidadeAprimorada", legibilidadeAprimorada);
         return "configuracoes";
     }
 
     @PostMapping
     public String salvarConfiguracoes(
             @RequestParam("nomeUnidade") String nomeUnidade,
+            @RequestParam(value = "cnpj", required = false, defaultValue = "") String cnpj,
+            @RequestParam(value = "tipoClinica", required = false, defaultValue = "Clínica Médica Geral") String tipoClinica,
             @RequestParam(value = "telefone", required = false, defaultValue = "") String telefone,
             @RequestParam(value = "endereco", required = false, defaultValue = "") String endereco,
             @RequestParam("prefixoSenha") String prefixoSenha,
@@ -52,6 +72,11 @@ public class ConfiguracaoController {
             @RequestParam("horarioFechamento") String horarioFechamento,
             @RequestParam(value = "alertaSonoro", defaultValue = "false") boolean alertaSonoro,
             @RequestParam(value = "exibirHistoricoPainel", defaultValue = "false") boolean exibirHistoricoPainel,
+            @RequestParam(value = "tamanhoFonte", defaultValue = "padrao") String tamanhoFonte,
+            @RequestParam(value = "altoContraste", defaultValue = "false") boolean altoContraste,
+            @RequestParam(value = "focoReforcado", defaultValue = "false") boolean focoReforcado,
+            @RequestParam(value = "reducaoMovimento", defaultValue = "false") boolean reducaoMovimento,
+            @RequestParam(value = "legibilidadeAprimorada", defaultValue = "false") boolean legibilidadeAprimorada,
             RedirectAttributes redirectAttributes) {
 
         if (nomeUnidade == null || nomeUnidade.isBlank() || prefixoSenha == null || prefixoSenha.isBlank()
@@ -62,6 +87,8 @@ public class ConfiguracaoController {
         }
 
         this.nomeUnidade = nomeUnidade.trim();
+        this.cnpj = formatarCnpj(cnpj);
+        this.tipoClinica = (tipoClinica == null || tipoClinica.isBlank()) ? "Clínica Médica Geral" : tipoClinica.trim();
         this.telefone = formatarTelefone(telefone);
         this.endereco = endereco.trim();
         this.prefixoSenha = prefixoSenha.trim().toUpperCase();
@@ -71,8 +98,29 @@ public class ConfiguracaoController {
         this.alertaSonoro = alertaSonoro;
         this.exibirHistoricoPainel = exibirHistoricoPainel;
 
+        this.tamanhoFonte = tamanhoFonte;
+        this.altoContraste = altoContraste;
+        this.focoReforcado = focoReforcado;
+        this.reducaoMovimento = reducaoMovimento;
+        this.legibilidadeAprimorada = legibilidadeAprimorada;
+
         redirectAttributes.addFlashAttribute("mensagemSucesso", "Configurações salvas com sucesso.");
         return "redirect:/configuracoes";
+    }
+
+    private String formatarCnpj(String val) {
+        if (val == null || val.isBlank()) {
+            return "";
+        }
+        String digitos = val.replaceAll("\\D", "");
+        if (digitos.length() == 14) {
+            return String.format("%s.%s.%s/%s-%s",
+                    digitos.substring(0, 2), digitos.substring(2, 5), digitos.substring(5, 8),
+                    digitos.substring(8, 12), digitos.substring(12, 14));
+        } else if (!digitos.isEmpty()) {
+            return digitos;
+        }
+        return "";
     }
 
     private String formatarTelefone(String tel) {

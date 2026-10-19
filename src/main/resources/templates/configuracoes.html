@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>Configurações · FilaSaúde</title>
     <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%230F3D44"/><rect x="14" y="16" width="7" height="32" rx="3.5" fill="%23FAF8F4"/><rect x="27" y="16" width="23" height="7" rx="3.5" fill="%23CB7440"/><rect x="27" y="28.5" width="15" height="7" rx="3.5" fill="%23FAF8F4"/><circle cx="30.5" cy="44.5" r="3.5" fill="%236B9784"/></svg>'>
 
@@ -18,9 +19,12 @@
         (function () {
             try {
                 var t = localStorage.getItem('fs-tema-manual');
-                document.documentElement.dataset.theme = (t === 'dark') ? 'dark' : 'light';
+                var theme = (t === 'dark') ? 'dark' : 'light';
+                document.documentElement.dataset.theme = theme;
+                document.documentElement.style.colorScheme = theme;
             } catch (e) {
                 document.documentElement.dataset.theme = 'light';
+                document.documentElement.style.colorScheme = 'light';
             }
         })();
     </script>
@@ -30,6 +34,7 @@
            FilaSaúde — Design System Tokens (Manual da Marca v1.0)
            ============================================================ */
         :root {
+            color-scheme: light;
             /* Paleta de cores */
             --petroleo-900: #0A2A30;
             --petroleo-700: #0F3D44;
@@ -93,6 +98,7 @@
         }
 
         [data-theme="dark"] {
+            color-scheme:       dark;
             --surface:          #06171A;
             --surface-raised:   #0F2D33;
             --surface-sunken:   #091F24;
@@ -161,12 +167,17 @@
 
         .app-sidebar {
             width: 260px;
+            height: 100vh;
+            position: sticky;
+            top: 0;
             background-color: var(--brand-fill);
             color: var(--nevoa-50);
             display: flex;
             flex-direction: column;
             padding: var(--space-6) var(--space-4);
             flex-shrink: 0;
+            box-sizing: border-box;
+            overflow-y: auto;
         }
 
         .sidebar-brand {
@@ -394,6 +405,235 @@
             border: 1px solid var(--line-strong);
             border-radius: var(--radius-md);
             transition: border-color 150ms ease, box-shadow 150ms ease;
+            color-scheme: inherit;
+        }
+
+        .fs-input[type="time"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            padding: 4px;
+            margin-right: -4px;
+            opacity: 0.8;
+            transition: opacity 150ms ease, background-color 150ms ease;
+        }
+
+        .fs-input[type="time"]::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+            background-color: var(--surface-sunken);
+        }
+
+        /* Stepper de Número Personalizado (Ajuste ergonômico de tempo) */
+        .fs-number-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .fs-number-wrapper .fs-input--stepper {
+            padding-right: 44px;
+        }
+
+        .fs-input--stepper::-webkit-inner-spin-button,
+        .fs-input--stepper::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .fs-input--stepper {
+            -moz-appearance: textfield;
+        }
+
+        .fs-stepper-arrows {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            bottom: 5px;
+            width: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 2px;
+            border-radius: var(--radius-sm);
+            background-color: var(--surface-sunken);
+            border: 1px solid var(--line);
+            padding: 2px;
+            box-sizing: border-box;
+        }
+
+        .fs-stepper-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 0;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            color: var(--ink-muted);
+            border-radius: 4px;
+            transition: background-color 120ms ease, color 120ms ease;
+        }
+
+        .fs-stepper-btn:hover {
+            background-color: var(--surface-raised);
+            color: var(--ink);
+        }
+
+        .fs-stepper-btn:active {
+            background-color: var(--brand-soft);
+            color: var(--brand);
+        }
+
+        .fs-stepper-btn svg {
+            width: 13px;
+            height: 13px;
+        }
+
+        /* Seletor de Horário Customizado FilaSaúde (livre de azul nativo e perfeitamente integrado) */
+        .fs-time-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .fs-time-wrapper .fs-input--time {
+            padding-right: 42px;
+            transition: border-color 150ms ease, border-radius 150ms ease;
+        }
+
+        .fs-time-wrapper.is-open .fs-input--time {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-color: var(--brand);
+            border-bottom-color: var(--line);
+        }
+
+        .fs-time-trigger {
+            position: absolute;
+            right: 6px;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 0;
+            color: var(--ink-muted);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: color 150ms ease, background-color 150ms ease;
+        }
+
+        .fs-time-trigger:hover,
+        .fs-time-wrapper.is-open .fs-time-trigger {
+            color: var(--brand);
+            background-color: var(--brand-soft);
+        }
+
+        .fs-time-trigger svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .fs-time-popover {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: var(--surface-raised);
+            border: 1px solid var(--brand);
+            border-top: none;
+            border-bottom-left-radius: var(--radius-md);
+            border-bottom-right-radius: var(--radius-md);
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+            z-index: 1050;
+            display: none;
+            overflow: hidden;
+            animation: fsPopoverEnter 120ms ease;
+        }
+
+        [data-theme="dark"] .fs-time-popover {
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes fsPopoverEnter {
+            from { opacity: 0; transform: translateY(-2px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fs-time-popover.is-open {
+            display: block;
+        }
+
+        .fs-time-header {
+            display: flex;
+            background: var(--surface-sunken);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .fs-time-header-col {
+            flex: 1;
+            text-align: center;
+            padding: 7px 4px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+        }
+
+        .fs-time-header-col:first-child {
+            border-right: 1px solid var(--line);
+        }
+
+        .fs-time-body {
+            display: flex;
+            height: 180px;
+        }
+
+        .fs-time-col {
+            flex: 1;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: 0;
+        }
+
+        .fs-time-col::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+
+        .fs-time-col:first-child {
+            border-right: 1px solid var(--line);
+        }
+
+        .fs-time-opt {
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--ink);
+            cursor: pointer;
+            font-variant-numeric: tabular-nums;
+            transition: background-color 100ms ease, color 100ms ease;
+        }
+
+        .fs-time-opt:hover {
+            background-color: var(--surface-sunken);
+            color: var(--ink);
+        }
+
+        .fs-time-opt.is-selected {
+            background-color: var(--brand-soft);
+            color: var(--brand);
+            font-weight: 700;
         }
 
         .fs-input::placeholder {
@@ -418,6 +658,484 @@
             line-height: 20px;
             color: var(--ink-muted);
             margin-top: 6px;
+        }
+
+        .fs-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23485F64' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 16px;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+
+        [data-theme="dark"] .fs-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2396ACB0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        }
+
+
+        /* Segmented Control para Tamanho de Fonte */
+        .fs-segmented-control {
+            display: flex;
+            background-color: var(--surface-sunken);
+            border: 1px solid var(--line-strong);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .fs-segmented-item {
+            flex: 1;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .fs-segmented-item input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .fs-segmented-item span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 38px;
+            padding: 0 12px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ink-muted);
+            transition: background-color 150ms ease, color 150ms ease;
+            user-select: none;
+        }
+
+        .fs-segmented-item input:checked + span {
+            background-color: var(--surface-raised);
+            color: var(--ink);
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* ==================== Escala Tipográfica de Acessibilidade ==================== */
+        /* Modo Médio (+12% a +15%) */
+        html[data-font-scale="medio"] body {
+            font-size: 18px;
+        }
+        html[data-font-scale="medio"] .page-title {
+            font-size: 34px;
+            line-height: 40px;
+        }
+        html[data-font-scale="medio"] .page-subtitle {
+            font-size: 18px;
+            line-height: 26px;
+        }
+        html[data-font-scale="medio"] .fs-card-title {
+            font-size: 25px;
+            line-height: 32px;
+        }
+        html[data-font-scale="medio"] .fs-card-desc {
+            font-size: 16px;
+            line-height: 23px;
+        }
+        html[data-font-scale="medio"] .fs-label {
+            font-size: 16px;
+            line-height: 23px;
+        }
+        html[data-font-scale="medio"] .fs-help,
+        html[data-font-scale="medio"] .required-note {
+            font-size: 15px;
+            line-height: 22px;
+        }
+        html[data-font-scale="medio"] .fs-option-title {
+            font-size: 18px;
+        }
+        html[data-font-scale="medio"] .fs-option-sub {
+            font-size: 15.5px;
+            line-height: 22px;
+        }
+        html[data-font-scale="medio"] .fs-input,
+        html[data-font-scale="medio"] .fs-select {
+            font-size: 17.5px;
+            height: 52px;
+        }
+        html[data-font-scale="medio"] .fs-stepper-arrows {
+            width: 34px;
+        }
+        html[data-font-scale="medio"] .fs-stepper-btn svg {
+            width: 14.5px;
+            height: 14.5px;
+        }
+        html[data-font-scale="medio"] .fs-segmented-item span {
+            font-size: 15.5px;
+            height: 42px;
+        }
+        html[data-font-scale="medio"] .btn-fs-primary,
+        html[data-font-scale="medio"] .btn-fs-secondary {
+            font-size: 16px;
+            height: 52px;
+            padding: 0 28px;
+        }
+        html[data-font-scale="medio"] .feedback-banner {
+            font-size: 16.5px;
+        }
+        html[data-font-scale="medio"] .sidebar-link {
+            font-size: 16.5px;
+        }
+        html[data-font-scale="medio"] .profile-role {
+            font-size: 15.5px;
+        }
+        html[data-font-scale="medio"] .profile-logout {
+            font-size: 14px;
+        }
+        html[data-font-scale="medio"] .ticket-header h3 {
+            font-size: 17px;
+        }
+        html[data-font-scale="medio"] .ticket-tipo {
+            font-size: 14.5px;
+        }
+        html[data-font-scale="medio"] .ticket-cnpj {
+            font-size: 14px;
+        }
+        html[data-font-scale="medio"] .ticket-caption {
+            font-size: 14.5px;
+        }
+        html[data-font-scale="medio"] .status-pill {
+            font-size: 15px;
+        }
+        html[data-font-scale="medio"] .ticket-meta {
+            font-size: 17.5px;
+        }
+        html[data-font-scale="medio"] .ticket-unit {
+            font-size: 15.5px;
+        }
+        html[data-font-scale="medio"] .ticket-summary {
+            font-size: 15.5px;
+        }
+        html[data-font-scale="medio"] .ticket-date {
+            font-size: 15.5px;
+        }
+        html[data-font-scale="medio"] .ticket-field-label {
+            font-size: 15px;
+        }
+        html[data-font-scale="medio"] .ticket-field-val {
+            font-size: 18px;
+        }
+        html[data-font-scale="medio"] .ticket-msg {
+            font-size: 15px;
+        }
+
+        /* Modo Grande (+25% a +30%) */
+        html[data-font-scale="grande"] body {
+            font-size: 20px;
+        }
+        html[data-font-scale="grande"] .page-title {
+            font-size: 38px;
+            line-height: 44px;
+        }
+        html[data-font-scale="grande"] .page-subtitle {
+            font-size: 20px;
+            line-height: 28px;
+        }
+        html[data-font-scale="grande"] .fs-card-title {
+            font-size: 28px;
+            line-height: 36px;
+        }
+        html[data-font-scale="grande"] .fs-card-desc {
+            font-size: 17.5px;
+            line-height: 25px;
+        }
+        html[data-font-scale="grande"] .fs-label {
+            font-size: 18px;
+            line-height: 26px;
+        }
+        html[data-font-scale="grande"] .fs-help,
+        html[data-font-scale="grande"] .required-note {
+            font-size: 16.5px;
+            line-height: 24px;
+        }
+        html[data-font-scale="grande"] .fs-option-title {
+            font-size: 20px;
+        }
+        html[data-font-scale="grande"] .fs-option-sub {
+            font-size: 17px;
+            line-height: 24px;
+        }
+        html[data-font-scale="grande"] .fs-input,
+        html[data-font-scale="grande"] .fs-select {
+            font-size: 19px;
+            height: 56px;
+        }
+        html[data-font-scale="grande"] .fs-stepper-arrows {
+            width: 38px;
+        }
+        html[data-font-scale="grande"] .fs-stepper-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+        html[data-font-scale="grande"] .fs-segmented-item span {
+            font-size: 17px;
+            height: 46px;
+        }
+        html[data-font-scale="grande"] .btn-fs-primary,
+        html[data-font-scale="grande"] .btn-fs-secondary {
+            font-size: 17.5px;
+            height: 56px;
+            padding: 0 32px;
+        }
+        html[data-font-scale="grande"] .feedback-banner {
+            font-size: 18px;
+        }
+        html[data-font-scale="grande"] .sidebar-link {
+            font-size: 18px;
+        }
+        html[data-font-scale="grande"] .profile-role {
+            font-size: 17px;
+        }
+        html[data-font-scale="grande"] .profile-logout {
+            font-size: 15.5px;
+        }
+        html[data-font-scale="grande"] .ticket-header h3 {
+            font-size: 19px;
+        }
+        html[data-font-scale="grande"] .ticket-tipo {
+            font-size: 16px;
+        }
+        html[data-font-scale="grande"] .ticket-cnpj {
+            font-size: 15px;
+        }
+        html[data-font-scale="grande"] .ticket-caption {
+            font-size: 16px;
+        }
+        html[data-font-scale="grande"] .ticket-number {
+            font-size: 80px;
+            line-height: 80px;
+        }
+        html[data-font-scale="grande"] .status-pill {
+            font-size: 16.5px;
+        }
+        html[data-font-scale="grande"] .ticket-meta {
+            font-size: 19px;
+        }
+        html[data-font-scale="grande"] .ticket-unit {
+            font-size: 17px;
+        }
+        html[data-font-scale="grande"] .ticket-summary {
+            font-size: 17px;
+        }
+        html[data-font-scale="grande"] .ticket-date {
+            font-size: 17px;
+        }
+        html[data-font-scale="grande"] .ticket-field-label {
+            font-size: 17px;
+        }
+        html[data-font-scale="grande"] .ticket-field-val {
+            font-size: 20px;
+        }
+        html[data-font-scale="grande"] .ticket-msg {
+            font-size: 16.5px;
+        }
+
+
+        html[data-high-contrast="true"] {
+            --surface: #000000 !important;
+            --surface-raised: #0B0F10 !important;
+            --surface-sunken: #151C1E !important;
+            --ink: #FFFFFF !important;
+            --ink-muted: #FFF875 !important;
+            --brand: #FFFF00 !important;
+            --on-brand: #000000 !important;
+            --line: #FFFFFF !important;
+            --line-strong: #FFFFFF !important;
+            --accent: #FFA033 !important;
+            --on-accent: #000000 !important;
+            --focus-ring: #FFFF00 !important;
+        }
+        html[data-high-contrast="true"] .fs-card,
+        html[data-high-contrast="true"] .ticket-preview {
+            border: 2px solid #FFFFFF !important;
+        }
+
+        html[data-focus-enhanced="true"] :focus-visible,
+        html[data-focus-enhanced="true"] .fs-input:focus,
+        html[data-focus-enhanced="true"] button:focus-visible,
+        html[data-focus-enhanced="true"] a:focus-visible {
+            outline: 3.5px solid var(--accent, #CB7440) !important;
+            outline-offset: 3px !important;
+        }
+
+        /* ==================== Redução de Movimento e Acessibilidade ==================== */
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto !important;
+            }
+            *, *::before, *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        html[data-motion-reduced="true"],
+        html[data-motion-reduced="true"] body {
+            scroll-behavior: auto !important;
+        }
+
+        html[data-motion-reduced="true"] *,
+        html[data-motion-reduced="true"] *::before,
+        html[data-motion-reduced="true"] *::after {
+            animation-duration: 0.001ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.001ms !important;
+            transition-delay: 0s !important;
+            animation-delay: 0s !important;
+            scroll-behavior: auto !important;
+        }
+
+        html[data-motion-reduced="true"] .a11y-trigger:hover {
+            transform: none !important;
+        }
+
+        html[data-motion-reduced="true"] .a11y-panel {
+            animation: none !important;
+            transform: none !important;
+        }
+
+        html[data-motion-reduced="true"] .btn-fs-primary,
+        html[data-motion-reduced="true"] .btn-fs-secondary,
+        html[data-motion-reduced="true"] .sidebar-link,
+        html[data-motion-reduced="true"] .fs-switch {
+            transition: none !important;
+            transform: none !important;
+        }
+
+
+        html[data-dyslexia="true"] body,
+        html[data-dyslexia="true"] .fs-card,
+        html[data-dyslexia="true"] .page-title,
+        html[data-dyslexia="true"] .page-subtitle,
+        html[data-dyslexia="true"] .fs-label,
+        html[data-dyslexia="true"] .fs-input {
+            letter-spacing: 0.05em !important;
+            line-height: 1.8 !important;
+            word-spacing: 0.1em !important;
+        }
+
+        /* Widget Flutuante de Acessibilidade Rápida */
+        .a11y-trigger {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background-color: var(--brand);
+            color: var(--on-brand);
+            border: 2px solid var(--surface-raised);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 150ms ease, box-shadow 150ms ease;
+        }
+        .a11y-trigger:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+        }
+        .a11y-trigger svg {
+            width: 26px;
+            height: 26px;
+        }
+
+        .a11y-panel {
+            position: fixed;
+            bottom: 86px;
+            right: 24px;
+            width: 320px;
+            max-width: calc(100vw - 32px);
+            background: var(--surface-raised);
+            border: 1px solid var(--line-strong);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+            padding: 18px 20px;
+            z-index: 1001;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .a11y-panel.is-open {
+            display: flex;
+            animation: a11yEnter 200ms ease;
+        }
+        @keyframes a11yEnter {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .a11y-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 10px;
+        }
+        .a11y-panel-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .a11y-close-btn {
+            background: transparent;
+            border: 0;
+            color: var(--ink-muted);
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .a11y-close-btn:hover {
+            color: var(--ink);
+        }
+        .a11y-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ink);
+        }
+        .a11y-btn-group {
+            display: flex;
+            gap: 6px;
+        }
+        .a11y-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--line-strong);
+            border-radius: var(--radius-sm);
+            background: var(--surface-sunken);
+            color: var(--ink);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 150ms ease;
+        }
+        .a11y-btn:hover {
+            background: var(--surface-raised);
+        }
+        .a11y-btn.is-active {
+            background: var(--brand);
+            color: var(--on-brand);
+            border-color: var(--brand);
         }
 
         /* Opções de alternância (Notificações e Painel) */
@@ -518,13 +1236,37 @@
             font-size: 16px;
             font-weight: 500;
             color: var(--ink);
-            margin-bottom: 4px;
+            margin-bottom: 8px;
+        }
+
+        .ticket-clinic-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 16px;
         }
 
         .ticket-unit {
             font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+            line-height: 1.35;
+            margin: 0;
+        }
+
+        .ticket-tipo {
+            font-size: 13px;
             color: var(--ink-muted);
-            margin-bottom: 16px;
+            line-height: 1.35;
+            margin: 0;
+        }
+
+        .ticket-cnpj {
+            font-size: 12.5px;
+            color: var(--ink-muted);
+            line-height: 1.35;
+            font-variant-numeric: tabular-nums;
+            margin: 0;
         }
 
         .ticket-summary {
@@ -606,9 +1348,8 @@
         }
 
         .required-note {
-            font-size: 14px;
+            font-size: 13.5px;
             color: var(--ink-muted);
-            margin-top: var(--space-4);
         }
 
         /* ============================================================
@@ -621,6 +1362,8 @@
 
             .app-sidebar {
                 width: 100%;
+                height: auto;
+                position: static;
                 padding: var(--space-4);
             }
 
@@ -642,6 +1385,7 @@
             .sidebar-footer {
                 display: none;
             }
+
 
             .app-main {
                 padding: var(--space-8) var(--space-4);
@@ -779,11 +1523,14 @@
 
                     <!-- Cartão 1 — Dados da Unidade de Saúde -->
                     <section class="fs-card" aria-labelledby="card-unidade-title">
-                        <h2 id="card-unidade-title" class="fs-card-title">Dados da unidade de saúde</h2>
-                        <p class="fs-card-desc">Identificação exibida nos comprovantes de senha e no painel de chamada.</p>
+                        <div class="d-flex justify-content-between align-items-baseline flex-wrap gap-2">
+                            <h2 id="card-unidade-title" class="fs-card-title m-0">Dados da unidade de saúde</h2>
+                            <span class="required-note m-0 text-nowrap">* Campos obrigatórios</span>
+                        </div>
+                        <p class="fs-card-desc mt-1">Identificação exibida nos comprovantes de senha e no painel de chamada.</p>
 
                         <div class="row g-3">
-                            <div class="col-12">
+                            <div class="col-12 col-md-7">
                                 <label for="nomeUnidade" class="fs-label">Nome da clínica ou unidade *</label>
                                 <input type="text"
                                        id="nomeUnidade"
@@ -796,7 +1543,33 @@
                             </div>
 
                             <div class="col-12 col-md-5">
-                                <label for="telefone" class="fs-label">Telefone</label>
+                                <label for="cnpj" class="fs-label">CNPJ da clínica *</label>
+                                <input type="text"
+                                       id="cnpj"
+                                       name="cnpj"
+                                       class="fs-input fs-input--tabular"
+                                       th:value="${cnpj}"
+                                       placeholder="00.000.000/0000-00"
+                                       maxlength="18"
+                                       inputmode="numeric"
+                                       required>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="tipoClinica" class="fs-label">Tipo de estabelecimento *</label>
+                                <select id="tipoClinica" name="tipoClinica" class="fs-input fs-select" required>
+                                    <option value="Clínica Médica Geral" th:selected="${tipoClinica == 'Clínica Médica Geral'}">Clínica Médica Geral</option>
+                                    <option value="Policlínica de Especialidades" th:selected="${tipoClinica == 'Policlínica de Especialidades'}">Policlínica de Especialidades</option>
+                                    <option value="Consultório Médico / Odontológico" th:selected="${tipoClinica == 'Consultório Médico / Odontológico'}">Consultório Médico / Odontológico</option>
+                                    <option value="Unidade Básica de Saúde (UBS)" th:selected="${tipoClinica == 'Unidade Básica de Saúde (UBS)'}">Unidade Básica de Saúde (UBS)</option>
+                                    <option value="Clínica de Fisioterapia e Reabilitação" th:selected="${tipoClinica == 'Clínica de Fisioterapia e Reabilitação'}">Clínica de Fisioterapia e Reabilitação</option>
+                                    <option value="Centro de Diagnóstico e Imagem" th:selected="${tipoClinica == 'Centro de Diagnóstico e Imagem'}">Centro de Diagnóstico e Imagem</option>
+                                    <option value="Outro" th:selected="${tipoClinica == 'Outro'}">Outro estabelecimento de saúde</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="telefone" class="fs-label">Telefone de contato</label>
                                 <input type="tel"
                                        id="telefone"
                                        name="telefone"
@@ -808,8 +1581,8 @@
                                        autocomplete="tel">
                             </div>
 
-                            <div class="col-12 col-md-7">
-                                <label for="endereco" class="fs-label">Endereço</label>
+                            <div class="col-12">
+                                <label for="endereco" class="fs-label">Endereço completo</label>
                                 <input type="text"
                                        id="endereco"
                                        name="endereco"
@@ -842,35 +1615,71 @@
 
                             <div class="col-12 col-sm-6">
                                 <label for="tempoMedioConsulta" class="fs-label">Tempo médio estimado (min) *</label>
-                                <input type="number"
-                                       id="tempoMedioConsulta"
-                                       name="tempoMedioConsulta"
-                                       class="fs-input fs-input--tabular"
-                                       th:value="${tempoMedioConsulta}"
-                                       min="1"
-                                       max="180"
-                                       required>
+                                <div class="fs-number-wrapper">
+                                    <input type="number"
+                                           id="tempoMedioConsulta"
+                                           name="tempoMedioConsulta"
+                                           class="fs-input fs-input--tabular fs-input--stepper"
+                                           th:value="${tempoMedioConsulta}"
+                                           min="1"
+                                           max="180"
+                                           required>
+                                    <div class="fs-stepper-arrows" aria-hidden="true">
+                                        <button type="button" class="fs-stepper-btn" id="btn-tempo-inc" tabindex="-1" aria-label="Aumentar tempo estimado" title="Aumentar tempo">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="18 15 12 9 6 15"></polyline>
+                                            </svg>
+                                        </button>
+                                        <button type="button" class="fs-stepper-btn" id="btn-tempo-dec" tabindex="-1" aria-label="Diminuir tempo estimado" title="Diminuir tempo">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="6 9 12 15 18 9"></polyline>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                                 <span class="fs-help">Usado como referência inicial para o tempo de espera.</span>
                             </div>
 
                             <div class="col-12 col-sm-6">
                                 <label for="horarioAbertura" class="fs-label">Início do expediente *</label>
-                                <input type="time"
-                                       id="horarioAbertura"
-                                       name="horarioAbertura"
-                                       class="fs-input fs-input--tabular"
-                                       th:value="${horarioAbertura}"
-                                       required>
+                                <div class="fs-time-wrapper">
+                                    <input type="text"
+                                           id="horarioAbertura"
+                                           name="horarioAbertura"
+                                           class="fs-input fs-input--tabular fs-input--time"
+                                           th:value="${horarioAbertura}"
+                                           placeholder="07:00"
+                                           maxlength="5"
+                                           inputmode="numeric"
+                                           required>
+                                    <button type="button" class="fs-time-trigger" aria-label="Selecionar horário de início">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="col-12 col-sm-6">
                                 <label for="horarioFechamento" class="fs-label">Término do expediente *</label>
-                                <input type="time"
-                                       id="horarioFechamento"
-                                       name="horarioFechamento"
-                                       class="fs-input fs-input--tabular"
-                                       th:value="${horarioFechamento}"
-                                       required>
+                                <div class="fs-time-wrapper">
+                                    <input type="text"
+                                           id="horarioFechamento"
+                                           name="horarioFechamento"
+                                           class="fs-input fs-input--tabular fs-input--time"
+                                           th:value="${horarioFechamento}"
+                                           placeholder="17:00"
+                                           maxlength="5"
+                                           inputmode="numeric"
+                                           required>
+                                    <button type="button" class="fs-time-trigger" aria-label="Selecionar horário de término">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -915,12 +1724,118 @@
                         </div>
                     </section>
 
+                    <!-- Cartão 4 — Acessibilidade e usabilidade -->
+                    <section class="fs-card" aria-labelledby="card-acessibilidade-title">
+                        <h2 id="card-acessibilidade-title" class="fs-card-title">Acessibilidade e usabilidade</h2>
+                        <p class="fs-card-desc">Preferências ergonômicas de interface para operadores da recepção e terminais de atendimento.</p>
+
+                        <!-- Tamanho da Fonte -->
+                        <div class="mb-4">
+                            <label class="fs-label mb-2">Tamanho do texto e escala de exibição</label>
+                            <div class="fs-segmented-control" role="radiogroup" aria-label="Tamanho da fonte">
+                                <label class="fs-segmented-item">
+                                    <input type="radio" name="tamanhoFonte" value="padrao" th:checked="${tamanhoFonte == 'padrao' || tamanhoFonte == null}">
+                                    <span>Padrão (100%)</span>
+                                </label>
+                                <label class="fs-segmented-item">
+                                    <input type="radio" name="tamanhoFonte" value="medio" th:checked="${tamanhoFonte == 'medio'}">
+                                    <span>Médio (+12%)</span>
+                                </label>
+                                <label class="fs-segmented-item">
+                                    <input type="radio" name="tamanhoFonte" value="grande" th:checked="${tamanhoFonte == 'grande'}">
+                                    <span>Grande (+25%)</span>
+                                </label>
+                            </div>
+                            <span class="fs-help">Ajusta o tamanho de leitura sem desestruturar a diagramação do painel.</span>
+                        </div>
+
+                        <!-- Opções de Acessibilidade com Switches -->
+                        <div class="fs-option-row">
+                            <div>
+                                <label for="altoContraste" class="fs-option-title" style="cursor: pointer; display: block;">Alto contraste</label>
+                                <p class="fs-option-sub">Garante contraste estrito para operadores com baixa acuidade visual.</p>
+                            </div>
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input fs-switch"
+                                       type="checkbox"
+                                       role="switch"
+                                       id="altoContraste"
+                                       name="altoContraste"
+                                       value="true"
+                                       th:checked="${altoContraste}"
+                                       aria-label="Ativar modo de alto contraste">
+                            </div>
+                        </div>
+
+                        <div class="fs-option-row">
+                            <div>
+                                <label for="focoReforcado" class="fs-option-title" style="cursor: pointer; display: block;">Foco visual reforçado (Navegação por Teclado)</label>
+                                <p class="fs-option-sub">Destaca o cursor de foco com contorno espesso para digitação rápida sem mouse na recepção.</p>
+                            </div>
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input fs-switch"
+                                       type="checkbox"
+                                       role="switch"
+                                       id="focoReforcado"
+                                       name="focoReforcado"
+                                       value="true"
+                                       th:checked="${focoReforcado}"
+                                       aria-label="Ativar indicador de foco reforçado">
+                            </div>
+                        </div>
+
+                        <div class="fs-option-row">
+                            <div>
+                                <label for="reducaoMovimento" class="fs-option-title" style="cursor: pointer; display: block;">Redução de movimentos</label>
+                                <p class="fs-option-sub">Desativa transições de tela e efeitos animados nos painéis e menus do sistema.</p>
+                            </div>
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input fs-switch"
+                                       type="checkbox"
+                                       role="switch"
+                                       id="reducaoMovimento"
+                                       name="reducaoMovimento"
+                                       value="true"
+                                       th:checked="${reducaoMovimento}"
+                                       aria-label="Ativar redução de movimentos">
+                            </div>
+                        </div>
+
+                        <div class="fs-option-row">
+                            <div>
+                                <label for="legibilidadeAprimorada" class="fs-option-title" style="cursor: pointer; display: block;">Espaçamento expandido (Facilidade de Leitura)</label>
+                                <p class="fs-option-sub">Aumenta o entrelinhamento e espaçamento de caracteres para suporte a pessoas com dislexia.</p>
+                            </div>
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input fs-switch"
+                                       type="checkbox"
+                                       role="switch"
+                                       id="legibilidadeAprimorada"
+                                       name="legibilidadeAprimorada"
+                                       value="true"
+                                       th:checked="${legibilidadeAprimorada}"
+                                       aria-label="Ativar espaçamento expandido para leitura">
+                            </div>
+                        </div>
+
+                        <div class="fs-option-row">
+                            <div>
+                                <span class="fs-option-title">Tradução em Libras (VLibras)</span>
+                                <p class="fs-option-sub">Widget oficial do Governo Federal com avatar 3D para tradução de conteúdos e termos da página em Língua Brasileira de Sinais.</p>
+                            </div>
+                            <div>
+                                <button type="button" class="btn-fs-secondary" id="btn-card-vlibras" style="white-space: nowrap; height: 38px; padding: 0 16px; font-size: 14px;">
+                                    Abrir VLibras
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
                     <!-- Ações -->
                     <div class="fs-actions">
                         <button type="submit" class="btn-fs-primary">Salvar configurações</button>
                         <a th:href="@{/configuracoes}" class="btn-fs-secondary">Cancelar</a>
                     </div>
-                    <p class="required-note">* Campos obrigatórios</p>
                 </div>
 
                 <!-- Coluna de Pré-visualização (Padrão Mockup MVP) -->
@@ -932,7 +1847,11 @@
                             <span class="status-pill">Aguardando</span>
                         </div>
                         <div class="ticket-meta">Maria Silva · Consulta</div>
-                        <div class="ticket-unit" id="preview-unidade" th:text="${nomeUnidade}">Unidade de Saúde Central</div>
+                        <div class="ticket-clinic-info">
+                            <div class="ticket-unit" id="preview-unidade" th:text="${nomeUnidade}">Unidade de Saúde Central</div>
+                            <div class="ticket-tipo" id="preview-tipo" th:text="${tipoClinica}">Clínica Médica Geral</div>
+                            <div class="ticket-cnpj" id="preview-cnpj" th:text="${'CNPJ: ' + cnpj}">CNPJ: 12.345.678/0001-90</div>
+                        </div>
 
                         <div class="ticket-summary">
                             <div class="ticket-summary-row">
@@ -955,10 +1874,81 @@
     </main>
 </div>
 
+<!-- Widget Flutuante de Acessibilidade Rápida -->
+<button class="a11y-trigger" id="a11y-trigger-btn" type="button" aria-label="Abrir painel de acessibilidade (Alt + A)" title="Menu de Acessibilidade (Alt + A)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="4.5" r="2.5"/>
+        <path d="m4 9 8 2 8-2"/>
+        <path d="M12 11v10"/>
+        <path d="m8 21 4-7 4 7"/>
+    </svg>
+</button>
+
+<div class="a11y-panel" id="a11y-panel-box" role="dialog" aria-modal="true" aria-label="Painel de acessibilidade">
+    <div class="a11y-panel-header">
+        <div class="a11y-panel-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="4.5" r="2.5"/>
+                <path d="m4 9 8 2 8-2"/>
+                <path d="M12 11v10"/>
+                <path d="m8 21 4-7 4 7"/>
+            </svg>
+            <span>Acessibilidade</span>
+        </div>
+        <button type="button" class="a11y-close-btn" id="a11y-close-btn" aria-label="Fechar painel de acessibilidade">&times;</button>
+    </div>
+
+    <div class="a11y-row">
+        <span>Tema visual</span>
+        <div class="a11y-btn-group" role="group" aria-label="Tema visual">
+            <button type="button" class="a11y-btn is-active" id="btn-theme-light" title="Modo Claro (Padrão)" aria-pressed="true">Claro</button>
+            <button type="button" class="a11y-btn" id="btn-theme-dark" title="Modo Escuro" aria-pressed="false">Escuro</button>
+        </div>
+    </div>
+
+    <div class="a11y-row">
+        <span>Tamanho do texto</span>
+        <div class="a11y-btn-group">
+            <button type="button" class="a11y-btn" id="btn-font-dec" title="Diminuir fonte">A-</button>
+            <button type="button" class="a11y-btn" id="btn-font-reset" title="Tamanho padrão">100%</button>
+            <button type="button" class="a11y-btn" id="btn-font-inc" title="Aumentar fonte">A+</button>
+        </div>
+    </div>
+
+    <div class="a11y-row">
+        <span>Alto Contraste</span>
+        <button type="button" class="a11y-btn" id="btn-toggle-contrast">Ativar</button>
+    </div>
+
+    <div class="a11y-row">
+        <span>Foco Teclado</span>
+        <button type="button" class="a11y-btn" id="btn-toggle-focus">Ativar</button>
+    </div>
+
+    <div class="a11y-row">
+        <span>Reduzir Movimento</span>
+        <button type="button" class="a11y-btn" id="btn-toggle-motion">Ativar</button>
+    </div>
+
+    <div class="a11y-row">
+        <span>Espaçamento</span>
+        <button type="button" class="a11y-btn" id="btn-toggle-dyslexia">Ativar</button>
+    </div>
+
+    <div class="a11y-row">
+        <span>Tradutor Libras</span>
+        <button type="button" class="a11y-btn" id="btn-toggle-vlibras" title="Abrir assistente VLibras do Governo Federal">Abrir</button>
+    </div>
+</div>
+
 <script>
     (function () {
+        var root = document.documentElement;
+
         var inputPrefixo = document.getElementById('prefixoSenha');
         var inputUnidade = document.getElementById('nomeUnidade');
+        var inputCnpj = document.getElementById('cnpj');
+        var selectTipo = document.getElementById('tipoClinica');
         var inputTempo = document.getElementById('tempoMedioConsulta');
         var inputAbertura = document.getElementById('horarioAbertura');
         var inputFechamento = document.getElementById('horarioFechamento');
@@ -966,6 +1956,8 @@
 
         var previewSenha = document.getElementById('preview-senha');
         var previewUnidade = document.getElementById('preview-unidade');
+        var previewTipo = document.getElementById('preview-tipo');
+        var previewCnpj = document.getElementById('preview-cnpj');
         var previewTempo = document.getElementById('preview-tempo');
         var previewHorario = document.getElementById('preview-horario');
         var previewSom = document.getElementById('preview-som');
@@ -974,15 +1966,245 @@
             var prefixo = (inputPrefixo.value || 'A').trim().toUpperCase();
             previewSenha.textContent = prefixo + '001';
             previewUnidade.textContent = (inputUnidade.value || 'Unidade de Saúde').trim();
+            if (previewTipo && selectTipo) previewTipo.textContent = selectTipo.value;
+            if (previewCnpj && inputCnpj) previewCnpj.textContent = 'CNPJ: ' + (inputCnpj.value || '12.345.678/0001-90');
             previewTempo.textContent = (inputTempo.value || '15') + ' min';
             previewHorario.textContent = (inputAbertura.value || '07:00') + ' às ' + (inputFechamento.value || '17:00');
             previewSom.textContent = inputSom.checked ? 'Ativado' : 'Silencioso';
         }
 
-        [inputPrefixo, inputUnidade, inputTempo, inputAbertura, inputFechamento].forEach(function (el) {
+        [inputPrefixo, inputUnidade, inputCnpj, inputTempo, inputAbertura, inputFechamento].forEach(function (el) {
             if (el) el.addEventListener('input', atualizarPreview);
         });
+        if (selectTipo) selectTipo.addEventListener('change', atualizarPreview);
         if (inputSom) inputSom.addEventListener('change', atualizarPreview);
+
+        /* Stepper de tempo médio estimado */
+        var btnTempoInc = document.getElementById('btn-tempo-inc');
+        var btnTempoDec = document.getElementById('btn-tempo-dec');
+
+        if (btnTempoInc && inputTempo) {
+            btnTempoInc.addEventListener('click', function () {
+                var val = parseInt(inputTempo.value, 10);
+                if (isNaN(val)) val = 15;
+                var max = parseInt(inputTempo.getAttribute('max') || '180', 10);
+                if (val < max) {
+                    inputTempo.value = val + 1;
+                    atualizarPreview();
+                }
+            });
+        }
+
+        if (btnTempoDec && inputTempo) {
+            btnTempoDec.addEventListener('click', function () {
+                var val = parseInt(inputTempo.value, 10);
+                if (isNaN(val)) val = 15;
+                var min = parseInt(inputTempo.getAttribute('min') || '1', 10);
+                if (val > min) {
+                    inputTempo.value = val - 1;
+                    atualizarPreview();
+                }
+            });
+        }
+
+        /* ==================== Seletor de Horário Customizado FilaSaúde ==================== */
+        function formatarHorario(valor) {
+            var digitos = (valor || '').replace(/\D/g, '').slice(0, 4);
+            if (!digitos) return '';
+            if (digitos.length <= 2) return digitos;
+            return digitos.slice(0, 2) + ':' + digitos.slice(2);
+        }
+
+        function setupCustomTimePicker(wrapper) {
+            if (!wrapper) return;
+            var input = wrapper.querySelector('.fs-input--time');
+            var trigger = wrapper.querySelector('.fs-time-trigger');
+            if (!input || !trigger) return;
+
+            input.addEventListener('input', function () {
+                this.value = formatarHorario(this.value);
+                atualizarPreview();
+                if (pop.classList.contains('is-open')) {
+                    syncState();
+                }
+            });
+
+            var pop = document.createElement('div');
+            pop.className = 'fs-time-popover';
+            pop.innerHTML = [
+                '<div class="fs-time-header">',
+                '  <div class="fs-time-header-col">Hora</div>',
+                '  <div class="fs-time-header-col">Minuto</div>',
+                '</div>',
+                '<div class="fs-time-body">',
+                '  <div class="fs-time-col" data-col="h" role="listbox" aria-label="Horas"></div>',
+                '  <div class="fs-time-col" data-col="m" role="listbox" aria-label="Minutos"></div>',
+                '</div>'
+            ].join('');
+            wrapper.appendChild(pop);
+
+            var colH = pop.querySelector('[data-col="h"]');
+            var colM = pop.querySelector('[data-col="m"]');
+
+            for (var h = 0; h < 24; h++) {
+                var sh = (h < 10 ? '0' : '') + h;
+                var elH = document.createElement('div');
+                elH.className = 'fs-time-opt';
+                elH.textContent = sh;
+                elH.setAttribute('data-val', sh);
+                colH.appendChild(elH);
+            }
+
+            for (var m = 0; m < 60; m += 5) {
+                var sm = (m < 10 ? '0' : '') + m;
+                var elM = document.createElement('div');
+                elM.className = 'fs-time-opt';
+                elM.textContent = sm;
+                elM.setAttribute('data-val', sm);
+                colM.appendChild(elM);
+            }
+
+            function centerSelected(col, opt) {
+                if (!col || !opt) return;
+                var target = opt.offsetTop - (col.clientHeight / 2) + (opt.clientHeight / 2);
+                col.scrollTop = Math.max(0, target);
+            }
+
+            function syncState() {
+                var parts = (input.value || '07:00').split(':');
+                var curH = parts[0] || '07';
+                var curM = parts[1] || '00';
+                var selH = null;
+                var selM = null;
+                colH.querySelectorAll('.fs-time-opt').forEach(function(o) {
+                    var match = (o.getAttribute('data-val') === curH);
+                    o.classList.toggle('is-selected', match);
+                    if (match) selH = o;
+                });
+                colM.querySelectorAll('.fs-time-opt').forEach(function(o) {
+                    var match = (o.getAttribute('data-val') === curM);
+                    o.classList.toggle('is-selected', match);
+                    if (match) selM = o;
+                });
+                if (pop.classList.contains('is-open')) {
+                    centerSelected(colH, selH);
+                    centerSelected(colM, selM);
+                }
+            }
+
+            function closePopover() {
+                pop.classList.remove('is-open');
+                wrapper.classList.remove('is-open');
+            }
+
+            colH.addEventListener('click', function(e) {
+                var opt = e.target.closest('.fs-time-opt');
+                if (!opt) return;
+                var h = opt.getAttribute('data-val');
+                var parts = (input.value || '07:00').split(':');
+                var m = parts[1] || '00';
+                input.value = h + ':' + m;
+                syncState();
+                atualizarPreview();
+            });
+
+            colM.addEventListener('click', function(e) {
+                var opt = e.target.closest('.fs-time-opt');
+                if (!opt) return;
+                var m = opt.getAttribute('data-val');
+                var parts = (input.value || '07:00').split(':');
+                var h = parts[0] || '07';
+                input.value = h + ':' + m;
+                syncState();
+                atualizarPreview();
+                closePopover();
+            });
+
+            trigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                document.querySelectorAll('.fs-time-popover.is-open').forEach(function(other) {
+                    if (other !== pop) {
+                        other.classList.remove('is-open');
+                        var otherWrap = other.closest('.fs-time-wrapper');
+                        if (otherWrap) otherWrap.classList.remove('is-open');
+                    }
+                });
+                var open = pop.classList.contains('is-open');
+                if (open) {
+                    closePopover();
+                } else {
+                    pop.classList.add('is-open');
+                    wrapper.classList.add('is-open');
+                    syncState();
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!wrapper.contains(e.target)) {
+                    closePopover();
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && pop.classList.contains('is-open')) {
+                    closePopover();
+                }
+            });
+        }
+
+        document.querySelectorAll('.fs-time-wrapper').forEach(setupCustomTimePicker);
+
+        /* ==================== Máscara e Validação de CNPJ ==================== */
+        function formatarCnpj(valor, isDelete) {
+            var digitos = (valor || '').replace(/\D/g, '').slice(0, 14);
+            if (!digitos) return '';
+            if (digitos.length <= 2) return digitos;
+            if (digitos.length <= 5) return digitos.slice(0, 2) + '.' + digitos.slice(2);
+            if (digitos.length <= 8) return digitos.slice(0, 2) + '.' + digitos.slice(2, 5) + '.' + digitos.slice(5);
+            if (digitos.length <= 12) return digitos.slice(0, 2) + '.' + digitos.slice(2, 5) + '.' + digitos.slice(5, 8) + '/' + digitos.slice(8);
+            return digitos.slice(0, 2) + '.' + digitos.slice(2, 5) + '.' + digitos.slice(5, 8) + '/' + digitos.slice(8, 12) + '-' + digitos.slice(12);
+        }
+
+        if (inputCnpj) {
+            inputCnpj.addEventListener('keydown', function (e) {
+                if (e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Tab' || e.key === 'Enter' ||
+                    e.key === 'Escape' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
+                    e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'Home' || e.key === 'End' ||
+                    e.ctrlKey || e.metaKey || e.altKey) {
+                    return;
+                }
+                if (!/^\d$/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+
+            inputCnpj.addEventListener('input', function (e) {
+                var isDelete = e && (e.inputType === 'deleteContentBackward' || e.inputType === 'deleteContentForward');
+                this.value = formatarCnpj(this.value, isDelete);
+            });
+
+            inputCnpj.addEventListener('paste', function (e) {
+                e.preventDefault();
+                var clipboardData = e.clipboardData || window.clipboardData;
+                var pastedText = clipboardData ? clipboardData.getData('text') : '';
+                this.value = formatarCnpj(pastedText, false);
+                atualizarPreview();
+            });
+
+            inputCnpj.addEventListener('blur', function () {
+                var d = this.value.replace(/\D/g, '');
+                if (d.length === 0) {
+                    this.value = '';
+                } else {
+                    this.value = formatarCnpj(this.value, false);
+                }
+                atualizarPreview();
+            });
+
+            if (inputCnpj.value) {
+                inputCnpj.value = formatarCnpj(inputCnpj.value, false);
+            }
+        }
 
         /* ==================== Máscara e Validação de Telefone ==================== */
         var inputTelefone = document.getElementById('telefone');
@@ -1003,7 +2225,6 @@
         }
 
         if (inputTelefone) {
-            // Bloqueia qualquer caractere que não seja número (0-9) diretamente no teclado
             inputTelefone.addEventListener('keydown', function (e) {
                 if (e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Tab' || e.key === 'Enter' ||
                     e.key === 'Escape' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' ||
@@ -1016,13 +2237,11 @@
                 }
             });
 
-            // Aplica a máscara e preenche no formato correto automaticamente ao digitar
             inputTelefone.addEventListener('input', function (e) {
                 var isDelete = e && (e.inputType === 'deleteContentBackward' || e.inputType === 'deleteContentForward');
                 this.value = formatarTelefone(this.value, isDelete);
             });
 
-            // Trata colagem (paste) removendo qualquer caractere especial e formatando imediatamente
             inputTelefone.addEventListener('paste', function (e) {
                 e.preventDefault();
                 var clipboardData = e.clipboardData || window.clipboardData;
@@ -1030,7 +2249,6 @@
                 this.value = formatarTelefone(pastedText, false);
             });
 
-            // Ajusta o formato se o campo perder o foco
             inputTelefone.addEventListener('blur', function () {
                 var d = this.value.replace(/\D/g, '');
                 if (d.length === 0) {
@@ -1040,12 +2258,266 @@
                 }
             });
 
-            // Formata o valor pré-carregado no início
             if (inputTelefone.value) {
                 inputTelefone.value = formatarTelefone(inputTelefone.value, false);
             }
         }
+
+        /* ==================== Acessibilidade em Tempo Real ==================== */
+        var switchContraste = document.getElementById('altoContraste');
+        var switchFoco = document.getElementById('focoReforcado');
+        var switchMovimento = document.getElementById('reducaoMovimento');
+        var switchLegibilidade = document.getElementById('legibilidadeAprimorada');
+        var radiosFonte = document.querySelectorAll('input[name="tamanhoFonte"]');
+
+        var btnTrigger = document.getElementById('a11y-trigger-btn');
+        var panelBox = document.getElementById('a11y-panel-box');
+        var btnClose = document.getElementById('a11y-close-btn');
+
+        var btnThemeLight = document.getElementById('btn-theme-light');
+        var btnThemeDark = document.getElementById('btn-theme-dark');
+        var btnFontDec = document.getElementById('btn-font-dec');
+        var btnFontReset = document.getElementById('btn-font-reset');
+        var btnFontInc = document.getElementById('btn-font-inc');
+        var btnToggleContrast = document.getElementById('btn-toggle-contrast');
+        var btnToggleFocus = document.getElementById('btn-toggle-focus');
+        var btnToggleMotion = document.getElementById('btn-toggle-motion');
+        var btnToggleDyslexia = document.getElementById('btn-toggle-dyslexia');
+
+        function setTheme(theme) {
+            theme = (theme === 'dark') ? 'dark' : 'light';
+            root.setAttribute('data-theme', theme);
+            root.dataset.theme = theme;
+            root.style.colorScheme = theme;
+            try { localStorage.setItem('fs-tema-manual', theme); } catch (e) {}
+            if (btnThemeLight) {
+                btnThemeLight.classList.toggle('is-active', theme === 'light');
+                btnThemeLight.setAttribute('aria-pressed', String(theme === 'light'));
+            }
+            if (btnThemeDark) {
+                btnThemeDark.classList.toggle('is-active', theme === 'dark');
+                btnThemeDark.setAttribute('aria-pressed', String(theme === 'dark'));
+            }
+        }
+
+        function setFontScale(scale) {
+            if (scale !== 'padrao' && scale !== 'medio' && scale !== 'grande') {
+                scale = 'padrao';
+            }
+            root.setAttribute('data-font-scale', scale);
+            try { localStorage.setItem('fs-a11y-font', scale); } catch(e) {}
+            radiosFonte.forEach(function (r) {
+                r.checked = (r.value === scale);
+            });
+            if (btnFontReset) {
+                btnFontReset.textContent = scale === 'padrao' ? '100%' : (scale === 'medio' ? '112%' : '125%');
+            }
+        }
+
+        function setContrast(ativo) {
+            root.setAttribute('data-high-contrast', String(ativo));
+            try { localStorage.setItem('fs-a11y-contrast', String(ativo)); } catch(e) {}
+            if (switchContraste) switchContraste.checked = ativo;
+            if (btnToggleContrast) {
+                btnToggleContrast.textContent = ativo ? 'Desativar' : 'Ativar';
+                btnToggleContrast.classList.toggle('is-active', ativo);
+            }
+        }
+
+        function setFocusEnhanced(ativo) {
+            root.setAttribute('data-focus-enhanced', String(ativo));
+            try { localStorage.setItem('fs-a11y-focus', String(ativo)); } catch(e) {}
+            if (switchFoco) switchFoco.checked = ativo;
+            if (btnToggleFocus) {
+                btnToggleFocus.textContent = ativo ? 'Desativar' : 'Ativar';
+                btnToggleFocus.classList.toggle('is-active', ativo);
+            }
+        }
+
+        function setMotionReduced(ativo) {
+            ativo = Boolean(ativo);
+            root.setAttribute('data-motion-reduced', String(ativo));
+            try { localStorage.setItem('fs-a11y-motion', String(ativo)); } catch(e) {}
+            if (switchMovimento) switchMovimento.checked = ativo;
+            if (btnToggleMotion) {
+                btnToggleMotion.textContent = ativo ? 'Desativar' : 'Ativar';
+                btnToggleMotion.classList.toggle('is-active', ativo);
+            }
+        }
+
+        function setDyslexia(ativo) {
+            ativo = Boolean(ativo);
+            root.setAttribute('data-dyslexia', String(ativo));
+            try { localStorage.setItem('fs-a11y-dyslexia', String(ativo)); } catch(e) {}
+            if (switchLegibilidade) switchLegibilidade.checked = ativo;
+            if (btnToggleDyslexia) {
+                btnToggleDyslexia.textContent = ativo ? 'Desativar' : 'Ativar';
+                btnToggleDyslexia.classList.toggle('is-active', ativo);
+            }
+        }
+
+        var checkedInitial = document.querySelector('input[name="tamanhoFonte"]:checked');
+        var serverFont = checkedInitial ? checkedInitial.value : 'padrao';
+
+        // Se o formulário acabou de ser salvo com sucesso, sincroniza o localStorage com o que o usuário escolheu
+        var hasSuccessBanner = document.querySelector('.feedback-banner--success') !== null;
+        if (hasSuccessBanner) {
+            try {
+                if (switchContraste) localStorage.setItem('fs-a11y-contrast', String(switchContraste.checked));
+                if (switchFoco) localStorage.setItem('fs-a11y-focus', String(switchFoco.checked));
+                if (switchMovimento) localStorage.setItem('fs-a11y-motion', String(switchMovimento.checked));
+                if (switchLegibilidade) localStorage.setItem('fs-a11y-dyslexia', String(switchLegibilidade.checked));
+                if (serverFont) localStorage.setItem('fs-a11y-font', serverFont);
+            } catch (e) {}
+        }
+
+        // Leitura precisa de booleanos no localStorage
+        function getStoredBool(key, fallbackElement) {
+            var val = localStorage.getItem(key);
+            if (val !== null) {
+                return val === 'true';
+            }
+            return fallbackElement ? fallbackElement.checked : false;
+        }
+
+        var savedFont = localStorage.getItem('fs-a11y-font') || serverFont;
+        var savedContrast = getStoredBool('fs-a11y-contrast', switchContraste);
+        var savedFocus = getStoredBool('fs-a11y-focus', switchFoco);
+        var savedMotion = getStoredBool('fs-a11y-motion', switchMovimento);
+        var savedDyslexia = getStoredBool('fs-a11y-dyslexia', switchLegibilidade);
+
+        // Se nenhuma preferência manual foi salva ainda, verificar o sistema operacional (OS prefers-reduced-motion)
+        if (localStorage.getItem('fs-a11y-motion') === null && !savedMotion) {
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                savedMotion = true;
+            }
+        }
+
+        var savedTheme = (root.dataset.theme === 'dark' || localStorage.getItem('fs-tema-manual') === 'dark') ? 'dark' : 'light';
+        setTheme(savedTheme);
+        setFontScale(savedFont);
+        setContrast(savedContrast);
+        setFocusEnhanced(savedFocus);
+        setMotionReduced(savedMotion);
+        setDyslexia(savedDyslexia);
+
+        // Eventos do formulário e controle de escala
+        radiosFonte.forEach(function (r) {
+            r.addEventListener('change', function () {
+                if (this.checked) setFontScale(this.value);
+            });
+            r.addEventListener('click', function () {
+                if (this.checked) setFontScale(this.value);
+            });
+        });
+
+        // Delegação para cliques nos itens segmentados
+        document.querySelectorAll('.fs-segmented-item').forEach(function (item) {
+            item.addEventListener('click', function () {
+                var input = this.querySelector('input[type="radio"]');
+                if (input) {
+                    input.checked = true;
+                    setFontScale(input.value);
+                }
+            });
+        });
+
+        if (switchContraste) switchContraste.addEventListener('change', function () { setContrast(this.checked); });
+        if (switchFoco) switchFoco.addEventListener('change', function () { setFocusEnhanced(this.checked); });
+        if (switchMovimento) switchMovimento.addEventListener('change', function () { setMotionReduced(this.checked); });
+        if (switchLegibilidade) switchLegibilidade.addEventListener('change', function () { setDyslexia(this.checked); });
+
+        // Eventos do painel flutuante
+        if (btnTrigger && panelBox) {
+            btnTrigger.addEventListener('click', function () {
+                panelBox.classList.toggle('is-open');
+            });
+        }
+        if (btnClose && panelBox) {
+            btnClose.addEventListener('click', function () {
+                panelBox.classList.remove('is-open');
+            });
+        }
+
+        if (btnFontDec) btnFontDec.addEventListener('click', function () {
+            var current = root.getAttribute('data-font-scale') || 'padrao';
+            if (current === 'grande') setFontScale('medio');
+            else setFontScale('padrao');
+        });
+        if (btnFontReset) btnFontReset.addEventListener('click', function () {
+            setFontScale('padrao');
+        });
+        if (btnFontInc) btnFontInc.addEventListener('click', function () {
+            var current = root.getAttribute('data-font-scale') || 'padrao';
+            if (current === 'padrao') setFontScale('medio');
+            else if (current === 'medio') setFontScale('grande');
+        });
+
+        if (btnToggleContrast) btnToggleContrast.addEventListener('click', function () {
+            setContrast(root.getAttribute('data-high-contrast') !== 'true');
+        });
+        if (btnToggleFocus) btnToggleFocus.addEventListener('click', function () {
+            setFocusEnhanced(root.getAttribute('data-focus-enhanced') !== 'true');
+        });
+        if (btnToggleMotion) btnToggleMotion.addEventListener('click', function () {
+            setMotionReduced(root.getAttribute('data-motion-reduced') !== 'true');
+        });
+        if (btnToggleDyslexia) btnToggleDyslexia.addEventListener('click', function () {
+            setDyslexia(root.getAttribute('data-dyslexia') !== 'true');
+        });
+
+        if (btnThemeLight) {
+            btnThemeLight.addEventListener('click', function () {
+                setTheme('light');
+            });
+        }
+        if (btnThemeDark) {
+            btnThemeDark.addEventListener('click', function () {
+                setTheme('dark');
+            });
+        }
+
+        // Integração com VLibras (Governo Federal)
+        function abrirVLibras() {
+            var vBtn = document.querySelector('[vw-access-button]');
+            if (vBtn) {
+                vBtn.click();
+            }
+        }
+        var btnCardVLibras = document.getElementById('btn-card-vlibras');
+        if (btnCardVLibras) btnCardVLibras.addEventListener('click', abrirVLibras);
+
+        var btnToggleVLibras = document.getElementById('btn-toggle-vlibras');
+        if (btnToggleVLibras) btnToggleVLibras.addEventListener('click', abrirVLibras);
+
+        // Atalho de teclado: Alt + A para abrir/fechar o painel de acessibilidade
+        document.addEventListener('keydown', function (e) {
+            if (e.altKey && (e.key === 'a' || e.key === 'A')) {
+                e.preventDefault();
+                if (panelBox) panelBox.classList.toggle('is-open');
+            }
+        });
     })();
+</script>
+
+<!-- Widget VLibras: Tradução em Libras com avatar 3D (Governo Federal) -->
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+    if (window.VLibras) {
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    } else {
+        window.addEventListener('load', function () {
+            if (window.VLibras) {
+                new window.VLibras.Widget('https://vlibras.gov.br/app');
+            }
+        });
+    }
 </script>
 
 </body>
