@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Adicionar à fila')}"></head>
+<body>
+<div class="app">
+    <nav th:replace="~{fragments/layout :: menu('recepcao')}"></nav>
+    <main class="conteudo">
+        <header class="cabecalho-pagina">
+            <div>
+                <h1>Adicionar à fila</h1>
+                <p>Escolha o paciente e o tipo de atendimento. A senha é gerada na hora.</p>
+            </div>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+        <div class="grade-2">
+            <section class="cartao cartao-recepcao" aria-labelledby="titulo-recepcao">
+                <div class="cartao-cabecalho">
+                    <span class="icone-caixa" aria-hidden="true">
+                        <svg class="icone" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M17 11h5"/><path d="M19.5 8.5v5"/></svg>
+                    </span>
+                    <h2 id="titulo-recepcao" class="cartao-titulo">Recepção</h2>
+                </div>
+                <p class="apoio">Cadastrar e encaminhar rápido, com poucos campos e sem decorar códigos.</p>
+
+                <form class="grupo-campos" method="post" th:action="@{/atendimentos}">
+                    <div class="campo">
+                        <label for="buscaPaciente">Buscar paciente</label>
+                        <input class="entrada" id="buscaPaciente" type="search" autocomplete="off"
+                               placeholder="Nome ou CPF" data-filtrar="pacienteId">
+                    </div>
+                    <div class="campo">
+                        <label for="pacienteId">Paciente<span class="obrigatorio" aria-hidden="true">*</span></label>
+                        <select class="entrada" id="pacienteId" name="pacienteId" required>
+                            <option value="">Selecione o paciente</option>
+                            <option th:each="p : ${pacientes}" th:value="${p.id}" th:selected="${p.id == pacienteId}"
+                                    th:text="${p.nome} + ' · ' + ${p.cpfFormatado}">Maria Silva · 123.456.789-00</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="filaId">Tipo de atendimento<span class="obrigatorio" aria-hidden="true">*</span></label>
+                        <select class="entrada" id="filaId" name="filaId" required>
+                            <option value="">Selecione o tipo</option>
+                            <option th:each="f : ${filas}" th:value="${f.id}" th:text="${f.nome}">Consulta</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label for="prioridade">Prioridade</label>
+                        <select class="entrada" id="prioridade" name="prioridade">
+                            <option th:each="pr : ${prioridades}" th:value="${pr}" th:text="${pr.descricao}">Normal</option>
+                        </select>
+                        <p class="dica">Pacientes com 60 anos ou mais entram como preferencial.</p>
+                    </div>
+
+                    <button class="btn btn-primario btn-bloco">Adicionar à fila</button>
+
+                    <div class="senha-gerada-caixa" role="status" aria-live="polite">
+                        <span class="apoio body-sm">Senha gerada</span>
+                        <span class="senha-gerada-valor" th:text="${senhaGerada} ?: '—'">A001</span>
+                    </div>
+                    <p class="nota-obrigatorios">* Campos obrigatórios</p>
+                </form>
+
+                <a class="btn-link" th:href="@{/pacientes/novo}">Cadastrar novo paciente</a>
+            </section>
+
+            <!-- Cartão de senha: grande e legível para mostrar ao paciente -->
+            <section th:if="${senhaGerada}" class="cartao-senha" aria-label="Senha gerada">
+                <span class="caption">Senha gerada</span>
+                <span class="senha-grande" th:text="${senhaGerada}">A001</span>
+                <span class="status status-aguardando">Aguardando</span>
+                <span class="apoio body-sm" th:text="${senhaPaciente} + ' · ' + ${senhaFila}">Maria Silva · Consulta</span>
+            </section>
+            <section th:unless="${senhaGerada}" class="estado-vazio">
+                A senha aparece aqui assim que o paciente entrar na fila.
+            </section>
+        </div>
+    </main>
+</div>
+<dialog th:replace="~{fragments/layout :: confirmacao}"></dialog>
+</body>
+</html>

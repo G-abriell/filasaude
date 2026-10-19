@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Fila')}"></head>
+<body>
+<div class="app">
+    <nav th:replace="~{fragments/layout :: menu('filas')}"></nav>
+    <main class="conteudo">
+        <header class="cabecalho-pagina">
+            <div>
+                <h1 th:text="${fila.id == null} ? 'Cadastrar fila' : 'Editar fila'">Cadastrar fila</h1>
+                <p>Dê um nome que a recepção reconheça, como Consulta ou Exames.</p>
+            </div>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+        <form class="cartao cartao-formulario" method="post" th:action="@{/filas}" th:object="${fila}">
+            <input type="hidden" th:field="*{id}">
+            <input type="hidden" th:field="*{ativa}">
+            <div class="campo">
+                <label for="nome">Nome<span class="obrigatorio" aria-hidden="true">*</span></label>
+                <input class="entrada" th:field="*{nome}" th:errorclass="campo-invalido" placeholder="Consulta" required>
+                <p th:replace="~{fragments/layout :: erro-campo('nome')}"></p>
+            </div>
+            <div class="campo">
+                <label for="sigla">Sigla<span class="obrigatorio" aria-hidden="true">*</span></label>
+                <input class="entrada" th:field="*{sigla}" th:errorclass="campo-invalido" maxlength="1" placeholder="A" required>
+                <p class="dica">Uma letra. As senhas desta fila ficam assim: A001, A002.</p>
+                <p th:replace="~{fragments/layout :: erro-campo('sigla')}"></p>
+            </div>
+            <div class="campo">
+                <label for="descricao">Descrição</label>
+                <input class="entrada" th:field="*{descricao}" th:errorclass="campo-invalido">
+                <p th:replace="~{fragments/layout :: erro-campo('descricao')}"></p>
+            </div>
+            <p class="nota-obrigatorios">* Campos obrigatórios</p>
+            <div class="acoes-formulario">
+                <button class="btn btn-primario">Salvar fila</button>
+                <a class="btn btn-secundario" th:href="@{/filas}">Cancelar</a>
+            </div>
+        </form>
+    </main>
+</div>
+<dialog th:replace="~{fragments/layout :: confirmacao}"></dialog>
+</body>
+</html>

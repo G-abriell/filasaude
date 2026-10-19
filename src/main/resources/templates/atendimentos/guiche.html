@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Atendimento')}"></head>
+<body>
+<div class="app">
+    <nav th:replace="~{fragments/layout :: menu('atendimento')}"></nav>
+    <main class="conteudo">
+        <header class="cabecalho-pagina">
+            <div>
+                <h1>Atendimento</h1>
+                <p>Chame o próximo paciente aguardando, inicie e finalize o atendimento.</p>
+            </div>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+        <form class="cartao cartao-formulario" method="get" th:action="@{/atendimentos/guiche}">
+            <div class="campo">
+                <label for="filaId">Fila</label>
+                <select class="entrada" id="filaId" name="filaId" onchange="this.form.submit()">
+                    <option value="">Selecione a fila</option>
+                    <option th:each="f : ${filas}" th:value="${f.id}" th:selected="${f.id == filaId}" th:text="${f.nome}">Consulta</option>
+                </select>
+            </div>
+            <noscript><button class="btn btn-secundario">Ver fila</button></noscript>
+        </form>
+
+        <th:block th:if="${filaId != null}">
+            <section class="cartao" aria-labelledby="titulo-chamar">
+                <h2 id="titulo-chamar" class="cartao-titulo">Chamar próximo</h2>
+                <form id="form-chamar" class="busca" method="post" th:action="@{/atendimentos/chamar}">
+                    <input type="hidden" name="filaId" th:value="${filaId}">
+                    <div class="campo">
+                        <label for="guiche">Sala ou consultório</label>
+                        <input class="entrada" id="guiche" name="guiche" placeholder="Consultório 1">
+                    </div>
+                    <!-- Único elemento em cobre da tela: a ação da vez -->
+                    <button class="btn btn-destaque" th:disabled="${#lists.isEmpty(aguardando)}"
+                            th:text="${#lists.isEmpty(aguardando)} ? 'Chamar próximo' : |Chamar próximo (${aguardando[0].senha})|">
+                        Chamar próximo (A001)
+                    </button>
+                </form>
+            </section>
+
+            <section aria-labelledby="titulo-aguardando">
+                <h2 id="titulo-aguardando" class="titulo-secao">
+                    Aguardando <span class="apoio num" th:text="|(${#lists.size(aguardando)})|">(0)</span>
+                </h2>
+                <p th:if="${#lists.isEmpty(aguardando)}" class="estado-vazio">Ninguém aguardando agora.</p>
+                <div class="tabela-caixa" th:unless="${#lists.isEmpty(aguardando)}">
+                    <table class="tabela">
+                        <thead>
+                        <tr><th>Senha</th><th>Paciente</th><th>Prioridade</th><th>Chegada</th><th>Espera</th><th>Status</th><th><span class="visualmente-oculto">Ações</span></th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="a, it : ${aguardando}" th:classappend="${it.first} ? 'proximo'">
+                            <td class="senha-celula" th:text="${a.senha}">A001</td>
+                            <td th:text="${a.paciente.nome}">Maria Silva</td>
+                            <td th:text="${a.prioridade.descricao}">Normal</td>
+                            <td class="num" th:text="${#temporals.format(a.dataHoraChegada, 'HH:mm')}">08:42</td>
+                            <td class="num" th:text="|${a.minutosEspera} min|">18 min</td>
+                            <td><span th:replace="~{fragments/layout :: status(${a.status})}"></span></td>
+                            <td class="acoes-celula">
+                                <button th:if="${it.first}" form="form-chamar" class="btn btn-primario btn-compacto">Chamar</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </th:block>
+
+        <section aria-labelledby="titulo-andamento">
+            <h2 id="titulo-andamento" class="titulo-secao">Chamados e em atendimento</h2>
+            <p th:if="${#lists.isEmpty(emAndamento)}" class="estado-vazio">Nenhum atendimento em andamento.</p>
+            <div class="lista-andamento" th:unless="${#lists.isEmpty(emAndamento)}">
+                <article th:each="a : ${emAndamento}" class="cartao"
+                         th:classappend="${a.status.name() == 'EM_ATENDIMENTO'} ? 'cartao-ativo'">
+                    <div class="linha-senha">
+                        <span class="senha-celula" th:text="${a.senha}">A000</span>
+                        <span th:replace="~{fragments/layout :: status(${a.status})}"></span>
+                    </div>
+                    <p th:text="${a.paciente.nome}">Carlos Lima</p>
+                    <p class="apoio body-sm">
+                        <span th:text="${a.fila.nome}">Consulta</span>
+                        <th:block th:if="${a.guiche}"> · <span th:text="${a.guiche}">Consultório 1</span></th:block>
+                        <th:block th:if="${a.atendente}"> · <span th:text="${a.atendente.nome}">Dra. Ana</span></th:block>
+                    </p>
+
+                    <div class="acoes" th:if="${a.status.name() == 'CHAMADO'}">
+                        <form method="post" th:action="@{/atendimentos/{id}/iniciar(id=${a.id})}">
+                            <input type="hidden" name="filaId" th:value="${filaId}">
+                            <button class="btn btn-primario btn-compacto">Iniciar atendimento</button>
+                        </form>
+                        <form method="post" th:action="@{/atendimentos/{id}/nao-compareceu(id=${a.id})}"
+                              th:data-confirmar="|Registrar que ${a.senha} não compareceu?|"
+                              data-consequencia="A senha sai da fila e o status passará para Não compareceu."
+                              data-acao="Sim, registrar">
+                            <input type="hidden" name="filaId" th:value="${filaId}">
+                            <button class="btn btn-secundario btn-compacto">Não compareceu</button>
+                        </form>
+                    </div>
+
+                    <form th:if="${a.status.name() == 'EM_ATENDIMENTO'}" method="post"
+                          th:action="@{/atendimentos/{id}/finalizar(id=${a.id})}"
+                          th:data-confirmar="|Finalizar o atendimento de ${a.paciente.nome}?|"
+                          data-consequencia="O horário de término será registrado e o status passará para Concluído."
+                          data-acao="Sim, finalizar">
+                        <input type="hidden" name="filaId" th:value="${filaId}">
+                        <div class="campo">
+                            <label th:for="|observacao-${a.id}|">Observação</label>
+                            <input class="entrada" th:id="|observacao-${a.id}|" name="observacao"
+                                   placeholder="Somente informações do processo">
+                        </div>
+                        <div class="acoes-formulario">
+                            <button class="btn btn-primario">Finalizar atendimento</button>
+                        </div>
+                    </form>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+<dialog th:replace="~{fragments/layout :: confirmacao}"></dialog>
+</body>
+</html>

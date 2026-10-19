@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR" data-theme="light" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" data-theme="light" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1421,8 +1421,11 @@ dialog.access::backdrop { background: rgba(10, 42, 48, .55); backdrop-filter: bl
 <dialog class="access" id="access-dialog" aria-labelledby="access-title">
   <div class="access__inner">
     <h2 id="access-title">Acesso ao sistema</h2>
-    <p>Este é um ambiente de demonstração do projeto acadêmico FilaSaúde. Você já pode acessar as configurações da unidade ou experimentar a fila na demonstração abaixo.</p>
-    <a class="btn btn--primary" th:href="@{/configuracoes}">Abrir configurações da unidade</a>
+    <p sec:authorize="!isAuthenticated()">Entre com o e-mail e a senha cadastrados pelo administrador da unidade, ou experimente a fila na demonstração abaixo.</p>
+    <a class="btn btn--primary" sec:authorize="!isAuthenticated()" th:href="@{/login}">Entrar com e-mail e senha</a>
+    <p sec:authorize="isAuthenticated()">Você já está conectado como <strong sec:authentication="principal.nome">Nome</strong>.</p>
+    <a class="btn btn--primary" sec:authorize="isAuthenticated()" th:href="@{/inicio}">Ir para o sistema</a>
+    <a class="btn btn--ghost" sec:authorize="hasRole('ADMIN')" th:href="@{/configuracoes}">Abrir configurações da unidade</a>
     <button class="btn btn--ghost" type="button" id="access-go-demo">Ir para a demonstração</button>
     <button class="access__close" type="button" id="access-close">Fechar</button>
   </div>

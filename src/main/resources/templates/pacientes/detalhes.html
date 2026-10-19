@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Paciente')}"></head>
+<body>
+<div class="app">
+    <nav th:replace="~{fragments/layout :: menu('pacientes')}"></nav>
+    <main class="conteudo">
+        <header class="cabecalho-pagina">
+            <div>
+                <h1 th:text="${paciente.nome}">Maria Silva</h1>
+                <p class="num" th:text="|CPF ${paciente.cpfFormatado}|">CPF 123.456.789-00</p>
+            </div>
+            <div class="acoes">
+                <a class="btn btn-secundario" th:href="@{/pacientes/{id}/editar(id=${paciente.id})}">Editar</a>
+                <a class="btn btn-primario" th:href="@{/atendimentos/novo(pacienteId=${paciente.id})}">Adicionar à fila</a>
+            </div>
+        </header>
+
+        <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+        <section class="cartao" aria-labelledby="titulo-dados">
+            <h2 id="titulo-dados" class="cartao-titulo">Dados do paciente</h2>
+            <dl class="dados-paciente">
+                <div><dt>Data de nascimento</dt>
+                    <dd class="num" th:text="|${#temporals.format(paciente.dataNascimento, 'dd/MM/yyyy')} · ${paciente.idade} anos|">14/10/1990 · 36 anos</dd></div>
+                <div><dt>Cartão SUS</dt><dd class="num" th:text="${paciente.cartaoSus} ?: '—'">—</dd></div>
+                <div><dt>Telefone</dt><dd class="num" th:text="${paciente.telefone} ?: '—'">—</dd></div>
+                <div><dt>Cadastrado em</dt>
+                    <dd class="num" th:text="${#temporals.format(paciente.dataCadastro, 'dd/MM/yyyy')}">14/10/2026</dd></div>
+            </dl>
+        </section>
+
+        <section aria-labelledby="titulo-historico">
+            <h2 id="titulo-historico" class="titulo-secao">Histórico de atendimentos</h2>
+            <p th:if="${#lists.isEmpty(atendimentos)}" class="estado-vazio">Nenhum atendimento registrado.</p>
+            <div class="tabela-caixa" th:unless="${#lists.isEmpty(atendimentos)}">
+                <table class="tabela">
+                    <thead><tr><th>Data</th><th>Senha</th><th>Fila</th><th>Status</th><th>Observação</th></tr></thead>
+                    <tbody>
+                    <tr th:each="a : ${atendimentos}">
+                        <td class="num" th:text="${#temporals.format(a.dataHoraChegada, 'dd/MM/yyyy HH:mm')}">14/10/2026 08:42</td>
+                        <td class="senha-celula" th:text="${a.senha}">A001</td>
+                        <td th:text="${a.fila.nome}">Consulta</td>
+                        <td><span th:replace="~{fragments/layout :: status(${a.status})}"></span></td>
+                        <td th:text="${a.observacao} ?: '—'">—</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <form method="post" th:action="@{/pacientes/{id}/excluir(id=${paciente.id})}"
+              th:data-confirmar="|Excluir o cadastro de ${paciente.nome}?|"
+              data-consequencia="O cadastro será apagado e não poderá ser recuperado."
+              data-acao="Sim, excluir">
+            <button class="btn btn-secundario">Excluir paciente</button>
+        </form>
+    </main>
+</div>
+<dialog th:replace="~{fragments/layout :: confirmacao}"></dialog>
+</body>
+</html>

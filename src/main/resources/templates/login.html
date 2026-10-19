@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Entrar')}"></head>
+<body>
+<div class="tela-login">
+    <section class="painel-marca negativa" aria-label="FilaSaúde">
+        <span class="assinatura">
+            <svg th:replace="~{fragments/layout :: marca}"></svg>
+            <span class="assinatura-nome">FilaSaúde</span>
+        </span>
+        <div>
+            <p class="tagline">Cada pessoa na sua vez.</p>
+            <p class="descritor">Gestão de atendimento, simples de usar.</p>
+        </div>
+        <!-- Padrão gráfico: a fila. A primeira pílula é a vez de alguém. -->
+        <div class="fila-pilulas" aria-hidden="true">
+            <span style="width: 56%"></span>
+            <span style="width: 44%"></span>
+            <span style="width: 34%"></span>
+            <span style="width: 24%"></span>
+        </div>
+    </section>
+
+    <main class="area-login">
+        <button th:replace="~{fragments/layout :: botao-tema}"></button>
+        <form class="formulario-login" method="post" th:action="@{/login}">
+            <div>
+                <h1>Entrar</h1>
+                <p class="apoio">Use o e-mail e a senha cadastrados para você.</p>
+            </div>
+
+            <div class="mensagem mensagem-erro" role="alert" th:if="${param.error}">
+                <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg>
+                <span>E-mail ou senha incorretos. Confira e tente novamente.</span>
+            </div>
+            <div class="mensagem mensagem-sucesso" role="status" th:if="${param.logout}">
+                <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>
+                <span>Você saiu do FilaSaúde.</span>
+            </div>
+
+            <div>
+                <div class="campo">
+                    <label for="email">E-mail</label>
+                    <input class="entrada" id="email" name="email" type="email" autocomplete="username"
+                           placeholder="recepcao@clinica.com" required autofocus>
+                </div>
+                <div class="campo">
+                    <label for="senha">Senha</label>
+                    <input class="entrada" id="senha" name="senha" type="password"
+                           autocomplete="current-password" required>
+                </div>
+            </div>
+
+            <button class="btn btn-primario btn-bloco">Entrar</button>
+        </form>
+    </main>
+</div>
+</body>
+</html>

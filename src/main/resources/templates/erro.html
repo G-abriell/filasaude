@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Aviso')}"></head>
+<body>
+<main class="pagina-erro">
+    <a class="assinatura" th:href="@{/inicio}" aria-label="FilaSaúde, página inicial">
+        <svg th:replace="~{fragments/layout :: marca}"></svg>
+        <span class="assinatura-nome" aria-hidden="true">FilaSaúde</span>
+    </a>
+    <div class="mensagem mensagem-erro" role="alert">
+        <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg>
+        <span th:text="${mensagem}">Seu perfil não tem acesso a esta tela.</span>
+    </div>
+    <div class="acoes">
+        <a class="btn btn-primario" th:href="@{/inicio}">Voltar ao início</a>
+    </div>
+</main>
+</body>
+</html>
