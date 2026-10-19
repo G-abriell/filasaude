@@ -32,10 +32,10 @@
 
 <!--
   Navegação lateral. O parâmetro "ativo" marca o item da tela atual:
-  recepcao, atendimento, dia, pacientes, filas, usuarios, perfis.
+  recepcao, atendimento, dia, pacientes, filas, usuarios, perfis, configuracoes.
 -->
 <nav th:fragment="menu(ativo)" class="nav-lateral" aria-label="Navegação principal">
-    <a class="assinatura" th:href="@{/}" aria-label="FilaSaúde, página inicial">
+    <a class="assinatura" th:href="@{/inicio}" aria-label="FilaSaúde, página inicial">
         <svg th:replace="~{fragments/layout :: marca}"></svg>
         <span class="assinatura-nome" aria-hidden="true">FilaSaúde</span>
     </a>
@@ -67,6 +67,10 @@
         <li sec:authorize="hasRole('ADMIN')">
             <a th:href="@{/perfis}" th:classappend="${ativo == 'perfis'} ? 'ativo'"
                th:aria-current="${ativo == 'perfis'} ? 'page'">Perfis</a>
+        </li>
+        <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/configuracoes}" th:classappend="${ativo == 'configuracoes'} ? 'ativo'"
+               th:aria-current="${ativo == 'configuracoes'} ? 'page'">Configurações</a>
         </li>
     </ul>
     <button th:replace="~{fragments/layout :: botao-tema}"></button>

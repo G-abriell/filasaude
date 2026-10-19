@@ -4,12 +4,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
+/**
+ * Controlador responsável pela página inicial (Landing Page) e pelo início do sistema após o login.
+ */
 @Controller
 public class HomeController {
 
-    /** Página inicial conforme o perfil: painel de atendimento para profissionais de saúde, emissão de senha para a recepção. */
+    /** Landing page pública, exibida antes do login. */
     @GetMapping("/")
-    public String home(Authentication authentication) {
+    public String exibirPaginaInicial() {
+        return "index";
+    }
+
+    /** Início do sistema conforme o perfil: painel de atendimento para profissionais de saúde, emissão de senha para a recepção. */
+    @GetMapping("/inicio")
+    public String inicio(Authentication authentication) {
         if (temPerfil(authentication, "ROLE_PROFISSIONAL_DE_SAUDE") || temPerfil(authentication, "ROLE_ADMIN")) {
             return "redirect:/atendimentos/guiche";
         }

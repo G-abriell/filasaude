@@ -20,9 +20,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/error", "/favicon.ico", "/favicon.svg", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/", "/login", "/error", "/favicon.ico", "/favicon.svg", "/css/**", "/js/**").permitAll()
                         // Administração
-                        .requestMatchers("/perfis/**", "/usuarios/**", "/filas/**").hasRole("ADMIN")
+                        .requestMatchers("/perfis/**", "/usuarios/**", "/filas/**", "/configuracoes/**").hasRole("ADMIN")
                         // Recepção
                         .requestMatchers("/pacientes/**", "/atendimentos/novo").hasAnyRole("RECEPCAO", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/atendimentos", "/atendimentos/*/cancelar")
@@ -37,7 +37,7 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .usernameParameter("email")
                         .passwordParameter("senha")
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/inicio", true)
                         .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")

@@ -13,7 +13,7 @@ public class LoginController {
     @GetMapping("/login")
     public String login(Authentication authentication) {
         if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-            return "redirect:/";
+            return "redirect:/inicio";
         }
         return "login";
     }

@@ -3,7 +3,7 @@
 <head th:replace="~{fragments/layout :: head('Aviso')}"></head>
 <body>
 <main class="pagina-erro">
-    <a class="assinatura" th:href="@{/}" aria-label="FilaSaúde, página inicial">
+    <a class="assinatura" th:href="@{/inicio}" aria-label="FilaSaúde, página inicial">
         <svg th:replace="~{fragments/layout :: marca}"></svg>
         <span class="assinatura-nome" aria-hidden="true">FilaSaúde</span>
     </a>
@@ -12,7 +12,7 @@
         <span th:text="${mensagem}">Seu perfil não tem acesso a esta tela.</span>
     </div>
     <div class="acoes">
-        <a class="btn btn-primario" th:href="@{/}">Voltar ao início</a>
+        <a class="btn btn-primario" th:href="@{/inicio}">Voltar ao início</a>
     </div>
 </main>
 </body>
