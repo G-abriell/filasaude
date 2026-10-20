@@ -9,9 +9,19 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> {
+
+    @Query("""
+            select a from Atendimento a
+            join fetch a.paciente
+            join fetch a.fila
+            left join fetch a.atendente
+            where a.id = :id
+            """)
+    Optional<Atendimento> findByIdDetalhado(Long id);
 
     @Query("""
             select coalesce(max(a.numero), 0) from Atendimento a
@@ -25,10 +35,40 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
             join fetch a.paciente
             join fetch a.fila
             where a.fila.id = :filaId and a.status = br.com.filasaude.entities.enums.StatusAtendimento.AGUARDANDO
-            order by case when a.prioridade = br.com.filasaude.entities.enums.Prioridade.PREFERENCIAL then 0 else 1 end,
-                     a.dataHoraChegada
+            order by case
+                        when a.prioridade = br.com.filasaude.entities.enums.Prioridade.SUPERPREFERENCIAL then 0
+                        when a.prioridade = br.com.filasaude.entities.enums.Prioridade.PREFERENCIAL then 1
+                        else 2
+                     end,
+                     a.dataHoraChegada asc
             """)
     List<Atendimento> findAguardandoNaFila(Long filaId);
+
+    /** Todos os pacientes aguardando em filas ativas: preferenciais primeiro, depois por ordem de chegada. */
+    @Query("""
+            select a from Atendimento a
+            join fetch a.paciente
+            join fetch a.fila
+            where a.fila.ativa = true and a.status = br.com.filasaude.entities.enums.StatusAtendimento.AGUARDANDO
+            order by case
+                        when a.prioridade = br.com.filasaude.entities.enums.Prioridade.SUPERPREFERENCIAL then 0
+                        when a.prioridade = br.com.filasaude.entities.enums.Prioridade.PREFERENCIAL then 1
+                        else 2
+                     end,
+                     a.dataHoraChegada asc
+            """)
+    List<Atendimento> findAllAguardando();
+
+    @Query("""
+            select a from Atendimento a
+            join fetch a.paciente
+            join fetch a.fila
+            left join fetch a.atendente
+            where a.dataHoraChamada is not null
+              and (a.dataReferencia = :data or a.status in (br.com.filasaude.entities.enums.StatusAtendimento.CHAMADO, br.com.filasaude.entities.enums.StatusAtendimento.EM_ATENDIMENTO))
+            order by a.dataHoraChamada desc
+            """)
+    List<Atendimento> findChamadosDoDia(LocalDate data);
 
     @Query("""
             select a from Atendimento a
@@ -51,6 +91,14 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
             """)
     List<Atendimento> findByStatusIn(Collection<StatusAtendimento> status);
 
+    @Query("""
+            select a from Atendimento a
+            join fetch a.paciente
+            join fetch a.fila
+            left join fetch a.atendente
+            where a.paciente.id = :pacienteId
+            order by a.dataHoraChegada desc
+            """)
     List<Atendimento> findByPacienteIdOrderByDataHoraChegadaDesc(Long pacienteId);
 
     boolean existsByPacienteIdAndStatusIn(Long pacienteId, Collection<StatusAtendimento> status);

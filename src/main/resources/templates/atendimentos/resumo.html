@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Registro Clínico e Receita')}"></head>
+<body>
+<div class="app">
+    <nav th:replace="~{fragments/layout :: menu('dia')}"></nav>
+    <main class="conteudo">
+        <header class="cabecalho-pagina">
+            <div>
+                <div class="acoes">
+                    <h1 th:text="|Atendimento ${atendimento.senha}|">Atendimento A001</h1>
+                    <span th:replace="~{fragments/layout :: status(${atendimento.status})}"></span>
+                </div>
+                <p class="num"
+                   th:text="|${atendimento.fila.nome} · Data: ${#temporals.format(atendimento.dataHoraChegada, 'dd/MM/yyyy HH:mm')}|">
+                    Consulta · Data: 19/10/2026 09:15
+                </p>
+            </div>
+            <div class="acoes ocultar-impressao">
+                <button type="button" class="btn btn-primario" onclick="window.print()">
+                    Imprimir receita / resumo
+                </button>
+                <a class="btn btn-secundario" th:href="@{/atendimentos}">Voltar aos atendimentos</a>
+            </div>
+        </header>
+
+        <!-- Destaque de Comunicação com a Recepção -->
+        <div th:if="${atendimento.encaminhamento}" class="bloco-encaminhamento-recepcao" role="region"
+             aria-label="Orientação para a recepção">
+            <span class="caption">Orientação médica para a Recepção</span>
+            <p class="m-0" style="font-size: 18px; font-weight: 600; margin-top: 4px;"
+               th:text="${atendimento.encaminhamento}">
+                Agendar retorno em 15 dias e entregar receita impressa.
+            </p>
+        </div>
+
+        <section class="cartao" aria-labelledby="titulo-identificacao">
+            <h2 id="titulo-identificacao" class="cartao-titulo">Identificação do paciente e atendimento</h2>
+            <dl class="dados-paciente">
+                <div>
+                    <dt>Paciente</dt>
+                    <dd th:text="${atendimento.paciente.nome}">Maria Silva</dd>
+                </div>
+                <div>
+                    <dt>CPF</dt>
+                    <dd class="num" th:text="${atendimento.paciente.cpfFormatado}">123.456.789-00</dd>
+                </div>
+                <div>
+                    <dt>Idade / Nascimento</dt>
+                    <dd class="num"
+                        th:text="|${atendimento.paciente.idade} anos (${#temporals.format(atendimento.paciente.dataNascimento, 'dd/MM/yyyy')})|">
+                        34 anos (14/10/1992)
+                    </dd>
+                </div>
+                <div>
+                    <dt>Telefone</dt>
+                    <dd class="num" th:text="${atendimento.paciente.telefoneFormatado} ?: '—'">(44) 9 8888-7777</dd>
+                </div>
+                <div>
+                    <dt>Profissional responsável</dt>
+                    <dd th:text="${atendimento.atendente?.nome} ?: '—'">Dra. Ana</dd>
+                </div>
+                <div>
+                    <dt>Sala / Consultório</dt>
+                    <dd th:text="${atendimento.guiche} ?: '—'">Consultório 1</dd>
+                </div>
+                <div>
+                    <dt>Início do atendimento</dt>
+                    <dd class="num"
+                        th:text="${atendimento.dataHoraInicio != null} ? ${#temporals.format(atendimento.dataHoraInicio, 'HH:mm')} : '—'">
+                        09:20
+                    </dd>
+                </div>
+                <div>
+                    <dt>Finalização</dt>
+                    <dd class="num"
+                        th:text="${atendimento.dataHoraFim != null} ? ${#temporals.format(atendimento.dataHoraFim, 'HH:mm')} : '—'">
+                        09:38
+                    </dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="cartao" aria-labelledby="titulo-evolucao">
+            <h2 id="titulo-evolucao" class="cartao-titulo">Resumo clínico / Evolução</h2>
+            <p class="m-0" style="white-space: pre-wrap;"
+               th:text="${atendimento.observacao} ?: 'Nenhuma evolução clínica registrada.'">
+                Paciente avaliado sem intercorrências.
+            </p>
+        </section>
+
+        <section class="cartao" aria-labelledby="titulo-prescricao">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 id="titulo-prescricao" class="cartao-titulo m-0">Receita / Prescrição médica</h2>
+                <span th:if="${atendimento.prescricao}" class="etiqueta-receita">Documento emitido</span>
+            </div>
+            <div th:if="${atendimento.prescricao}" class="bloco-prescricao" th:text="${atendimento.prescricao}">
+                1. Dipirona 500mg — 1 comprimido de 6/6h se dor ou febre.
+            </div>
+            <p th:unless="${atendimento.prescricao}" class="apoio m-0">
+                Nenhuma receita ou prescrição registrada neste atendimento.
+            </p>
+
+            <div class="assinatura-medica" th:if="${atendimento.atendente != null}">
+                <div>
+                    <span class="caption">Profissional de saúde</span>
+                    <div style="font-weight: 600; font-size: 16px;" th:text="${atendimento.atendente.nome}">Dra. Ana</div>
+                </div>
+                <div class="num apoio body-sm"
+                     th:text="${atendimento.dataHoraFim != null} ? |Emitido em ${#temporals.format(atendimento.dataHoraFim, 'dd/MM/yyyy HH:mm')}| : ''">
+                    Emitido em 19/10/2026 09:38
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+<dialog th:replace="~{fragments/layout :: confirmacao}"></dialog>
+</body>
+</html>

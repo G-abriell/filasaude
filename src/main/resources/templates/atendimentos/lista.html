@@ -8,7 +8,12 @@
         <header class="cabecalho-pagina">
             <div>
                 <h1>Atendimentos do dia</h1>
-                <p>Todas as senhas de hoje, da chegada à finalização.</p>
+                <p>Acompanhe todas as senhas de hoje, a evolução clínica, receitas emitidas e orientações médicas para a recepção.</p>
+            </div>
+            <div class="acoes">
+                <a sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')" class="btn btn-primario" th:href="@{/atendimentos/novo}">
+                    + Nova senha
+                </a>
             </div>
         </header>
 
@@ -16,7 +21,7 @@
 
         <form class="busca" method="get" th:action="@{/atendimentos}">
             <div class="campo">
-                <label for="filaId">Fila</label>
+                <label for="filaId">Filtrar por fila</label>
                 <select class="entrada" id="filaId" name="filaId" onchange="this.form.submit()">
                     <option value="">Todas as filas</option>
                     <option th:each="f : ${filas}" th:value="${f.id}" th:selected="${f.id == filaId}" th:text="${f.nome}">Consulta</option>
@@ -25,33 +30,61 @@
             <noscript><button class="btn btn-secundario">Filtrar</button></noscript>
         </form>
 
-        <p th:if="${#lists.isEmpty(atendimentos)}" class="estado-vazio">Nenhum atendimento hoje.</p>
+        <p th:if="${#lists.isEmpty(atendimentos)}" class="estado-vazio">Nenhum atendimento registrado hoje.</p>
         <div class="tabela-caixa" th:unless="${#lists.isEmpty(atendimentos)}">
             <table class="tabela">
                 <thead>
                 <tr>
-                    <th>Senha</th><th>Paciente</th><th>Fila</th><th>Chegada</th><th>Status</th>
-                    <th>Profissional</th><th>Sala</th><th><span class="visualmente-oculto">Ações</span></th>
+                    <th>Senha</th>
+                    <th>Paciente</th>
+                    <th>Fila</th>
+                    <th>Chegada</th>
+                    <th>Status</th>
+                    <th>Profissional / Sala</th>
+                    <th>Retorno Clínico / Recepção</th>
+                    <th><span class="visualmente-oculto">Ações</span></th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="a : ${atendimentos}">
                     <td class="senha-celula" th:text="${a.senha}">A001</td>
-                    <td th:text="${a.paciente.nome}">Maria Silva</td>
+                    <td>
+                        <a th:href="@{/pacientes/{id}(id=${a.paciente.id})}" th:text="${a.paciente.nome}">Maria Silva</a>
+                        <div class="apoio body-sm num" th:text="|CPF ${a.paciente.cpfFormatado}|">CPF 123.456.789-00</div>
+                    </td>
                     <td th:text="${a.fila.nome}">Consulta</td>
                     <td class="num" th:text="${#temporals.format(a.dataHoraChegada, 'HH:mm')}">08:42</td>
                     <td><span th:replace="~{fragments/layout :: status(${a.status})}"></span></td>
-                    <td th:text="${a.atendente?.nome} ?: '—'">Dra. Ana</td>
-                    <td th:text="${a.guiche} ?: '—'">Consultório 1</td>
+                    <td>
+                        <div th:text="${a.atendente?.nome} ?: '—'">Dra. Ana</div>
+                        <div class="apoio body-sm" th:if="${a.guiche}" th:text="${a.guiche}">Consultório 1</div>
+                    </td>
+                    <td>
+                        <div class="acoes" style="margin-bottom: 4px;"
+                             th:if="${a.encaminhamento != null or a.prescricao != null}">
+                            <span th:if="${a.encaminhamento}" class="etiqueta-encaminhamento"
+                                  th:text="${a.encaminhamento}">Agendar retorno</span>
+                            <span th:if="${a.prescricao}" class="etiqueta-receita">Receita médica</span>
+                        </div>
+                        <span class="apoio body-sm"
+                              th:text="${a.observacao} ?: (${a.encaminhamento == null and a.prescricao == null} ? '—' : '')">—</span>
+                    </td>
                     <td class="acoes-celula">
-                        <form method="post" sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')"
-                              th:if="${a.status.name() == 'AGUARDANDO' or a.status.name() == 'CHAMADO'}"
-                              th:action="@{/atendimentos/{id}/cancelar(id=${a.id})}"
-                              th:data-confirmar="|Cancelar a senha ${a.senha}?|"
-                              data-consequencia="A senha sai da fila e o status passará para Cancelado."
-                              data-acao="Sim, cancelar">
-                            <button class="btn btn-secundario btn-compacto">Cancelar senha</button>
-                        </form>
+                        <div class="acoes">
+                            <a th:if="${a.possuiRegistroClinico() or a.status.name() == 'FINALIZADO'}"
+                               class="btn btn-secundario btn-compacto"
+                               th:href="@{/atendimentos/{id}/resumo(id=${a.id})}">
+                                Ver receita / Registro
+                            </a>
+                            <form method="post" sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')"
+                                  th:if="${a.status.name() == 'AGUARDANDO' or a.status.name() == 'CHAMADO'}"
+                                  th:action="@{/atendimentos/{id}/cancelar(id=${a.id})}"
+                                  th:data-confirmar="|Cancelar a senha ${a.senha}?|"
+                                  data-consequencia="A senha sai da fila e o status passará para Cancelado."
+                                  data-acao="Sim, cancelar">
+                                <button class="btn btn-secundario btn-compacto">Cancelar senha</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 </tbody>

@@ -40,11 +40,11 @@ public class Atendimento {
     private Usuario atendente;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "prioridade", nullable = false, length = 20)
+    @Column(name = "prioridade", nullable = false, length = 30)
     private Prioridade prioridade;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "status", nullable = false, length = 30)
     private StatusAtendimento status;
 
     /** Dia ao qual a numeração pertence (reinicia diariamente por fila). */
@@ -55,14 +55,23 @@ public class Atendimento {
     private Integer numero;
 
     /** Senha exibida no painel: uma letra e três números, sem espaço (ex.: "A001"). */
-    @Column(name = "senha", nullable = false, length = 20)
+    @Column(name = "senha", nullable = false, length = 30)
     private String senha;
 
     @Column(name = "guiche", length = 30)
     private String guiche;
 
-    @Column(name = "observacao", length = 500)
+    /** Evolução clínica / resumo do atendimento registrado pelo profissional de saúde. */
+    @Column(name = "observacao", length = 1000)
     private String observacao;
+
+    /** Receita médica / prescrição emitida durante o atendimento. */
+    @Column(name = "prescricao", length = 3000)
+    private String prescricao;
+
+    /** Orientação / encaminhamento direto para a Recepção (ex.: Alta liberada, Agendar retorno, Solicitar exames). */
+    @Column(name = "encaminhamento", length = 500)
+    private String encaminhamento;
 
     @Column(name = "data_hora_chegada", nullable = false)
     private LocalDateTime dataHoraChegada;
@@ -95,9 +104,18 @@ public class Atendimento {
     public void chamar(Usuario atendente, String guiche) {
         exigirStatus(StatusAtendimento.AGUARDANDO, "chamar");
         this.atendente = atendente;
-        this.guiche = guiche;
+        this.guiche = (guiche != null && !guiche.isBlank()) ? guiche.trim() : null;
         this.dataHoraChamada = LocalDateTime.now();
         this.status = StatusAtendimento.CHAMADO;
+    }
+
+    public void rechamar(Usuario atendente, String guiche) {
+        exigirStatus(StatusAtendimento.CHAMADO, "rechamar");
+        this.atendente = atendente;
+        if (guiche != null && !guiche.isBlank()) {
+            this.guiche = guiche.trim();
+        }
+        this.dataHoraChamada = LocalDateTime.now();
     }
 
     public void iniciar() {
@@ -107,10 +125,22 @@ public class Atendimento {
     }
 
     public void finalizar(String observacao) {
+        finalizar(observacao, null, null);
+    }
+
+    public void finalizar(String observacao, String prescricao, String encaminhamento) {
         exigirStatus(StatusAtendimento.EM_ATENDIMENTO, "finalizar");
-        this.observacao = observacao;
+        this.observacao = (observacao != null && !observacao.isBlank()) ? observacao.trim() : null;
+        this.prescricao = (prescricao != null && !prescricao.isBlank()) ? prescricao.trim() : null;
+        this.encaminhamento = (encaminhamento != null && !encaminhamento.isBlank()) ? encaminhamento.trim() : null;
         this.dataHoraFim = LocalDateTime.now();
         this.status = StatusAtendimento.FINALIZADO;
+    }
+
+    public boolean possuiRegistroClinico() {
+        return (observacao != null && !observacao.isBlank())
+                || (prescricao != null && !prescricao.isBlank())
+                || (encaminhamento != null && !encaminhamento.isBlank());
     }
 
     public void registrarNaoComparecimento() {
@@ -184,6 +214,14 @@ public class Atendimento {
 
     public String getObservacao() {
         return observacao;
+    }
+
+    public String getPrescricao() {
+        return prescricao;
+    }
+
+    public String getEncaminhamento() {
+        return encaminhamento;
     }
 
     public LocalDateTime getDataHoraChegada() {

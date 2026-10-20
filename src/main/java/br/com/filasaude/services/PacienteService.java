@@ -27,7 +27,11 @@ public class PacienteService {
             return pacienteRepository.findAllByOrderByNomeAsc();
         }
         String termo = busca.trim();
-        return pacienteRepository.findByNomeContainingIgnoreCaseOrCpfContainingOrderByNomeAsc(termo, termo);
+        String digitos = termo.replaceAll("\\D", "");
+        if (digitos.isEmpty()) {
+            return pacienteRepository.findByNomeContainingIgnoreCaseOrCpfContainingOrderByNomeAsc(termo, termo);
+        }
+        return pacienteRepository.buscarPorTermoOuDigitos(termo, digitos);
     }
 
     @Transactional(readOnly = true)

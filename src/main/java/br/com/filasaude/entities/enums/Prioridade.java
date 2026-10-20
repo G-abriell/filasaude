@@ -1,21 +1,34 @@
 package br.com.filasaude.entities.enums;
 
 /**
- * Substitui a antiga ideia de entidade TipoFila: o "tipo" de atendimento
- * (normal ou preferencial) é um conjunto fixo, definido em lei, e não precisa de tabela.
+ * Hierarquia de prioridade legal no atendimento à saúde conforme legislação brasileira:
+ * - Lei Federal nº 10.048/2000 (Prioridade Geral: 60+, PCD, Gestantes, Lactantes, TEA)
+ * - Lei Federal nº 10.741/2003 (Estatuto da Pessoa Idosa)
+ * - Lei Federal nº 13.466/2017 (Superprioridade para maiores de 80 anos sobre os demais)
  */
 public enum Prioridade {
 
-    NORMAL("Normal"),
-    PREFERENCIAL("Preferencial");
+    NORMAL("Normal", 3),
+    PREFERENCIAL("Preferencial (Lei 10.048/2000)", 2),
+    SUPERPREFERENCIAL("Superpreferencial 80+ (Lei 13.466/2017)", 1);
 
     private final String descricao;
+    private final int ordem;
 
-    Prioridade(String descricao) {
+    Prioridade(String descricao, int ordem) {
         this.descricao = descricao;
+        this.ordem = ordem;
     }
 
     public String getDescricao() {
         return descricao;
+    }
+
+    public int getOrdem() {
+        return ordem;
+    }
+
+    public boolean isLegal() {
+        return this != NORMAL;
     }
 }

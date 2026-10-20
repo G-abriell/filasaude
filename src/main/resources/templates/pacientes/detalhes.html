@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/layout :: head('Paciente')}"></head>
 <body>
 <div class="app">
@@ -7,12 +7,19 @@
     <main class="conteudo">
         <header class="cabecalho-pagina">
             <div>
-                <h1 th:text="${paciente.nome}">Maria Silva</h1>
+                <div class="acoes">
+                    <h1 th:text="${paciente.nome}">Maria Silva</h1>
+                    <span th:if="${paciente.idoso}" class="etiqueta-prioridade etiqueta-preferencial">60+ Preferencial</span>
+                </div>
                 <p class="num" th:text="|CPF ${paciente.cpfFormatado}|">CPF 123.456.789-00</p>
             </div>
             <div class="acoes">
-                <a class="btn btn-secundario" th:href="@{/pacientes/{id}/editar(id=${paciente.id})}">Editar</a>
-                <a class="btn btn-primario" th:href="@{/atendimentos/novo(pacienteId=${paciente.id})}">Adicionar à fila</a>
+                <a sec:authorize="hasAnyRole('PROFISSIONAL_DE_SAUDE', 'ADMIN')"
+                   class="btn btn-secundario" th:href="@{/atendimentos/guiche}">Voltar ao atendimento</a>
+                <a sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')"
+                   class="btn btn-secundario" th:href="@{/pacientes/{id}/editar(id=${paciente.id})}">Editar</a>
+                <a sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')"
+                   class="btn btn-primario" th:href="@{/atendimentos/novo(pacienteId=${paciente.id})}">Adicionar à fila</a>
             </div>
         </header>
 
@@ -24,32 +31,57 @@
                 <div><dt>Data de nascimento</dt>
                     <dd class="num" th:text="|${#temporals.format(paciente.dataNascimento, 'dd/MM/yyyy')} · ${paciente.idade} anos|">14/10/1990 · 36 anos</dd></div>
                 <div><dt>Cartão SUS</dt><dd class="num" th:text="${paciente.cartaoSus} ?: '—'">—</dd></div>
-                <div><dt>Telefone</dt><dd class="num" th:text="${paciente.telefone} ?: '—'">—</dd></div>
+                <div><dt>Telefone</dt><dd class="num" th:text="${paciente.telefoneFormatado} ?: '—'">—</dd></div>
                 <div><dt>Cadastrado em</dt>
                     <dd class="num" th:text="${#temporals.format(paciente.dataCadastro, 'dd/MM/yyyy')}">14/10/2026</dd></div>
             </dl>
         </section>
 
         <section aria-labelledby="titulo-historico">
-            <h2 id="titulo-historico" class="titulo-secao">Histórico de atendimentos</h2>
+            <h2 id="titulo-historico" class="titulo-secao">Histórico de atendimentos e prescrições</h2>
             <p th:if="${#lists.isEmpty(atendimentos)}" class="estado-vazio">Nenhum atendimento registrado.</p>
             <div class="tabela-caixa" th:unless="${#lists.isEmpty(atendimentos)}">
                 <table class="tabela">
-                    <thead><tr><th>Data</th><th>Senha</th><th>Fila</th><th>Status</th><th>Observação</th></tr></thead>
+                    <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Senha</th>
+                        <th>Fila</th>
+                        <th>Profissional</th>
+                        <th>Status</th>
+                        <th>Desfecho / Registro Clínico</th>
+                        <th><span class="visualmente-oculto">Ações</span></th>
+                    </tr>
+                    </thead>
                     <tbody>
                     <tr th:each="a : ${atendimentos}">
                         <td class="num" th:text="${#temporals.format(a.dataHoraChegada, 'dd/MM/yyyy HH:mm')}">14/10/2026 08:42</td>
                         <td class="senha-celula" th:text="${a.senha}">A001</td>
                         <td th:text="${a.fila.nome}">Consulta</td>
+                        <td th:text="${a.atendente?.nome} ?: '—'">Dra. Ana</td>
                         <td><span th:replace="~{fragments/layout :: status(${a.status})}"></span></td>
-                        <td th:text="${a.observacao} ?: '—'">—</td>
+                        <td>
+                            <div class="acoes" style="margin-bottom: 4px;" th:if="${a.encaminhamento != null or a.prescricao != null}">
+                                <span th:if="${a.encaminhamento}" class="etiqueta-encaminhamento" th:text="${a.encaminhamento}">Alta liberada</span>
+                                <span th:if="${a.prescricao}" class="etiqueta-receita">Receita emitida</span>
+                            </div>
+                            <span class="apoio body-sm" th:text="${a.observacao} ?: (${a.encaminhamento == null and a.prescricao == null} ? '—' : '')">—</span>
+                        </td>
+                        <td class="acoes-celula">
+                            <a th:if="${a.possuiRegistroClinico() or a.status.name() == 'FINALIZADO'}"
+                               class="btn btn-secundario btn-compacto"
+                               th:href="@{/atendimentos/{id}/resumo(id=${a.id})}">
+                                Ver receita / Registro
+                            </a>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <form method="post" th:action="@{/pacientes/{id}/excluir(id=${paciente.id})}"
+        <form sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')"
+              method="post" th:action="@{/pacientes/{id}/excluir(id=${paciente.id})}"
               th:data-confirmar="|Excluir o cadastro de ${paciente.nome}?|"
               data-consequencia="O cadastro será apagado e não poderá ser recuperado."
               data-acao="Sim, excluir">

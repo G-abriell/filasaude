@@ -14,6 +14,8 @@
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/filasaude.css}">
+    <script defer th:src="@{/js/filasaude.js}"></script>
 
     <script>
         (function () {
@@ -160,148 +162,6 @@
         /* ============================================================
            Estrutura de Layout (Sidebar + Conteúdo)
            ============================================================ */
-        .app-shell {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .app-sidebar {
-            width: 260px;
-            height: 100vh;
-            position: sticky;
-            top: 0;
-            background-color: var(--brand-fill);
-            color: var(--nevoa-50);
-            display: flex;
-            flex-direction: column;
-            padding: var(--space-6) var(--space-4);
-            flex-shrink: 0;
-            box-sizing: border-box;
-            overflow-y: auto;
-        }
-
-        .sidebar-brand {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: var(--nevoa-50);
-            padding: var(--space-2) var(--space-3);
-            margin-bottom: var(--space-6);
-        }
-
-        .sidebar-brand:hover {
-            color: var(--nevoa-50);
-        }
-
-        .brand-mark {
-            width: 28px;
-            height: 28px;
-            flex-shrink: 0;
-        }
-
-        .brand-name {
-            font-family: var(--font-display);
-            font-weight: 500;
-            font-size: 24px;
-            letter-spacing: -0.01em;
-            line-height: 1;
-        }
-
-        .sidebar-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 14px;
-            border-radius: var(--radius-md);
-            color: rgba(250, 248, 244, 0.86);
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 500;
-            transition: background-color 150ms ease, color 150ms ease;
-        }
-
-        .sidebar-link:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-            color: var(--nevoa-50);
-        }
-
-        .sidebar-link.is-active {
-            background-color: var(--surface-raised);
-            color: var(--ink);
-            font-weight: 600;
-        }
-
-        .sidebar-link svg {
-            width: 20px;
-            height: 20px;
-            stroke-width: 2;
-            flex-shrink: 0;
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            padding-top: var(--space-4);
-        }
-
-        .profile-box {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background-color: rgba(255, 255, 255, 0.07);
-            border-radius: var(--radius-md);
-            padding: 12px 14px;
-        }
-
-        .profile-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background-color: var(--nevoa-50);
-            color: var(--brand);
-            display: grid;
-            place-items: center;
-            font-weight: 600;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-
-        .profile-meta {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.3;
-        }
-
-        .profile-role {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--nevoa-50);
-        }
-
-        .profile-logout {
-            font-size: 13px;
-            color: rgba(250, 248, 244, 0.8);
-            text-decoration: underline;
-            background: none;
-            border: 0;
-            padding: 0;
-            text-align: left;
-            cursor: pointer;
-        }
-
-        .profile-logout:hover {
-            color: #FFFFFF;
-        }
-
         /* ============================================================
            Área Principal e Cabeçalho
            ============================================================ */
@@ -780,15 +640,6 @@
         html[data-font-scale="medio"] .feedback-banner {
             font-size: 16.5px;
         }
-        html[data-font-scale="medio"] .sidebar-link {
-            font-size: 16.5px;
-        }
-        html[data-font-scale="medio"] .profile-role {
-            font-size: 15.5px;
-        }
-        html[data-font-scale="medio"] .profile-logout {
-            font-size: 14px;
-        }
         html[data-font-scale="medio"] .ticket-header h3 {
             font-size: 17px;
         }
@@ -887,15 +738,6 @@
         html[data-font-scale="grande"] .feedback-banner {
             font-size: 18px;
         }
-        html[data-font-scale="grande"] .sidebar-link {
-            font-size: 18px;
-        }
-        html[data-font-scale="grande"] .profile-role {
-            font-size: 17px;
-        }
-        html[data-font-scale="grande"] .profile-logout {
-            font-size: 15.5px;
-        }
         html[data-font-scale="grande"] .ticket-header h3 {
             font-size: 19px;
         }
@@ -956,6 +798,33 @@
         html[data-high-contrast="true"] .ticket-preview {
             border: 2px solid #FFFFFF !important;
         }
+        html[data-high-contrast="true"] .app-sidebar,
+        html[data-high-contrast="true"] .nav-lateral {
+            background: #000000 !important;
+            color: #FFFFFF !important;
+            border-right: 2px solid #FFFFFF !important;
+        }
+        html[data-high-contrast="true"] .app-sidebar .sidebar-link,
+        html[data-high-contrast="true"] .app-sidebar .profile-role {
+            color: #FFFFFF !important;
+        }
+        html[data-high-contrast="true"] .app-sidebar .sidebar-link:hover,
+        html[data-high-contrast="true"] .app-sidebar .sidebar-link.is-active {
+            background: #FFFF00 !important;
+            color: #000000 !important;
+            border: 2px solid #FFFFFF !important;
+        }
+        html[data-high-contrast="true"] .app-sidebar .sidebar-link.is-active svg {
+            stroke: #000000 !important;
+        }
+        html[data-high-contrast="true"] .app-sidebar .profile-box {
+            background: #000000 !important;
+            border: 2px solid #FFFFFF !important;
+        }
+
+        /* Esta tela aplica escala tipográfica componente a componente abaixo. */
+        html[data-font-scale="medio"] body,
+        html[data-font-scale="grande"] body { zoom: 1; }
 
         html[data-focus-enhanced="true"] :focus-visible,
         html[data-focus-enhanced="true"] .fs-input:focus,
@@ -1005,7 +874,6 @@
 
         html[data-motion-reduced="true"] .btn-fs-primary,
         html[data-motion-reduced="true"] .btn-fs-secondary,
-        html[data-motion-reduced="true"] .sidebar-link,
         html[data-motion-reduced="true"] .fs-switch {
             transition: none !important;
             transform: none !important;
@@ -1356,37 +1224,6 @@
            Responsividade (Abaixo de 760px navegação vai para o topo)
            ============================================================ */
         @media (max-width: 760px) {
-            .app-shell {
-                flex-direction: column;
-            }
-
-            .app-sidebar {
-                width: 100%;
-                height: auto;
-                position: static;
-                padding: var(--space-4);
-            }
-
-            .sidebar-brand {
-                margin-bottom: var(--space-3);
-            }
-
-            .sidebar-nav {
-                flex-direction: row;
-                overflow-x: auto;
-                padding-bottom: 4px;
-            }
-
-            .sidebar-link {
-                white-space: nowrap;
-                padding: 8px 12px;
-            }
-
-            .sidebar-footer {
-                display: none;
-            }
-
-
             .app-main {
                 padding: var(--space-8) var(--space-4);
             }
@@ -1401,95 +1238,19 @@
                 width: 100%;
             }
         }
+
+        @media (max-width: 1100px) {
+            .row.g-4 > .col-lg-8,
+            .row.g-4 > .col-lg-4 { flex: 0 0 100%; max-width: 100%; }
+            .ticket-preview { max-width: 520px; margin: 0 auto; }
+        }
     </style>
 </head>
 <body>
 
 <div class="app-shell">
-    <!-- ==================== Barra Lateral ==================== -->
-    <aside class="app-sidebar" aria-label="Navegação principal">
-        <a th:href="@{/inicio}" class="sidebar-brand">
-            <svg class="brand-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <rect x="3" y="4" width="5" height="24" rx="2.5" fill="#FAF8F4"/>
-                <rect x="12" y="4" width="17" height="5.5" rx="2.75" fill="#CB7440"/>
-                <rect x="12" y="13.25" width="11.5" height="5.5" rx="2.75" fill="#FAF8F4"/>
-                <circle cx="14.75" cy="25.25" r="2.75" fill="#6B9784"/>
-            </svg>
-            <span class="brand-name">FilaSaúde</span>
-        </a>
-
-        <ul class="sidebar-nav">
-            <li>
-                <a th:href="@{/inicio}" class="sidebar-link">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
-                        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
-                        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
-                        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
-                    </svg>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li>
-                <a th:href="@{/pacientes}" class="sidebar-link">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
-                    <span>Pacientes</span>
-                </a>
-            </li>
-            <li>
-                <a th:href="@{/atendimentos/novo}" class="sidebar-link">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="9"/>
-                        <path d="M12 8v8M8 12h8"/>
-                    </svg>
-                    <span>Nova entrada</span>
-                </a>
-            </li>
-            <li>
-                <a th:href="@{/filas}" class="sidebar-link">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
-                    </svg>
-                    <span>Fila</span>
-                </a>
-            </li>
-            <li>
-                <a th:href="@{/atendimentos/guiche}" class="sidebar-link">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M9 11l3 3L22 4"/>
-                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-                    </svg>
-                    <span>Atendimento</span>
-                </a>
-            </li>
-            <li>
-                <a th:href="@{/configuracoes}" class="sidebar-link is-active" aria-current="page">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                    </svg>
-                    <span>Configurações</span>
-                </a>
-            </li>
-        </ul>
-
-        <div class="sidebar-footer">
-            <div class="profile-box">
-                <div class="profile-avatar" aria-hidden="true" th:text="${#strings.substring(#authentication.principal.nome, 0, 1)}">A</div>
-                <div class="profile-meta">
-                    <span class="profile-role" sec:authentication="principal.nome">Administrador</span>
-                    <form th:action="@{/logout}" method="post" class="m-0">
-                        <button type="submit" class="profile-logout">Sair</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </aside>
+    <!-- ==================== Barra Lateral Unificada ==================== -->
+    <aside th:replace="~{fragments/layout :: menu('configuracoes')}"></aside>
 
     <!-- ==================== Conteúdo Principal ==================== -->
     <main class="app-main">
@@ -1575,8 +1336,8 @@
                                        name="telefone"
                                        class="fs-input fs-input--tabular"
                                        th:value="${telefone}"
-                                       placeholder="(00) 0000-0000"
-                                       maxlength="15"
+                                       placeholder="(00) 9 8888-8888"
+                                       maxlength="16"
                                        inputmode="numeric"
                                        autocomplete="tel">
                             </div>
@@ -1872,73 +1633,6 @@
             </div>
         </form>
     </main>
-</div>
-
-<!-- Widget Flutuante de Acessibilidade Rápida -->
-<button class="a11y-trigger" id="a11y-trigger-btn" type="button" aria-label="Abrir painel de acessibilidade (Alt + A)" title="Menu de Acessibilidade (Alt + A)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="4.5" r="2.5"/>
-        <path d="m4 9 8 2 8-2"/>
-        <path d="M12 11v10"/>
-        <path d="m8 21 4-7 4 7"/>
-    </svg>
-</button>
-
-<div class="a11y-panel" id="a11y-panel-box" role="dialog" aria-modal="true" aria-label="Painel de acessibilidade">
-    <div class="a11y-panel-header">
-        <div class="a11y-panel-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="4.5" r="2.5"/>
-                <path d="m4 9 8 2 8-2"/>
-                <path d="M12 11v10"/>
-                <path d="m8 21 4-7 4 7"/>
-            </svg>
-            <span>Acessibilidade</span>
-        </div>
-        <button type="button" class="a11y-close-btn" id="a11y-close-btn" aria-label="Fechar painel de acessibilidade">&times;</button>
-    </div>
-
-    <div class="a11y-row">
-        <span>Tema visual</span>
-        <div class="a11y-btn-group" role="group" aria-label="Tema visual">
-            <button type="button" class="a11y-btn is-active" id="btn-theme-light" title="Modo Claro (Padrão)" aria-pressed="true">Claro</button>
-            <button type="button" class="a11y-btn" id="btn-theme-dark" title="Modo Escuro" aria-pressed="false">Escuro</button>
-        </div>
-    </div>
-
-    <div class="a11y-row">
-        <span>Tamanho do texto</span>
-        <div class="a11y-btn-group">
-            <button type="button" class="a11y-btn" id="btn-font-dec" title="Diminuir fonte">A-</button>
-            <button type="button" class="a11y-btn" id="btn-font-reset" title="Tamanho padrão">100%</button>
-            <button type="button" class="a11y-btn" id="btn-font-inc" title="Aumentar fonte">A+</button>
-        </div>
-    </div>
-
-    <div class="a11y-row">
-        <span>Alto Contraste</span>
-        <button type="button" class="a11y-btn" id="btn-toggle-contrast">Ativar</button>
-    </div>
-
-    <div class="a11y-row">
-        <span>Foco Teclado</span>
-        <button type="button" class="a11y-btn" id="btn-toggle-focus">Ativar</button>
-    </div>
-
-    <div class="a11y-row">
-        <span>Reduzir Movimento</span>
-        <button type="button" class="a11y-btn" id="btn-toggle-motion">Ativar</button>
-    </div>
-
-    <div class="a11y-row">
-        <span>Espaçamento</span>
-        <button type="button" class="a11y-btn" id="btn-toggle-dyslexia">Ativar</button>
-    </div>
-
-    <div class="a11y-row">
-        <span>Tradutor Libras</span>
-        <button type="button" class="a11y-btn" id="btn-toggle-vlibras" title="Abrir assistente VLibras do Governo Federal">Abrir</button>
-    </div>
 </div>
 
 <script>
@@ -2270,10 +1964,6 @@
         var switchLegibilidade = document.getElementById('legibilidadeAprimorada');
         var radiosFonte = document.querySelectorAll('input[name="tamanhoFonte"]');
 
-        var btnTrigger = document.getElementById('a11y-trigger-btn');
-        var panelBox = document.getElementById('a11y-panel-box');
-        var btnClose = document.getElementById('a11y-close-btn');
-
         var btnThemeLight = document.getElementById('btn-theme-light');
         var btnThemeDark = document.getElementById('btn-theme-dark');
         var btnFontDec = document.getElementById('btn-font-dec');
@@ -2427,18 +2117,6 @@
         if (switchMovimento) switchMovimento.addEventListener('change', function () { setMotionReduced(this.checked); });
         if (switchLegibilidade) switchLegibilidade.addEventListener('change', function () { setDyslexia(this.checked); });
 
-        // Eventos do painel flutuante
-        if (btnTrigger && panelBox) {
-            btnTrigger.addEventListener('click', function () {
-                panelBox.classList.toggle('is-open');
-            });
-        }
-        if (btnClose && panelBox) {
-            btnClose.addEventListener('click', function () {
-                panelBox.classList.remove('is-open');
-            });
-        }
-
         if (btnFontDec) btnFontDec.addEventListener('click', function () {
             var current = root.getAttribute('data-font-scale') || 'padrao';
             if (current === 'grande') setFontScale('medio');
@@ -2490,34 +2168,14 @@
         var btnToggleVLibras = document.getElementById('btn-toggle-vlibras');
         if (btnToggleVLibras) btnToggleVLibras.addEventListener('click', abrirVLibras);
 
-        // Atalho de teclado: Alt + A para abrir/fechar o painel de acessibilidade
+        // Atalho de teclado: Alt + A abre a página de acessibilidade
         document.addEventListener('keydown', function (e) {
             if (e.altKey && (e.key === 'a' || e.key === 'A')) {
                 e.preventDefault();
-                if (panelBox) panelBox.classList.toggle('is-open');
+                window.location.href = '/acessibilidade';
             }
         });
     })();
-</script>
-
-<!-- Widget VLibras: Tradução em Libras com avatar 3D (Governo Federal) -->
-<div vw class="enabled">
-    <div vw-access-button class="active"></div>
-    <div vw-plugin-wrapper>
-        <div class="vw-plugin-top-wrapper"></div>
-    </div>
-</div>
-<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-<script>
-    if (window.VLibras) {
-        new window.VLibras.Widget('https://vlibras.gov.br/app');
-    } else {
-        window.addEventListener('load', function () {
-            if (window.VLibras) {
-                new window.VLibras.Widget('https://vlibras.gov.br/app');
-            }
-        });
-    }
 </script>
 
 </body>

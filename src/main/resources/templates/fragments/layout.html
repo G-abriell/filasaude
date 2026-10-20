@@ -3,105 +3,261 @@
 <head th:fragment="head(titulo)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
     <title th:text="${titulo} + ' · FilaSaúde'">FilaSaúde</title>
     <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
-    <!-- Tema claro por padrão; aplica o escuro antes de desenhar, se a pessoa escolheu -->
+
+    <!-- Pre-paint de preferências visuais e acessibilidade salvas -->
     <script>
-        try {
-            if (localStorage.getItem('filasaude-tema') === 'escuro') {
-                document.documentElement.setAttribute('data-tema', 'escuro');
-            }
-        } catch (e) { /* sem armazenamento: fica no tema claro */ }
+        (function () {
+            try {
+                var current = document.documentElement.getAttribute('data-theme') || (document.documentElement.getAttribute('data-tema') === 'escuro' ? 'dark' : null);
+                var stored = localStorage.getItem('fs-tema-manual') || (localStorage.getItem('filasaude-tema') === 'escuro' ? 'dark' : null);
+                var theme = stored || current || 'light';
+                if (theme === 'escuro') theme = 'dark';
+                document.documentElement.dataset.theme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
+                document.documentElement.setAttribute('data-tema', theme === 'dark' ? 'escuro' : 'claro');
+                document.documentElement.style.colorScheme = theme;
+
+                var font = localStorage.getItem('fs-a11y-font') || document.documentElement.getAttribute('data-font-scale');
+                if (font) document.documentElement.setAttribute('data-font-scale', font);
+                var contrast = localStorage.getItem('fs-a11y-contrast') || document.documentElement.getAttribute('data-high-contrast');
+                if (contrast === 'true') document.documentElement.setAttribute('data-high-contrast', 'true');
+                var focus = localStorage.getItem('fs-a11y-focus') || document.documentElement.getAttribute('data-focus-enhanced');
+                if (focus === 'true') document.documentElement.setAttribute('data-focus-enhanced', 'true');
+                var motion = localStorage.getItem('fs-a11y-motion') || document.documentElement.getAttribute('data-motion-reduced');
+                if (motion === 'true') document.documentElement.setAttribute('data-motion-reduced', 'true');
+                var dyslexia = localStorage.getItem('fs-a11y-dyslexia') || document.documentElement.getAttribute('data-dyslexia');
+                if (dyslexia === 'true') document.documentElement.setAttribute('data-dyslexia', 'true');
+
+                var sidebarRecolhida = localStorage.getItem('fs-sidebar-recolhida');
+                if (sidebarRecolhida === 'true') {
+                    document.documentElement.classList.add('sidebar-recolhida-ativa');
+                }
+            } catch (e) {}
+        })();
     </script>
+
+    <!-- Google Fonts: Newsreader & Figtree (Manual da Marca) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400..700&family=Figtree:wght@400..700&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Estilos FilaSaúde -->
     <link rel="stylesheet" th:href="@{/css/filasaude.css}">
     <script defer th:src="@{/js/filasaude.js}"></script>
 </head>
 <body>
 
-<!-- Marca: F construído com barras de fila. A barra superior é sempre cobre. -->
-<svg th:fragment="marca" class="marca" viewBox="0 0 44.8 46.4" aria-hidden="true" focusable="false">
-    <rect class="marca-haste" x="0" y="0" width="10.66" height="46.4" rx="5.33"/>
-    <rect class="marca-vez" x="14.93" y="0" width="29.86" height="10.55" rx="5.275"/>
-    <rect class="marca-haste" x="14.93" y="17.93" width="19.19" height="10.55" rx="5.275"/>
-    <circle class="marca-ponto" cx="20.26" cy="41.13" r="5.3"/>
+<!-- Marca: logotipo oficial FilaSaúde -->
+<svg th:fragment="marca" class="marca brand-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <rect class="marca-haste" x="3" y="4" width="5" height="24" rx="2.5" fill="#FAF8F4"/>
+    <rect class="marca-vez" x="12" y="4" width="17" height="5.5" rx="2.75" fill="#CB7440"/>
+    <rect class="marca-haste" x="12" y="13.25" width="11.5" height="5.5" rx="2.75" fill="#FAF8F4"/>
+    <circle class="marca-ponto" cx="14.75" cy="25.25" r="2.75" fill="#6B9784"/>
 </svg>
 
 <!--
-  Navegação lateral. O parâmetro "ativo" marca o item da tela atual:
+  Navegação lateral fixa FilaSaúde. O parâmetro "ativo" marca o item da tela atual:
   recepcao, atendimento, dia, pacientes, filas, usuarios, perfis, configuracoes.
 -->
-<nav th:fragment="menu(ativo)" class="nav-lateral" aria-label="Navegação principal">
-    <a class="assinatura" th:href="@{/inicio}" aria-label="FilaSaúde, página inicial">
-        <svg th:replace="~{fragments/layout :: marca}"></svg>
-        <span class="assinatura-nome" aria-hidden="true">FilaSaúde</span>
-    </a>
-    <ul class="nav-itens">
+<th:block th:fragment="menu(ativo)">
+<aside class="app-sidebar nav-lateral" id="appSidebar" aria-label="Navegação principal">
+    <div class="sidebar-header-box">
+        <a class="sidebar-brand assinatura" th:href="@{/inicio}" aria-label="FilaSaúde, página inicial">
+            <svg class="brand-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="3" y="4" width="5" height="24" rx="2.5" fill="#FAF8F4"/>
+                <rect x="12" y="4" width="17" height="5.5" rx="2.75" fill="#CB7440"/>
+                <rect x="12" y="13.25" width="11.5" height="5.5" rx="2.75" fill="#FAF8F4"/>
+                <circle cx="14.75" cy="25.25" r="2.75" fill="#6B9784"/>
+            </svg>
+            <span class="brand-name assinatura-nome">FilaSaúde</span>
+        </a>
+        <button type="button" class="sidebar-toggle-btn" id="btnToggleSidebar"
+                aria-label="Recolher menu lateral" title="Recolher ou expandir menu (Alt + M)">
+            <svg class="sidebar-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+    </div>
+
+    <ul class="sidebar-nav nav-itens">
         <li sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')">
-            <a th:href="@{/atendimentos/novo}" th:classappend="${ativo == 'recepcao'} ? 'ativo'"
-               th:aria-current="${ativo == 'recepcao'} ? 'page'">Adicionar à fila</a>
+            <a th:href="@{/atendimentos/novo}" class="sidebar-link" th:classappend="${ativo == 'recepcao'} ? 'is-active ativo'"
+               th:aria-current="${ativo == 'recepcao'} ? 'page'" title="Adicionar à fila">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M12 8v8M8 12h8"/>
+                </svg>
+                <span>Adicionar à fila</span>
+            </a>
         </li>
         <li sec:authorize="hasAnyRole('PROFISSIONAL_DE_SAUDE', 'ADMIN')">
-            <a th:href="@{/atendimentos/guiche}" th:classappend="${ativo == 'atendimento'} ? 'ativo'"
-               th:aria-current="${ativo == 'atendimento'} ? 'page'">Atendimento</a>
+            <a th:href="@{/atendimentos/guiche}" class="sidebar-link" th:classappend="${ativo == 'atendimento'} ? 'is-active ativo'"
+               th:aria-current="${ativo == 'atendimento'} ? 'page'" title="Atendimento">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 11l3 3L22 4"/>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+                <span>Atendimento</span>
+            </a>
         </li>
         <li sec:authorize="isAuthenticated()">
-            <a th:href="@{/atendimentos}" th:classappend="${ativo == 'dia'} ? 'ativo'"
-               th:aria-current="${ativo == 'dia'} ? 'page'">Atendimentos do dia</a>
+            <a th:href="@{/atendimentos}" class="sidebar-link" th:classappend="${ativo == 'dia'} ? 'is-active ativo'"
+               th:aria-current="${ativo == 'dia'} ? 'page'" title="Atendimentos do dia">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                    <path d="M16 2v4M8 2v4M3 10h18"/>
+                    <path d="m9 16 2 2 4-4"/>
+                </svg>
+                <span>Atendimentos do dia</span>
+            </a>
         </li>
         <li sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')">
-            <a th:href="@{/pacientes}" th:classappend="${ativo == 'pacientes'} ? 'ativo'"
-               th:aria-current="${ativo == 'pacientes'} ? 'page'">Pacientes</a>
+            <a th:href="@{/pacientes}" class="sidebar-link" th:classappend="${ativo == 'pacientes'} ? 'is-active ativo'"
+               th:aria-current="${ativo == 'pacientes'} ? 'page'" title="Pacientes">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <span>Pacientes</span>
+            </a>
         </li>
         <li sec:authorize="hasRole('ADMIN')">
-            <a th:href="@{/filas}" th:classappend="${ativo == 'filas'} ? 'ativo'"
-               th:aria-current="${ativo == 'filas'} ? 'page'">Filas</a>
+            <a th:href="@{/filas}" class="sidebar-link" th:classappend="${ativo == 'filas'} ? 'is-active ativo'"
+               th:aria-current="${ativo == 'filas'} ? 'page'" title="Filas">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+                </svg>
+                <span>Filas</span>
+            </a>
         </li>
         <li sec:authorize="hasRole('ADMIN')">
-            <a th:href="@{/usuarios}" th:classappend="${ativo == 'usuarios'} ? 'ativo'"
-               th:aria-current="${ativo == 'usuarios'} ? 'page'">Usuários</a>
+            <a th:href="@{/usuarios}" class="sidebar-link" th:classappend="${ativo == 'usuarios'} ? 'is-active ativo'"
+               th:aria-current="${ativo == 'usuarios'} ? 'page'" title="Usuários">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                    <path d="m16 11 2 2 4-4"/>
+                </svg>
+                <span>Usuários</span>
+            </a>
         </li>
         <li sec:authorize="hasRole('ADMIN')">
-            <a th:href="@{/perfis}" th:classappend="${ativo == 'perfis'} ? 'ativo'"
-               th:aria-current="${ativo == 'perfis'} ? 'page'">Perfis</a>
+            <a th:href="@{/perfis}" class="sidebar-link" th:classappend="${ativo == 'perfis'} ? 'is-active ativo'"
+               th:aria-current="${ativo == 'perfis'} ? 'page'" title="Perfis">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                </svg>
+                <span>Perfis</span>
+            </a>
         </li>
         <li sec:authorize="hasRole('ADMIN')">
-            <a th:href="@{/configuracoes}" th:classappend="${ativo == 'configuracoes'} ? 'ativo'"
-               th:aria-current="${ativo == 'configuracoes'} ? 'page'">Configurações</a>
+            <a th:href="@{/configuracoes}" class="sidebar-link" th:classappend="${ativo == 'configuracoes'} ? 'is-active ativo'"
+               th:aria-current="${ativo == 'configuracoes'} ? 'page'" title="Configurações">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span>Configurações</span>
+            </a>
+        </li>
+        <li sec:authorize="isAuthenticated() and !hasRole('ADMIN')">
+            <a th:href="@{/acessibilidade}" class="sidebar-link" th:classappend="${ativo == 'acessibilidade'} ? 'is-active ativo'"
+               th:aria-current="${ativo == 'acessibilidade'} ? 'page'" title="Acessibilidade e Ergonomia (Alt + A)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="4.5" r="2.5"/>
+                    <path d="m4 9 8 2 8-2"/>
+                    <path d="M12 11v10"/>
+                    <path d="m8 21 4-7 4 7"/>
+                </svg>
+                <span>Acessibilidade</span>
+            </a>
+        </li>
+        <li sec:authorize="isAuthenticated()">
+            <a th:href="@{/painel}" target="_blank" rel="noopener noreferrer" class="sidebar-link" title="Painel de Chamada para TV (abre em nova aba)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect width="20" height="14" x="2" y="3" rx="2"/>
+                    <line x1="8" x2="16" y1="21" y2="21"/>
+                    <line x1="12" x2="12" y1="17" y2="21"/>
+                </svg>
+                <span>Painel da TV ↗</span>
+            </a>
         </li>
     </ul>
-    <button th:replace="~{fragments/layout :: botao-tema}"></button>
-    <div class="nav-usuario" sec:authorize="isAuthenticated()">
-        <span class="nav-usuario-nome" sec:authentication="principal.nome">Nome</span>
-        <form method="post" th:action="@{/logout}">
-            <button class="btn btn-secundario btn-compacto">Sair</button>
-        </form>
-    </div>
-</nav>
 
-<!-- Alternar entre tema claro e escuro (filasaude.js) -->
+    <div class="sidebar-footer nav-usuario" sec:authorize="isAuthenticated()">
+        <div class="profile-box">
+            <div class="profile-avatar" aria-hidden="true"
+                 th:title="${#authentication.principal.nome}"
+                 th:text="${#authentication.principal.nome != null and #strings.length(#authentication.principal.nome) > 0 ? #strings.substring(#authentication.principal.nome, 0, 1) : 'U'}">A</div>
+            <div class="profile-meta">
+                <span class="profile-role nav-usuario-nome" sec:authentication="principal.nome">Administrador</span>
+                <form th:action="@{/logout}" method="post" class="m-0">
+                    <button type="submit" class="profile-logout">Sair</button>
+                </form>
+            </div>
+            <form th:action="@{/logout}" method="post" class="m-0 profile-logout-compact" title="Sair do sistema">
+                <button type="submit" class="profile-logout-icon" aria-label="Sair do sistema">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+</aside>
+
+<!-- Widget VLibras do Governo Federal para todas as telas autenticadas -->
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+    if (window.VLibras) {
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    } else {
+        window.addEventListener('load', function () {
+            if (window.VLibras) {
+                new window.VLibras.Widget('https://vlibras.gov.br/app');
+            }
+        });
+    }
+</script>
+</th:block>
+
+<!-- Alternar tema (mantido para telas isoladas ou compatibilidade) -->
 <button th:fragment="botao-tema" type="button" class="botao-tema" data-alternar-tema aria-pressed="false">
     <svg class="icone icone-lua" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></svg>
     <svg class="icone icone-sol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
     <span data-rotulo-tema>Tema escuro</span>
 </button>
 
-<!-- Mensagens: sucesso confirma o que aconteceu, erro diz o que fazer. -->
+<!-- Mensagens de Feedback (Sucesso / Erro) -->
 <div th:fragment="mensagens" th:remove="tag">
-    <div class="mensagem mensagem-sucesso" role="status" th:if="${sucesso}">
+    <div class="mensagem mensagem-sucesso feedback-banner feedback-banner--success" role="status" th:if="${sucesso}">
         <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>
-        <span th:text="${sucesso}">Paciente salvo.</span>
+        <span th:text="${sucesso}">Paciente salvo com sucesso.</span>
     </div>
-    <div class="mensagem mensagem-erro" role="alert" th:if="${erro}">
+    <div class="mensagem mensagem-erro feedback-banner feedback-banner--error" role="alert" th:if="${erro}">
         <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg>
         <span th:text="${erro}">Não foi possível salvar. Confira os campos em destaque.</span>
     </div>
 </div>
 
-<!-- Etiqueta de status: sempre com a palavra escrita. -->
+<!-- Etiqueta de status da senha/atendimento -->
 <span th:fragment="status(s)" class="status"
       th:classappend="${s.name() == 'AGUARDANDO'} ? 'status-aguardando'
                     : (${s.name() == 'CHAMADO' or s.name() == 'EM_ATENDIMENTO'} ? 'status-atendimento'
@@ -110,23 +266,25 @@
     <span th:text="${s.descricao}">Aguardando</span>
 </span>
 
-<!-- Erro de validação de um campo: texto dizendo o que fazer, nunca só a borda. -->
+<!-- Erro de validação de campo -->
 <p th:fragment="erro-campo(campo)" class="msg-erro-campo" th:if="${#fields.hasErrors(campo)}">
     <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
     <span th:errors="*{__${campo}__}">Preencha este campo para continuar.</span>
 </p>
 
-<!-- Janela de confirmação crítica, usada por filasaude.js -->
-<dialog th:fragment="confirmacao" id="confirmacao" class="confirmacao" aria-labelledby="confirmacao-titulo">
-    <form method="dialog">
-        <h2 id="confirmacao-titulo" data-confirmacao-titulo>Confirmar?</h2>
-        <p data-confirmacao-texto></p>
-        <div class="acoes-formulario">
-            <button class="btn btn-secundario" value="voltar">Voltar</button>
-            <button class="btn btn-primario" value="sim" data-confirmacao-sim>Confirmar</button>
-        </div>
-    </form>
-</dialog>
+<!-- Janela de confirmação crítica -->
+<th:block th:fragment="confirmacao">
+    <dialog id="confirmacao" class="confirmacao" aria-labelledby="confirmacao-titulo">
+        <form method="dialog">
+            <h2 id="confirmacao-titulo" data-confirmacao-titulo>Confirmar?</h2>
+            <p data-confirmacao-texto></p>
+            <div class="acoes-formulario">
+                <button class="btn btn-secundario" value="voltar">Voltar</button>
+                <button class="btn btn-primario" value="sim" data-confirmacao-sim>Confirmar</button>
+            </div>
+        </form>
+    </dialog>
+</th:block>
 
 </body>
 </html>

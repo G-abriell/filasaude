@@ -7,116 +7,246 @@
     <main class="conteudo">
         <header class="cabecalho-pagina">
             <div>
-                <h1>Atendimento</h1>
-                <p>Chame o próximo paciente aguardando, inicie e finalize o atendimento.</p>
+                <h1>Estação de Atendimento</h1>
+                <p>Fila unificada em tempo real: chame pacientes sem precisar trocar de tela, registre a conduta, a receita e o encaminhamento para a recepção.</p>
             </div>
         </header>
 
         <div th:replace="~{fragments/layout :: mensagens}"></div>
 
-        <form class="cartao cartao-formulario" method="get" th:action="@{/atendimentos/guiche}">
-            <div class="campo">
-                <label for="filaId">Fila</label>
-                <select class="entrada" id="filaId" name="filaId" onchange="this.form.submit()">
-                    <option value="">Selecione a fila</option>
-                    <option th:each="f : ${filas}" th:value="${f.id}" th:selected="${f.id == filaId}" th:text="${f.nome}">Consulta</option>
-                </select>
-            </div>
-            <noscript><button class="btn btn-secundario">Ver fila</button></noscript>
-        </form>
+        <!-- Abas rápidas de filtro por fila com contadores ao vivo (sem esconder a fila geral) -->
+        <nav class="abas-filas" aria-label="Filtro rápido por fila">
+            <a class="aba-fila" th:classappend="${filaId == null} ? 'ativa'"
+               th:href="@{/atendimentos/guiche}">
+                <span>Todas as filas</span>
+                <span class="aba-contador" th:text="${totalAguardando}">0</span>
+            </a>
+            <a th:each="f : ${filas}" class="aba-fila"
+               th:classappend="${f.id == filaId} ? 'ativa'"
+               th:href="@{/atendimentos/guiche(filaId=${f.id})}">
+                <span th:text="${f.nome}">Consulta</span>
+                <span class="aba-contador" th:text="${contagemPorFila.getOrDefault(f.id, 0L)}">0</span>
+            </a>
+        </nav>
 
-        <th:block th:if="${filaId != null}">
-            <section class="cartao" aria-labelledby="titulo-chamar">
-                <h2 id="titulo-chamar" class="cartao-titulo">Chamar próximo</h2>
-                <form id="form-chamar" class="busca" method="post" th:action="@{/atendimentos/chamar}">
+        <!-- Painel de Chamada Rápida -->
+        <section class="cartao" aria-labelledby="titulo-chamar">
+            <div class="painel-chamada">
+                <div>
+                    <h2 id="titulo-chamar" class="cartao-titulo">Próximo da fila</h2>
+                    <div th:if="${!#lists.isEmpty(aguardando)}" class="proximo-destaque">
+                        <span class="proximo-senha-badge" th:text="${aguardando[0].senha}">A001</span>
+                        <div class="proximo-detalhes">
+                            <div class="acoes">
+                                <span class="proximo-nome" th:text="${aguardando[0].paciente.nome}">Maria Silva</span>
+                                <span class="etiqueta-prioridade"
+                                      th:classappend="${aguardando[0].prioridade.name() == 'PREFERENCIAL'} ? 'etiqueta-preferencial' : 'etiqueta-normal'"
+                                      th:text="${aguardando[0].prioridade.descricao}">Preferencial</span>
+                            </div>
+                            <span class="apoio body-sm num"
+                                  th:text="|${aguardando[0].fila.nome} · ${aguardando[0].paciente.idade} anos · Aguardando há ${aguardando[0].minutosEspera} min|">
+                                Consulta · 64 anos · Aguardando há 12 min
+                            </span>
+                        </div>
+                    </div>
+                    <p th:if="${#lists.isEmpty(aguardando)}" class="apoio m-0">
+                        Nenhum paciente aguardando na seleção atual. Assim que a recepção emitir uma senha, ela aparecerá aqui.
+                    </p>
+                </div>
+
+                <form id="form-chamar" method="post" th:action="@{/atendimentos/chamar}">
                     <input type="hidden" name="filaId" th:value="${filaId}">
                     <div class="campo">
-                        <label for="guiche">Sala ou consultório</label>
-                        <input class="entrada" id="guiche" name="guiche" placeholder="Consultório 1">
+                        <label for="guiche">Sua sala ou consultório</label>
+                        <input class="entrada" id="guiche" name="guiche" th:value="${guicheAtual}"
+                               list="sugestoes-salas" maxlength="30" placeholder="Ex.: Consultório 1">
+                        <datalist id="sugestoes-salas">
+                            <option value="Consultório 1"></option>
+                            <option value="Consultório 2"></option>
+                            <option value="Consultório 3"></option>
+                            <option value="Sala de Triagem"></option>
+                            <option value="Sala de Exames"></option>
+                            <option value="Sala de Procedimentos"></option>
+                        </datalist>
                     </div>
-                    <!-- Único elemento em cobre da tela: a ação da vez -->
-                    <button class="btn btn-destaque" th:disabled="${#lists.isEmpty(aguardando)}"
-                            th:text="${#lists.isEmpty(aguardando)} ? 'Chamar próximo' : |Chamar próximo (${aguardando[0].senha})|">
-                        Chamar próximo (A001)
+                    <!-- Único elemento em cobre da tela: a ação principal da vez -->
+                    <button class="btn btn-destaque btn-bloco" th:disabled="${#lists.isEmpty(aguardando)}"
+                            th:text="${#lists.isEmpty(aguardando)} ? 'Ninguém aguardando' : |Chamar próximo (${aguardando[0].senha} · ${aguardando[0].fila.nome})|">
+                        Chamar próximo (A001 · Consulta)
                     </button>
                 </form>
-            </section>
+            </div>
+        </section>
 
-            <section aria-labelledby="titulo-aguardando">
-                <h2 id="titulo-aguardando" class="titulo-secao">
-                    Aguardando <span class="apoio num" th:text="|(${#lists.size(aguardando)})|">(0)</span>
-                </h2>
-                <p th:if="${#lists.isEmpty(aguardando)}" class="estado-vazio">Ninguém aguardando agora.</p>
-                <div class="tabela-caixa" th:unless="${#lists.isEmpty(aguardando)}">
-                    <table class="tabela">
-                        <thead>
-                        <tr><th>Senha</th><th>Paciente</th><th>Prioridade</th><th>Chegada</th><th>Espera</th><th>Status</th><th><span class="visualmente-oculto">Ações</span></th></tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="a, it : ${aguardando}" th:classappend="${it.first} ? 'proximo'">
-                            <td class="senha-celula" th:text="${a.senha}">A001</td>
-                            <td th:text="${a.paciente.nome}">Maria Silva</td>
-                            <td th:text="${a.prioridade.descricao}">Normal</td>
-                            <td class="num" th:text="${#temporals.format(a.dataHoraChegada, 'HH:mm')}">08:42</td>
-                            <td class="num" th:text="|${a.minutosEspera} min|">18 min</td>
-                            <td><span th:replace="~{fragments/layout :: status(${a.status})}"></span></td>
-                            <td class="acoes-celula">
-                                <button th:if="${it.first}" form="form-chamar" class="btn btn-primario btn-compacto">Chamar</button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </th:block>
-
+        <!-- Chamados e em atendimento (Estação Clínica do Profissional) -->
         <section aria-labelledby="titulo-andamento">
-            <h2 id="titulo-andamento" class="titulo-secao">Chamados e em atendimento</h2>
-            <p th:if="${#lists.isEmpty(emAndamento)}" class="estado-vazio">Nenhum atendimento em andamento.</p>
-            <div class="lista-andamento" th:unless="${#lists.isEmpty(emAndamento)}">
+            <h2 id="titulo-andamento" class="titulo-secao">
+                Pacientes chamados e em atendimento
+                <span class="apoio num" th:text="|(${#lists.size(emAndamento)})|">(0)</span>
+            </h2>
+            <p th:if="${#lists.isEmpty(emAndamento)}" class="estado-vazio">
+                Nenhum paciente chamado ou em atendimento no momento.
+            </p>
+            <div class="lista-andamento-ampla" th:unless="${#lists.isEmpty(emAndamento)}">
                 <article th:each="a : ${emAndamento}" class="cartao"
-                         th:classappend="${a.status.name() == 'EM_ATENDIMENTO'} ? 'cartao-ativo'">
-                    <div class="linha-senha">
-                        <span class="senha-celula" th:text="${a.senha}">A000</span>
-                        <span th:replace="~{fragments/layout :: status(${a.status})}"></span>
+                         th:classappend="${a.status.name() == 'EM_ATENDIMENTO'} ? 'cartao-prontuario' : 'cartao-ativo'">
+                    <div class="cabecalho-prontuario">
+                        <div>
+                            <div class="acoes">
+                                <span class="senha-celula" th:text="${a.senha}">A001</span>
+                                <span th:replace="~{fragments/layout :: status(${a.status})}"></span>
+                                <span class="etiqueta-prioridade"
+                                      th:classappend="${a.prioridade.name() == 'PREFERENCIAL'} ? 'etiqueta-preferencial' : 'etiqueta-normal'"
+                                      th:text="${a.prioridade.descricao}">Normal</span>
+                            </div>
+                            <h3 class="paciente-prontuario-titulo" th:text="${a.paciente.nome}">Carlos Lima</h3>
+                            <p class="apoio body-sm num m-0">
+                                <span th:text="|CPF ${a.paciente.cpfFormatado} · ${a.paciente.idade} anos|">CPF 123.456.789-00 · 42 anos</span>
+                                · <strong th:text="${a.fila.nome}">Consulta</strong>
+                                <th:block th:if="${a.guiche}"> · <span th:text="${a.guiche}">Consultório 1</span></th:block>
+                                <th:block th:if="${a.atendente}"> · <span th:text="${a.atendente.nome}">Dra. Ana</span></th:block>
+                            </p>
+                        </div>
+                        <div class="acoes">
+                            <a class="btn btn-secundario btn-compacto"
+                               th:href="@{/pacientes/{id}(id=${a.paciente.id})}">
+                                Ver histórico do paciente
+                            </a>
+                        </div>
                     </div>
-                    <p th:text="${a.paciente.nome}">Carlos Lima</p>
-                    <p class="apoio body-sm">
-                        <span th:text="${a.fila.nome}">Consulta</span>
-                        <th:block th:if="${a.guiche}"> · <span th:text="${a.guiche}">Consultório 1</span></th:block>
-                        <th:block th:if="${a.atendente}"> · <span th:text="${a.atendente.nome}">Dra. Ana</span></th:block>
-                    </p>
 
+                    <!-- Ações quando o paciente foi CHAMADO -->
                     <div class="acoes" th:if="${a.status.name() == 'CHAMADO'}">
                         <form method="post" th:action="@{/atendimentos/{id}/iniciar(id=${a.id})}">
                             <input type="hidden" name="filaId" th:value="${filaId}">
-                            <button class="btn btn-primario btn-compacto">Iniciar atendimento</button>
+                            <button class="btn btn-primario">Iniciar atendimento</button>
+                        </form>
+                        <form method="post" th:action="@{/atendimentos/{id}/rechamar(id=${a.id})}">
+                            <input type="hidden" name="filaId" th:value="${filaId}">
+                            <input type="hidden" name="guiche" class="input-guiche-sincronizado" th:value="${guicheAtual}">
+                            <button class="btn btn-secundario">Rechamar no painel</button>
                         </form>
                         <form method="post" th:action="@{/atendimentos/{id}/nao-compareceu(id=${a.id})}"
-                              th:data-confirmar="|Registrar que ${a.senha} não compareceu?|"
+                              th:data-confirmar="|Registrar que ${a.senha} (${a.paciente.nome}) não compareceu?|"
                               data-consequencia="A senha sai da fila e o status passará para Não compareceu."
                               data-acao="Sim, registrar">
                             <input type="hidden" name="filaId" th:value="${filaId}">
-                            <button class="btn btn-secundario btn-compacto">Não compareceu</button>
+                            <button class="btn btn-secundario">Não compareceu</button>
                         </form>
                     </div>
 
+                    <!-- Formulário Clínico e Comunicação com a Recepção quando EM_ATENDIMENTO -->
                     <form th:if="${a.status.name() == 'EM_ATENDIMENTO'}" method="post"
                           th:action="@{/atendimentos/{id}/finalizar(id=${a.id})}"
                           th:data-confirmar="|Finalizar o atendimento de ${a.paciente.nome}?|"
-                          data-consequencia="O horário de término será registrado e o status passará para Concluído."
-                          data-acao="Sim, finalizar">
+                          data-consequencia="O registro clínico, a receita e as orientações ficarão disponíveis imediatamente para a recepção."
+                          data-acao="Sim, finalizar e enviar">
                         <input type="hidden" name="filaId" th:value="${filaId}">
-                        <div class="campo">
-                            <label th:for="|observacao-${a.id}|">Observação</label>
-                            <input class="entrada" th:id="|observacao-${a.id}|" name="observacao"
-                                   placeholder="Somente informações do processo">
+
+                        <div class="grade-prontuario">
+                            <div class="campo">
+                                <label th:for="|observacao-${a.id}|">Resumo clínico / Evolução e conduta</label>
+                                <textarea class="entrada" th:id="|observacao-${a.id}|" name="observacao" rows="4"
+                                          placeholder="Descreva queixa principal, avaliação clínica e procedimentos realizados..."></textarea>
+                            </div>
+                            <div class="campo">
+                                <label th:for="|prescricao-${a.id}|">Receita / Prescrição médica ou solicitação de exames</label>
+                                <textarea class="entrada" th:id="|prescricao-${a.id}|" name="prescricao" rows="4"
+                                          placeholder="Ex.: Dipirona 500mg — 1 comprimido a cada 6h se dor ou febre por 3 dias..."></textarea>
+                            </div>
                         </div>
-                        <div class="acoes-formulario">
-                            <button class="btn btn-primario">Finalizar atendimento</button>
+
+                        <div class="campo">
+                            <label th:for="|encaminhamento-${a.id}|">Orientação / Encaminhamento para a Recepção</label>
+                            <div class="chips-encaminhamento" aria-label="Sugestões rápidas de encaminhamento">
+                                <button type="button" class="chip-opcao"
+                                        th:attr="data-target=|encaminhamento-${a.id}|"
+                                        data-chip-encaminhamento="Alta liberada">
+                                    + Alta liberada
+                                </button>
+                                <button type="button" class="chip-opcao"
+                                        th:attr="data-target=|encaminhamento-${a.id}|"
+                                        data-chip-encaminhamento="Receita disponível para impressão">
+                                    + Receita disponível para impressão
+                                </button>
+                                <button type="button" class="chip-opcao"
+                                        th:attr="data-target=|encaminhamento-${a.id}|"
+                                        data-chip-encaminhamento="Agendar retorno">
+                                    + Agendar retorno
+                                </button>
+                                <button type="button" class="chip-opcao"
+                                        th:attr="data-target=|encaminhamento-${a.id}|"
+                                        data-chip-encaminhamento="Encaminhar para exames">
+                                    + Encaminhar para exames
+                                </button>
+                                <button type="button" class="chip-opcao"
+                                        th:attr="data-target=|encaminhamento-${a.id}|"
+                                        data-chip-encaminhamento="Encaminhar para medicação / observação">
+                                    + Medicação / observação
+                                </button>
+                            </div>
+                            <input class="entrada" th:id="|encaminhamento-${a.id}|" name="encaminhamento"
+                                   placeholder="Clique nos atalhos acima ou digite instruções para a recepção (ex.: Agendar retorno em 15 dias)">
+                            <p class="dica">A recepção visualizará este aviso em destaque na tela de Atendimentos do dia.</p>
+                        </div>
+
+                        <div class="acoes-formulario" style="margin-top: 12px;">
+                            <button class="btn btn-primario">Finalizar e enviar para a recepção</button>
                         </div>
                     </form>
                 </article>
+            </div>
+        </section>
+
+        <!-- Lista de Espera Unificada / Filtrada -->
+        <section aria-labelledby="titulo-aguardando">
+            <h2 id="titulo-aguardando" class="titulo-secao">
+                Fila de espera
+                <span class="apoio num" th:text="|(${#lists.size(aguardando)})|">(0)</span>
+            </h2>
+            <p th:if="${#lists.isEmpty(aguardando)}" class="estado-vazio">Ninguém aguardando na fila no momento.</p>
+            <div class="tabela-caixa" th:unless="${#lists.isEmpty(aguardando)}">
+                <table class="tabela">
+                    <thead>
+                    <tr>
+                        <th>Senha</th>
+                        <th>Paciente</th>
+                        <th>Fila / Categoria</th>
+                        <th>Prioridade</th>
+                        <th>Chegada</th>
+                        <th>Espera</th>
+                        <th><span class="visualmente-oculto">Ações</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="a, it : ${aguardando}" th:classappend="${it.first} ? 'proximo'">
+                        <td class="senha-celula" th:text="${a.senha}">A001</td>
+                        <td>
+                            <a th:href="@{/pacientes/{id}(id=${a.paciente.id})}" th:text="${a.paciente.nome}">Maria Silva</a>
+                            <span class="apoio body-sm num" th:text="| · ${a.paciente.idade} anos|"> · 64 anos</span>
+                        </td>
+                        <td><strong th:text="${a.fila.nome}">Consulta</strong></td>
+                        <td>
+                            <span class="etiqueta-prioridade"
+                                  th:classappend="${a.prioridade.name() == 'PREFERENCIAL'} ? 'etiqueta-preferencial' : 'etiqueta-normal'"
+                                  th:text="${a.prioridade.descricao}">Preferencial</span>
+                        </td>
+                        <td class="num" th:text="${#temporals.format(a.dataHoraChegada, 'HH:mm')}">08:42</td>
+                        <td class="num" th:text="|${a.minutosEspera} min|">18 min</td>
+                        <td class="acoes-celula">
+                            <form method="post" th:action="@{/atendimentos/{id}/chamar(id=${a.id})}">
+                                <input type="hidden" name="filaId" th:value="${filaId}">
+                                <input type="hidden" name="guiche" class="input-guiche-sincronizado" th:value="${guicheAtual}">
+                                <button class="btn btn-compacto"
+                                        th:classappend="${it.first} ? 'btn-primario' : 'btn-secundario'"
+                                        th:text="${it.first} ? 'Chamar (1º)' : 'Chamar'">
+                                    Chamar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
     </main>

@@ -15,6 +15,10 @@
         <div th:replace="~{fragments/layout :: mensagens}"></div>
 
         <form class="cartao cartao-formulario" method="post" th:action="@{/usuarios}" th:object="${usuario}">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="cartao-titulo m-0" th:text="${usuario.id == null} ? 'Novo usuário' : 'Editar dados'">Novo usuário</h2>
+                <span class="nota-obrigatorios m-0 text-nowrap">* Campos obrigatórios</span>
+            </div>
             <input type="hidden" th:field="*{id}">
             <input type="hidden" th:field="*{ativo}">
             <div class="campo">
@@ -45,7 +49,6 @@
                 </select>
                 <p th:replace="~{fragments/layout :: erro-campo('perfil')}"></p>
             </div>
-            <p class="nota-obrigatorios">* Campos obrigatórios</p>
             <div class="acoes-formulario">
                 <button class="btn btn-primario">Salvar usuário</button>
                 <a class="btn btn-secundario" th:href="@{/usuarios}">Cancelar</a>

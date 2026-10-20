@@ -18,7 +18,7 @@ public class ConfiguracaoController {
     private String nomeUnidade = "Unidade de Saúde Central";
     private String cnpj = "12.345.678/0001-90";
     private String tipoClinica = "Clínica Médica Geral";
-    private String telefone = "(83) 3221-4000";
+    private String telefone = "(83) 9 8888-4000";
     private String endereco = "Av. Epitácio Pessoa, 1200, Centro";
 
     private String prefixoSenha = "A";
@@ -35,6 +35,7 @@ public class ConfiguracaoController {
     private boolean focoReforcado = true;
     private boolean reducaoMovimento = false;
     private boolean legibilidadeAprimorada = false;
+
 
     @GetMapping
     public String exibirConfiguracoes(Model model) {
@@ -131,7 +132,7 @@ public class ConfiguracaoController {
         if (digitos.length() == 10) {
             return String.format("(%s) %s-%s", digitos.substring(0, 2), digitos.substring(2, 6), digitos.substring(6));
         } else if (digitos.length() == 11) {
-            return String.format("(%s) %s-%s", digitos.substring(0, 2), digitos.substring(2, 7), digitos.substring(7));
+            return String.format("(%s) %s %s-%s", digitos.substring(0, 2), digitos.substring(2, 3), digitos.substring(3, 7), digitos.substring(7));
         } else if (!digitos.isEmpty()) {
             return digitos;
         }

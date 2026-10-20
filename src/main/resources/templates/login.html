@@ -4,10 +4,10 @@
 <body>
 <div class="tela-login">
     <section class="painel-marca negativa" aria-label="FilaSaúde">
-        <span class="assinatura">
+        <a class="assinatura" th:href="@{/}" aria-label="FilaSaúde, ir para a página inicial">
             <svg th:replace="~{fragments/layout :: marca}"></svg>
             <span class="assinatura-nome">FilaSaúde</span>
-        </span>
+        </a>
         <div>
             <p class="tagline">Cada pessoa na sua vez.</p>
             <p class="descritor">Gestão de atendimento, simples de usar.</p>

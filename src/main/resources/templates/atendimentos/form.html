@@ -8,7 +8,10 @@
         <header class="cabecalho-pagina">
             <div>
                 <h1>Adicionar à fila</h1>
-                <p>Escolha o paciente e o tipo de atendimento. A senha é gerada na hora.</p>
+                <p>Escolha o paciente e o tipo de atendimento. A senha é gerada respeitando a hierarquia legal de prioridade.</p>
+            </div>
+            <div class="acoes">
+                <a class="btn btn-secundario" th:href="@{/pacientes/novo}">+ Cadastrar novo paciente</a>
             </div>
         </header>
 
@@ -16,64 +19,111 @@
 
         <div class="grade-2">
             <section class="cartao cartao-recepcao" aria-labelledby="titulo-recepcao">
-                <div class="cartao-cabecalho">
-                    <span class="icone-caixa" aria-hidden="true">
-                        <svg class="icone" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M17 11h5"/><path d="M19.5 8.5v5"/></svg>
-                    </span>
-                    <h2 id="titulo-recepcao" class="cartao-titulo">Recepção</h2>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="cartao-cabecalho m-0">
+                        <span class="icone-caixa" aria-hidden="true">
+                            <svg class="icone" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M17 11h5"/><path d="M19.5 8.5v5"/></svg>
+                        </span>
+                        <h2 id="titulo-recepcao" class="cartao-titulo m-0">Recepção</h2>
+                    </div>
+                    <span class="nota-obrigatorios m-0 text-nowrap">* Campos obrigatórios</span>
                 </div>
-                <p class="apoio">Cadastrar e encaminhar rápido, com poucos campos e sem decorar códigos.</p>
+                <p class="apoio mb-3">Busque o paciente por nome, CPF ou telefone e selecione a fila de destino.</p>
 
                 <form class="grupo-campos" method="post" th:action="@{/atendimentos}">
                     <div class="campo">
-                        <label for="buscaPaciente">Buscar paciente</label>
-                        <input class="entrada" id="buscaPaciente" type="search" autocomplete="off"
-                               placeholder="Nome ou CPF" data-filtrar="pacienteId">
-                    </div>
-                    <div class="campo">
-                        <label for="pacienteId">Paciente<span class="obrigatorio" aria-hidden="true">*</span></label>
-                        <select class="entrada" id="pacienteId" name="pacienteId" required>
+                        <label for="buscaPaciente">Paciente<span class="obrigatorio" aria-hidden="true">*</span></label>
+
+                        <!-- Combobox interativo de busca de pacientes -->
+                        <div class="paciente-combobox-wrapper" data-paciente-combobox>
+                            <div class="paciente-busca-caixa">
+                                <svg class="paciente-busca-icone icone" viewBox="0 0 24 24" aria-hidden="true">
+                                    <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+                                </svg>
+                                <input class="entrada" id="buscaPaciente" type="text" autocomplete="off"
+                                       placeholder="Digite o nome, CPF ou telefone para buscar..."
+                                       role="combobox" aria-expanded="false" aria-autocomplete="list"
+                                       aria-controls="listaSugestoesPacientes" data-paciente-input>
+                                <button type="button" class="paciente-busca-limpar" title="Limpar busca"
+                                        aria-label="Limpar busca" data-paciente-limpar hidden>&times;</button>
+                            </div>
+                            <div id="listaSugestoesPacientes" class="paciente-sugestoes" role="listbox"
+                                 data-paciente-dropdown hidden></div>
+                        </div>
+
+                        <!-- Cartão exibido quando um paciente é selecionado -->
+                        <div id="pacienteSelecionadoCard" class="paciente-selecionado-card" hidden>
+                            <div class="paciente-selecionado-info">
+                                <div class="paciente-selecionado-nome">
+                                    <span id="pacienteSelecionadoNome">Maria Silva</span>
+                                    <span id="pacienteSelecionadoSuperIdoso" class="etiqueta-prioridade etiqueta-superpreferencial" hidden>
+                                        80+ Superprioridade (Lei 13.466/2017)
+                                    </span>
+                                    <span id="pacienteSelecionadoIdoso" class="etiqueta-prioridade etiqueta-preferencial" hidden>
+                                        60+ Preferencial (Lei 10.048/2000)
+                                    </span>
+                                </div>
+                                <span id="pacienteSelecionadoMeta" class="paciente-selecionado-meta num">
+                                    CPF 123.456.789-00 · 34 anos
+                                </span>
+                            </div>
+                            <button type="button" id="btnTrocarPaciente" class="btn btn-secundario btn-compacto">
+                                Trocar
+                            </button>
+                        </div>
+
+                        <!-- Select nativo sincronizado para submissão e fallback sem JS -->
+                        <select class="visualmente-oculto" id="pacienteId" name="pacienteId" required tabindex="-1">
                             <option value="">Selecione o paciente</option>
-                            <option th:each="p : ${pacientes}" th:value="${p.id}" th:selected="${p.id == pacienteId}"
+                            <option th:each="p : ${pacientes}"
+                                    th:value="${p.id}"
+                                    th:selected="${p.id == pacienteId}"
+                                    th:attr="data-nome=${p.nome},data-cpf=${p.cpfFormatado},data-idade=${p.idade},data-telefone=${p.telefoneFormatado},data-idoso=${p.idoso},data-super-idoso=${p.superIdoso}"
                                     th:text="${p.nome} + ' · ' + ${p.cpfFormatado}">Maria Silva · 123.456.789-00</option>
                         </select>
+                        <p class="dica">Comece a digitar para filtrar instantaneamente ou clique para ver a lista.</p>
                     </div>
+
                     <div class="campo">
-                        <label for="filaId">Tipo de atendimento<span class="obrigatorio" aria-hidden="true">*</span></label>
+                        <label for="filaId">Tipo de atendimento (Fila)<span class="obrigatorio" aria-hidden="true">*</span></label>
                         <select class="entrada" id="filaId" name="filaId" required>
-                            <option value="">Selecione o tipo</option>
-                            <option th:each="f : ${filas}" th:value="${f.id}" th:text="${f.nome}">Consulta</option>
+                            <option value="">Selecione o tipo de atendimento</option>
+                            <option th:each="f : ${filas}" th:value="${f.id}"
+                                    th:text="|${f.nome} (Prefixo ${f.sigla})|">Consulta (Prefixo A)</option>
                         </select>
                     </div>
+
                     <div class="campo">
-                        <label for="prioridade">Prioridade</label>
+                        <label for="prioridade">Prioridade de Atendimento</label>
                         <select class="entrada" id="prioridade" name="prioridade">
                             <option th:each="pr : ${prioridades}" th:value="${pr}" th:text="${pr.descricao}">Normal</option>
                         </select>
-                        <p class="dica">Pacientes com 60 anos ou mais entram como preferencial.</p>
+                        <p class="dica">Lei Federal 10.048/2000 e Estatuto do Idoso: 80+ anos têm superprioridade sobre os demais; 60+, PCD, gestantes e TEA têm prioridade legal.</p>
                     </div>
 
-                    <button class="btn btn-primario btn-bloco">Adicionar à fila</button>
+                    <button class="btn btn-primario btn-bloco">Gerar senha e adicionar à fila</button>
 
                     <div class="senha-gerada-caixa" role="status" aria-live="polite">
-                        <span class="apoio body-sm">Senha gerada</span>
+                        <span class="apoio body-sm">Última senha emitida</span>
                         <span class="senha-gerada-valor" th:text="${senhaGerada} ?: '—'">A001</span>
                     </div>
-                    <p class="nota-obrigatorios">* Campos obrigatórios</p>
                 </form>
-
-                <a class="btn-link" th:href="@{/pacientes/novo}">Cadastrar novo paciente</a>
             </section>
 
             <!-- Cartão de senha: grande e legível para mostrar ao paciente -->
             <section th:if="${senhaGerada}" class="cartao-senha" aria-label="Senha gerada">
                 <span class="caption">Senha gerada</span>
                 <span class="senha-grande" th:text="${senhaGerada}">A001</span>
-                <span class="status status-aguardando">Aguardando</span>
+                <div class="acoes" style="justify-content: center;">
+                    <span class="status status-aguardando">Aguardando chamada</span>
+                    <span th:if="${senhaPrioridade}" class="etiqueta-prioridade"
+                          th:classappend="${#strings.contains(senhaPrioridade, 'Superpreferencial') or #strings.contains(senhaPrioridade, '80+')} ? 'etiqueta-superpreferencial' : (${#strings.contains(senhaPrioridade, 'Preferencial')} ? 'etiqueta-preferencial' : 'etiqueta-normal')"
+                          th:text="${senhaPrioridade}">Normal</span>
+                </div>
                 <span class="apoio body-sm" th:text="${senhaPaciente} + ' · ' + ${senhaFila}">Maria Silva · Consulta</span>
             </section>
             <section th:unless="${senhaGerada}" class="estado-vazio">
-                A senha aparece aqui assim que o paciente entrar na fila.
+                A senha aparece aqui em destaque assim que o paciente entrar na fila.
             </section>
         </div>
     </main>

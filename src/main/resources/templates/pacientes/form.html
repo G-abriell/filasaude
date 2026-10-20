@@ -8,7 +8,7 @@
         <header class="cabecalho-pagina">
             <div>
                 <h1 th:text="${paciente.id == null} ? 'Cadastrar paciente' : 'Editar paciente'">Cadastrar paciente</h1>
-                <p>Registre apenas informações do processo de atendimento.</p>
+                <p>Registre os dados cadastrais para identificação e chamada na fila.</p>
             </div>
         </header>
 
@@ -19,22 +19,30 @@
         </div>
 
         <form class="cartao cartao-formulario" method="post" th:action="@{/pacientes}" th:object="${paciente}">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="cartao-titulo m-0" th:text="${paciente.id == null} ? 'Novo paciente' : 'Editar dados'">Novo paciente</h2>
+                <span class="nota-obrigatorios m-0 text-nowrap">* Campos obrigatórios</span>
+            </div>
             <input type="hidden" th:field="*{id}">
             <div class="campo">
-                <label for="nome">Nome<span class="obrigatorio" aria-hidden="true">*</span></label>
-                <input class="entrada" th:field="*{nome}" th:errorclass="campo-invalido" autocomplete="off" required>
+                <label for="nome">Nome completo<span class="obrigatorio" aria-hidden="true">*</span></label>
+                <input class="entrada" th:field="*{nome}" th:errorclass="campo-invalido"
+                       placeholder="Ex.: Maria Aparecida da Silva" autocomplete="off" required>
                 <p th:replace="~{fragments/layout :: erro-campo('nome')}"></p>
             </div>
             <div class="campo">
                 <label for="cpf">CPF<span class="obrigatorio" aria-hidden="true">*</span></label>
-                <input class="entrada num" th:field="*{cpf}" th:errorclass="campo-invalido" inputmode="numeric"
-                       maxlength="11" placeholder="12345678900" required>
-                <p class="dica">Somente os 11 números.</p>
+                <input class="entrada num" th:field="*{cpf}" th:errorclass="campo-invalido"
+                       inputmode="numeric" maxlength="14" data-mascara="cpf"
+                       placeholder="000.000.000-00" required>
+                <p class="dica">Digite os 11 números (a formatação é aplicada automaticamente).</p>
                 <p th:replace="~{fragments/layout :: erro-campo('cpf')}"></p>
             </div>
             <div class="campo">
                 <label for="cartaoSus">Cartão SUS</label>
-                <input class="entrada num" th:field="*{cartaoSus}" th:errorclass="campo-invalido" inputmode="numeric" maxlength="15">
+                <input class="entrada num" th:field="*{cartaoSus}" th:errorclass="campo-invalido"
+                       inputmode="numeric" maxlength="15" data-mascara="sus"
+                       placeholder="000000000000000">
                 <p class="dica">Opcional. Somente os 15 números.</p>
                 <p th:replace="~{fragments/layout :: erro-campo('cartaoSus')}"></p>
             </div>
@@ -44,11 +52,13 @@
                 <p th:replace="~{fragments/layout :: erro-campo('dataNascimento')}"></p>
             </div>
             <div class="campo">
-                <label for="telefone">Telefone</label>
-                <input class="entrada num" type="tel" th:field="*{telefone}" th:errorclass="campo-invalido" placeholder="(11) 98888-0000">
+                <label for="telefone">Telefone / Celular</label>
+                <input class="entrada num" type="tel" th:field="*{telefone}" th:errorclass="campo-invalido"
+                       inputmode="numeric" maxlength="16" data-mascara="telefone"
+                       placeholder="(00) 9 8888-8888">
+                <p class="dica">Preenchimento automático no formato (00) 9 8888-8888.</p>
                 <p th:replace="~{fragments/layout :: erro-campo('telefone')}"></p>
             </div>
-            <p class="nota-obrigatorios">* Campos obrigatórios</p>
             <div class="acoes-formulario">
                 <button class="btn btn-primario">Salvar paciente</button>
                 <a class="btn btn-secundario" th:href="${paciente.id == null} ? @{/pacientes} : @{/pacientes/{id}(id=${paciente.id})}">Cancelar</a>

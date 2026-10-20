@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/painel-demonstracao.css}">
 <script>
 /* Define o tema claro como padrão antes do primeiro paint */
 (function () {
@@ -602,10 +603,10 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 /* ============================================================
    Cascata de rolagem: blocos revelados em sequência
    ============================================================ */
-.js [data-reveal]:not(.is-in) { opacity: 0; transform: translateY(26px); }
+.js [data-reveal]:not(.is-in) { opacity: 0; transform: translateY(22px); }
 .js [data-reveal].is-in {
   opacity: 1; transform: none;
-  transition: opacity .55s ease, transform .55s ease;
+  transition: opacity .65s cubic-bezier(.22, 1, .36, 1), transform .65s cubic-bezier(.22, 1, .36, 1);
 }
 .js [data-reveal].is-in.instant { transition: none; }
 html.no-anim [data-reveal] {
@@ -1067,73 +1068,7 @@ dialog.access::backdrop { background: rgba(10, 42, 48, .55); backdrop-filter: bl
       </div>
 
       <div class="hero-visual" data-reveal>
-        <div class="mvp-showcase" role="region" aria-label="Prévia da interface do FilaSaúde: senha gerada A001, fila de atendimento e indicadores do dia">
-
-          <!-- Bloco 1: Cartão de Senha Gerada (Mockup 4 / Folha de Componentes pág. 24) -->
-          <div class="mvp-card">
-            <div class="mvp-ticket-top">
-              <div>
-                <span class="mvp-caption">Senha gerada</span>
-                <p class="mvp-senha">A001</p>
-                <p class="mvp-patient-meta">Maria Silva · Consulta</p>
-              </div>
-              <span class="status-pill status-pill--wait">Aguardando</span>
-            </div>
-          </div>
-
-          <!-- Bloco 2: Fila de Atendimento (Mockup 5 / Folha de Componentes pág. 24) -->
-          <div class="mvp-card">
-            <div class="mvp-queue-header">
-              <span class="mvp-queue-title">Fila de atendimento</span>
-              <span class="mvp-caption" style="margin:0">2 aguardando · 1 em atendimento</span>
-            </div>
-            <table class="mvp-table" aria-label="Exemplo de fila de atendimento">
-              <thead>
-                <tr>
-                  <th scope="col">Senha</th>
-                  <th scope="col">Paciente</th>
-                  <th scope="col">Entrada</th>
-                  <th scope="col">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="is-next">
-                  <td><span class="mvp-code">A001</span></td>
-                  <td><strong>Maria Silva</strong></td>
-                  <td>08:42</td>
-                  <td><span class="status-pill status-pill--wait">Aguardando</span></td>
-                </tr>
-                <tr>
-                  <td><span class="mvp-code">A002</span></td>
-                  <td>João Pereira</td>
-                  <td>08:50</td>
-                  <td><span class="status-pill status-pill--wait">Aguardando</span></td>
-                </tr>
-                <tr>
-                  <td><span class="mvp-code">A000</span></td>
-                  <td>Carlos Lima</td>
-                  <td>08:30</td>
-                  <td><span class="status-pill status-pill--active">Em atendimento</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Bloco 3: Indicadores do Gestor (Mockup 2) -->
-          <div class="mvp-kpis">
-            <div class="mvp-kpi-card">
-              <span class="mvp-kpi-label">Tempo médio de espera</span>
-              <div class="mvp-kpi-value">18 min</div>
-              <span class="mvp-kpi-foot">Da entrada na fila até o início</span>
-            </div>
-            <div class="mvp-kpi-card">
-              <span class="mvp-kpi-label">Taxa de conclusão</span>
-              <div class="mvp-kpi-value">92%</div>
-              <span class="mvp-kpi-foot">24 atendimentos concluídos</span>
-            </div>
-          </div>
-
-        </div>
+        <div th:replace="~{fragments/painel-demonstracao :: visualizacao(false)}"></div>
       </div>
     </div>
   </section>
@@ -1152,10 +1087,10 @@ dialog.access::backdrop { background: rgba(10, 42, 48, .55); backdrop-filter: bl
 
   <!-- ================= Promessas ================= -->
   <section class="section" id="beneficios" aria-labelledby="beneficios-title">
-    <div class="container">
-      <p class="kicker">Benefícios</p>
-      <h2 class="section-title" id="beneficios-title">Três promessas, nenhuma a mais.</h2>
-      <p class="section-sub">O FilaSaúde foi desenhado para o fluxo do atendimento. O que não serve para organizar a recepção não entra no sistema.</p>
+    <div class="container" data-cascade>
+      <p class="kicker" data-reveal>Benefícios</p>
+      <h2 class="section-title" id="beneficios-title" data-reveal>Três promessas, nenhuma a mais.</h2>
+      <p class="section-sub" data-reveal>O FilaSaúde foi desenhado para o fluxo do atendimento. O que não serve para organizar a recepção não entra no sistema.</p>
 
       <div style="margin-top:56px" data-cascade>
         <article class="promise" data-reveal>
@@ -1179,10 +1114,10 @@ dialog.access::backdrop { background: rgba(10, 42, 48, .55); backdrop-filter: bl
 
   <!-- ================= Fluxo ================= -->
   <section class="section" id="como-funciona" aria-labelledby="fluxo-title" style="padding-top:0">
-    <div class="container">
-      <p class="kicker">Como funciona</p>
-      <h2 class="section-title" id="fluxo-title">Uma linha reta, do começo ao fim do dia.</h2>
-      <p class="section-sub">O FilaSaúde acompanha o percurso inteiro do atendimento, na ordem em que ele acontece.</p>
+    <div class="container" data-cascade>
+      <p class="kicker" data-reveal>Como funciona</p>
+      <h2 class="section-title" id="fluxo-title" data-reveal>Uma linha reta, do começo ao fim do dia.</h2>
+      <p class="section-sub" data-reveal>O FilaSaúde acompanha o percurso inteiro do atendimento, na ordem em que ele acontece.</p>
 
       <ol class="flow" data-cascade>
         <li class="flow__step" data-reveal>
@@ -1216,10 +1151,10 @@ dialog.access::backdrop { background: rgba(10, 42, 48, .55); backdrop-filter: bl
 
   <!-- ================= Perfis ================= -->
   <section class="section" id="para-quem-e" aria-labelledby="perfis-title" style="padding-top:0">
-    <div class="container">
-      <p class="kicker">Para quem é</p>
-      <h2 class="section-title" id="perfis-title">Três jeitos de usar, uma fila só.</h2>
-      <p class="section-sub">Cada pessoa da equipe vê apenas o que precisa para trabalhar. A fila continua sendo uma só.</p>
+    <div class="container" data-cascade>
+      <p class="kicker" data-reveal>Para quem é</p>
+      <h2 class="section-title" id="perfis-title" data-reveal>Três jeitos de usar, uma fila só.</h2>
+      <p class="section-sub" data-reveal>Cada pessoa da equipe vê apenas o que precisa para trabalhar. A fila continua sendo uma só.</p>
 
       <div class="profiles-grid" data-cascade>
         <article class="profile" data-reveal>
@@ -1311,10 +1246,10 @@ dialog.access::backdrop { background: rgba(10, 42, 48, .55); backdrop-filter: bl
 
   <!-- ================= Demonstração ================= -->
   <section class="section" id="demonstracao" aria-labelledby="demo-title" style="background:var(--surface-2);border-top:1px solid var(--linha);border-bottom:1px solid var(--linha)">
-    <div class="container">
-      <p class="kicker">Demonstração</p>
-      <h2 class="section-title" id="demo-title">O fluxo de atendimento na prática.</h2>
-      <p class="section-sub">Adicione um paciente à fila, chame o próximo aguardando e veja os indicadores de atendimento serem atualizados.</p>
+    <div class="container" data-cascade>
+      <p class="kicker" data-reveal>Demonstração</p>
+      <h2 class="section-title" id="demo-title" data-reveal>O fluxo de atendimento na prática.</h2>
+      <p class="section-sub" data-reveal>Adicione um paciente à fila, chame o próximo aguardando e veja os indicadores de atendimento serem atualizados.</p>
 
       <div class="demo-wrap" data-cascade>
         <div class="board" data-reveal aria-live="polite">
@@ -1688,7 +1623,6 @@ dialog.access::backdrop { background: rgba(10, 42, 48, .55); backdrop-filter: bl
     });
 
     var revealFeitos = [];
-    var carga = true;
     var healTimer = null;
 
     /* checagem direta (sem rAF nos caminhos críticos: alguns ambientes
@@ -1700,7 +1634,6 @@ dialog.access::backdrop { background: rgba(10, 42, 48, .55); backdrop-filter: bl
         if (revealEls[i].getBoundingClientRect().top < vh) {
           var el = revealEls[i];
           el.classList.add("is-in");
-          if (carga) el.classList.add("instant"); /* acima da dobra: sem transição */
           el.fsReveladoEm = Date.now();
           revealFeitos.push(el);
           revealEls.splice(i, 1);
@@ -1725,13 +1658,12 @@ dialog.access::backdrop { background: rgba(10, 42, 48, .55); backdrop-filter: bl
     }
 
     function revealQueue() {
-      carga = false; /* interação real encerra o modo carga */
       revealCheck();
     }
     window.addEventListener("scroll", revealQueue, { passive: true });
     window.addEventListener("resize", revealQueue, { passive: true });
     revealCheck();
-    setTimeout(function () { carga = false; revealCheck(); }, 600);
+    setTimeout(revealCheck, 600);
   }
 
   /* ---------- Ano no rodapé ---------- */

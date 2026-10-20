@@ -1,0 +1,85 @@
+<div th:fragment="visualizacao(aoVivo)" class="mvp-showcase" role="region"
+     th:attr="aria-label=${aoVivo ? 'Painel de chamadas atualizado em tempo real' : 'Demonstração do painel FilaSaúde'}">
+    <article class="mvp-card" id="cartaoChamando" aria-live="assertive">
+        <div class="mvp-ticket-top">
+            <div class="mvp-ticket-conteudo">
+                <span class="mvp-caption" th:text="${aoVivo} ? 'Chamando agora' : 'Senha em destaque'">Senha em destaque</span>
+                <div th:if="${aoVivo}" id="blocoAtivo" th:style="${atual == null} ? 'display:none' : ''">
+                    <p class="mvp-senha" id="senhaAtual" th:text="${atual?.senha} ?: '—'">A001</p>
+                    <p class="mvp-patient-meta" id="pacienteAtual" th:text="${atual?.paciente?.nome} ?: ''">Maria Silva</p>
+                    <div class="mvp-detalhe-chamada">
+                        <span id="guicheAtual" th:text="${atual?.guiche} ?: 'Consultório Geral'">Consultório 1</span>
+                        <span aria-hidden="true">·</span>
+                        <span id="filaAtual" th:text="${atual?.fila?.nome} ?: 'Consulta'">Consulta</span>
+                    </div>
+                    <span id="badgePrioridade" class="mvp-prioridade"
+                          th:classappend="${atual != null} ? (${atual.prioridade.name() == 'SUPERPREFERENCIAL'} ? ' prioridade-superpreferencial' : (${atual.prioridade.name() == 'PREFERENCIAL'} ? ' prioridade-preferencial' : ' prioridade-normal')) : ''"
+                          th:text="${atual?.prioridade?.descricao} ?: 'Normal'">Normal</span>
+                </div>
+                <div th:if="${aoVivo}" id="blocoVazio" class="mvp-vazio" th:style="${atual != null} ? 'display:none' : ''">
+                    Aguardando próxima chamada...
+                </div>
+                <div th:unless="${aoVivo}">
+                    <p class="mvp-senha">A001</p>
+                    <p class="mvp-patient-meta">Maria Silva · Consulta</p>
+                </div>
+            </div>
+            <span class="status-pill status-pill--wait" id="statusAtual"
+                  th:classappend="${aoVivo and atual != null} ? ' status-pill--active' : ''"
+                  th:text="${aoVivo} ? (${atual != null} ? 'Chamando' : 'Aguardando') : 'Aguardando'">Aguardando</span>
+        </div>
+    </article>
+
+    <article class="mvp-card">
+        <div class="mvp-queue-header">
+            <span class="mvp-queue-title" th:text="${aoVivo} ? 'Últimas chamadas' : 'Fila de atendimento'">Fila de atendimento</span>
+            <span class="mvp-caption" style="margin:0" id="resumoHistorico"
+                  th:text="${aoVivo ? #lists.size(historico) + ' anteriores' : '2 aguardando · 1 em atendimento'}">2 aguardando · 1 em atendimento</span>
+        </div>
+        <table class="mvp-table" aria-label="Últimas chamadas do painel">
+            <thead>
+                <tr><th scope="col">Senha</th><th scope="col">Paciente</th><th scope="col" th:text="${aoVivo} ? 'Local' : 'Entrada'">Entrada</th><th scope="col">Status</th></tr>
+            </thead>
+            <tbody id="listaHistorico">
+                <tr th:if="${aoVivo and atual != null}" class="is-next">
+                    <td><span class="mvp-code" th:text="${atual.senha}">A001</span></td>
+                    <td th:text="${atual.paciente.nome}">Maria Silva</td>
+                    <td th:text="${atual.guiche} ?: 'Consultório Geral'">Consultório 1</td>
+                    <td><span class="status-pill status-pill--active">Chamando</span></td>
+                </tr>
+                <tr th:if="${aoVivo}" th:each="h : ${historico}">
+                    <td><span class="mvp-code" th:text="${h.senha}">A000</span></td>
+                    <td th:text="${h.paciente.nome}">Carlos Lima</td>
+                    <td th:text="${h.guiche} ?: 'Consultório Geral'">Consultório 1</td>
+                    <td><span class="status-pill status-pill--done">Chamado</span></td>
+                </tr>
+                <tr th:unless="${aoVivo}" class="is-next">
+                    <td><span class="mvp-code">A001</span></td><td><strong>Maria Silva</strong></td><td>08:42</td><td><span class="status-pill status-pill--wait">Aguardando</span></td>
+                </tr>
+                <tr th:unless="${aoVivo}">
+                    <td><span class="mvp-code">A002</span></td><td>João Pereira</td><td>08:50</td><td><span class="status-pill status-pill--wait">Aguardando</span></td>
+                </tr>
+                <tr th:unless="${aoVivo}">
+                    <td><span class="mvp-code">A000</span></td><td>Carlos Lima</td><td>08:30</td><td><span class="status-pill status-pill--active">Em atendimento</span></td>
+                </tr>
+                <tr th:if="${aoVivo and atual == null and #lists.isEmpty(historico)}" id="historicoVazio">
+                    <td colspan="4" class="mvp-empty">Nenhuma chamada registrada hoje.</td>
+                </tr>
+            </tbody>
+        </table>
+    </article>
+
+    <div class="mvp-kpis">
+        <article class="mvp-kpi-card">
+            <span class="mvp-kpi-label" th:text="${aoVivo} ? 'Painel de chamadas' : 'Tempo médio de espera'">Tempo médio de espera</span>
+            <div class="mvp-kpi-value" th:text="${aoVivo} ? 'Ao vivo' : '18 min'">18 min</div>
+            <span class="mvp-kpi-foot" th:text="${aoVivo} ? 'Atualizado automaticamente' : 'Da entrada na fila até o início'">Da entrada na fila até o início</span>
+        </article>
+        <article class="mvp-kpi-card">
+            <span class="mvp-kpi-label" th:text="${aoVivo} ? 'Horário local' : 'Taxa de conclusão'">Taxa de conclusão</span>
+            <div class="mvp-kpi-value" th:if="${aoVivo}" id="relogioResumo">--:--:--</div>
+            <div class="mvp-kpi-value" th:unless="${aoVivo}">92%</div>
+            <span class="mvp-kpi-foot" th:text="${aoVivo} ? 'Relógio do painel' : '24 atendimentos concluídos'">24 atendimentos concluídos</span>
+        </article>
+    </div>
+</div>

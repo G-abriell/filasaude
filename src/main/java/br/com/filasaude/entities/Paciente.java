@@ -17,6 +17,7 @@ import java.time.Period;
 public class Paciente {
 
     public static final int IDADE_IDOSO = 60;
+    public static final int IDADE_SUPER_IDOSO = 80;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,11 +29,11 @@ public class Paciente {
     private String nome;
 
     @NotBlank
-    @Pattern(regexp = "\\d{11}", message = "Informe os 11 números do CPF, sem pontos ou traço.")
+    @Pattern(regexp = "\\d{11}", message = "Informe os 11 números do CPF.")
     @Column(name = "cpf", nullable = false, unique = true, length = 11)
     private String cpf;
 
-    @Pattern(regexp = "^$|\\d{15}", message = "Informe os 15 números do Cartão SUS, sem espaços.")
+    @Pattern(regexp = "^$|\\d{15}", message = "Informe os 15 números do Cartão SUS.")
     @Column(name = "cartao_sus", unique = true, length = 15)
     private String cartaoSus;
 
@@ -68,7 +69,28 @@ public class Paciente {
         return cpf.substring(0, 3) + "." + cpf.substring(3, 6) + "." + cpf.substring(6, 9) + "-" + cpf.substring(9);
     }
 
-    /** Idosos têm direito a atendimento preferencial (Lei 10.048/2000). */
+    /** Telefone formatado no padrão (00) 9 8888-8888 ou (00) 8888-8888. */
+    public String getTelefoneFormatado() {
+        if (telefone == null || telefone.isBlank()) {
+            return telefone;
+        }
+        String digitos = telefone.replaceAll("\\D", "");
+        if (digitos.length() == 11) {
+            return "(" + digitos.substring(0, 2) + ") " + digitos.substring(2, 3) + " "
+                    + digitos.substring(3, 7) + "-" + digitos.substring(7);
+        }
+        if (digitos.length() == 10) {
+            return "(" + digitos.substring(0, 2) + ") " + digitos.substring(2, 6) + "-" + digitos.substring(6);
+        }
+        return telefone;
+    }
+
+    /** Idosos com 80 anos ou mais têm superprioridade sobre os demais idosos (Lei 13.466/2017). */
+    public boolean isSuperIdoso() {
+        return getIdade() >= IDADE_SUPER_IDOSO;
+    }
+
+    /** Idosos a partir de 60 anos têm direito a atendimento preferencial (Lei 10.048/2000 e Estatuto da Pessoa Idosa). */
     public boolean isIdoso() {
         return getIdade() >= IDADE_IDOSO;
     }
@@ -94,7 +116,7 @@ public class Paciente {
     }
 
     public void setCpf(String cpf) {
-        this.cpf = cpf;
+        this.cpf = cpf == null ? null : cpf.replaceAll("\\D", "");
     }
 
     public String getCartaoSus() {
@@ -102,8 +124,12 @@ public class Paciente {
     }
 
     public void setCartaoSus(String cartaoSus) {
-        // Vazio vira null para não violar a constraint unique
-        this.cartaoSus = (cartaoSus == null || cartaoSus.isBlank()) ? null : cartaoSus.trim();
+        if (cartaoSus == null) {
+            this.cartaoSus = null;
+            return;
+        }
+        String limpo = cartaoSus.replaceAll("\\D", "");
+        this.cartaoSus = limpo.isEmpty() ? null : limpo;
     }
 
     public LocalDate getDataNascimento() {
@@ -119,7 +145,19 @@ public class Paciente {
     }
 
     public void setTelefone(String telefone) {
-        this.telefone = telefone;
+        if (telefone == null || telefone.isBlank()) {
+            this.telefone = null;
+            return;
+        }
+        String digitos = telefone.replaceAll("\\D", "");
+        if (digitos.length() == 11) {
+            this.telefone = "(" + digitos.substring(0, 2) + ") " + digitos.substring(2, 3) + " "
+                    + digitos.substring(3, 7) + "-" + digitos.substring(7);
+        } else if (digitos.length() == 10) {
+            this.telefone = "(" + digitos.substring(0, 2) + ") " + digitos.substring(2, 6) + "-" + digitos.substring(6);
+        } else {
+            this.telefone = telefone.trim();
+        }
     }
 
     public LocalDateTime getDataCadastro() {

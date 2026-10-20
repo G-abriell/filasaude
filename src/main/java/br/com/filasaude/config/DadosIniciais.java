@@ -28,8 +28,8 @@ public class DadosIniciais implements CommandLineRunner {
 
     static {
         PERFIS.put("ADMIN", "Administrador do sistema");
-        PERFIS.put("RECEPCAO", "Recepção: cadastro de pacientes e emissão de senhas");
-        PERFIS.put("PROFISSIONAL_DE_SAUDE", "Profissional_de_Saude: Inicia  e finaliza o atendimento. E assim, inicia e finaliza a fila");
+        PERFIS.put("RECEPCAO", "Recepção: cadastro de pacientes, emissão de senhas e encaminhamentos");
+        PERFIS.put("PROFISSIONAL_DE_SAUDE", "Profissional de saúde: chamada de pacientes, registro clínico e prescrições");
     }
 
     private final PerfilRepository perfilRepository;

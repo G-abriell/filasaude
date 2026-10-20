@@ -8,7 +8,7 @@
         <header class="cabecalho-pagina">
             <div>
                 <h1>Pacientes</h1>
-                <p>Busque por nome ou CPF antes de cadastrar.</p>
+                <p>Busque por nome, CPF, Cartão SUS ou telefone antes de cadastrar.</p>
             </div>
             <a class="btn btn-primario" th:href="@{/pacientes/novo}">Cadastrar paciente</a>
         </header>
@@ -18,28 +18,46 @@
         <form class="busca" method="get" th:action="@{/pacientes}" role="search">
             <div class="campo">
                 <label for="busca">Buscar paciente</label>
-                <input class="entrada" id="busca" name="busca" type="search" th:value="${busca}" placeholder="Nome ou CPF">
+                <input class="entrada" id="busca" name="busca" type="search" th:value="${busca}"
+                       placeholder="Digite nome, CPF (com ou sem pontos), Cartão SUS ou telefone..."
+                       autocomplete="off" data-filtrar-tabela="tabelaPacientes">
             </div>
             <button class="btn btn-secundario">Buscar</button>
+            <a th:if="${busca != null and !busca.isBlank()}" class="btn btn-secundario" th:href="@{/pacientes}">Limpar</a>
         </form>
 
-        <p class="caption" th:text="${#lists.size(pacientes)} == 1 ? '1 paciente encontrado' : |${#lists.size(pacientes)} pacientes encontrados|">3 pacientes encontrados</p>
+        <p id="contadorPacientes" class="caption"
+           th:text="${#lists.size(pacientes)} == 1 ? '1 paciente encontrado' : |${#lists.size(pacientes)} pacientes encontrados|">
+            3 pacientes encontrados
+        </p>
 
-        <p th:if="${#lists.isEmpty(pacientes)}" class="estado-vazio">Nenhum paciente encontrado. Confira a busca ou cadastre um novo paciente.</p>
+        <p id="avisoBuscaVazia" class="estado-vazio" th:hidden="${!#lists.isEmpty(pacientes)}">
+            Nenhum paciente encontrado. Confira a busca ou cadastre um novo paciente.
+        </p>
         <div class="tabela-caixa" th:unless="${#lists.isEmpty(pacientes)}">
-            <table class="tabela">
+            <table id="tabelaPacientes" class="tabela">
                 <thead>
-                <tr><th>Nome</th><th>CPF</th><th>Idade</th><th>Telefone</th><th><span class="visualmente-oculto">Ações</span></th></tr>
+                <tr>
+                    <th>Nome</th>
+                    <th>CPF</th>
+                    <th>Idade</th>
+                    <th>Telefone</th>
+                    <th><span class="visualmente-oculto">Ações</span></th>
+                </tr>
                 </thead>
                 <tbody>
                 <tr th:each="p : ${pacientes}">
-                    <td><a th:href="@{/pacientes/{id}(id=${p.id})}" th:text="${p.nome}">Maria Silva</a></td>
+                    <td>
+                        <a th:href="@{/pacientes/{id}(id=${p.id})}" th:text="${p.nome}">Maria Silva</a>
+                        <span th:if="${p.idoso}" class="etiqueta-prioridade etiqueta-preferencial" style="margin-left: 6px;">60+</span>
+                    </td>
                     <td class="num" th:text="${p.cpfFormatado}">123.456.789-00</td>
                     <td class="num" th:text="|${p.idade} anos|">34 anos</td>
-                    <td class="num" th:text="${p.telefone} ?: '—'">(11) 98888-0000</td>
+                    <td class="num" th:text="${p.telefoneFormatado} ?: '—'">(44) 9 8888-0000</td>
                     <td class="acoes-celula">
                         <div class="acoes">
-                            <a class="btn btn-secundario btn-compacto" th:href="@{/atendimentos/novo(pacienteId=${p.id})}">Adicionar à fila</a>
+                            <a class="btn btn-primario btn-compacto" th:href="@{/atendimentos/novo(pacienteId=${p.id})}">Adicionar à fila</a>
+                            <a class="btn btn-secundario btn-compacto" th:href="@{/pacientes/{id}(id=${p.id})}">Prontuário / Histórico</a>
                             <a class="btn btn-secundario btn-compacto" th:href="@{/pacientes/{id}/editar(id=${p.id})}">Editar</a>
                         </div>
                     </td>

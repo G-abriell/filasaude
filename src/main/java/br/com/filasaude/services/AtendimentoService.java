@@ -45,12 +45,21 @@ public class AtendimentoService {
     }
 
     @Transactional(readOnly = true)
+    public Atendimento buscarDetalhadoPorId(Long id) {
+        return atendimentoRepository.findByIdDetalhado(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Atendimento", id));
+    }
+
+    @Transactional(readOnly = true)
     public List<Atendimento> listarDoDia(Long filaId) {
         return atendimentoRepository.findDoDia(LocalDate.now(), filaId);
     }
 
     @Transactional(readOnly = true)
     public List<Atendimento> listarAguardando(Long filaId) {
+        if (filaId == null) {
+            return atendimentoRepository.findAllAguardando();
+        }
         return atendimentoRepository.findAguardandoNaFila(filaId);
     }
 
@@ -62,6 +71,10 @@ public class AtendimentoService {
     }
 
     @Transactional(readOnly = true)
+    public List<Atendimento> listarChamadosDoDia() {
+        return atendimentoRepository.findChamadosDoDia(LocalDate.now());
+    }
+
     public List<Atendimento> historicoDoPaciente(Long pacienteId) {
         return atendimentoRepository.findByPacienteIdOrderByDataHoraChegadaDesc(pacienteId);
     }
@@ -85,8 +98,15 @@ public class AtendimentoService {
             throw new RegraNegocioException("O paciente " + paciente.getNome() + " já possui um atendimento em andamento.");
         }
 
-        Prioridade prioridadeFinal = paciente.isIdoso() ? Prioridade.PREFERENCIAL
-                : (prioridade != null ? prioridade : Prioridade.NORMAL);
+        Prioridade prioridadeFinal;
+        if (paciente.isSuperIdoso()) {
+            prioridadeFinal = Prioridade.SUPERPREFERENCIAL;
+        } else if (paciente.isIdoso()) {
+            prioridadeFinal = (prioridade == Prioridade.SUPERPREFERENCIAL)
+                    ? Prioridade.SUPERPREFERENCIAL : Prioridade.PREFERENCIAL;
+        } else {
+            prioridadeFinal = (prioridade != null) ? prioridade : Prioridade.NORMAL;
+        }
 
         LocalDateTime agora = LocalDateTime.now();
         int proximoNumero = atendimentoRepository.findUltimoNumero(filaId, agora.toLocalDate()) + 1;
@@ -95,23 +115,63 @@ public class AtendimentoService {
     }
 
     /**
-     * Chama o próximo paciente da fila (preferenciais primeiro, depois por ordem de chegada).
+     * Chama o próximo paciente aguardando (da fila selecionada ou de qualquer fila ativa,
+     * respeitando prioridade preferencial primeiro e depois ordem de chegada).
      */
     @Transactional
     public Atendimento chamarProximo(Long filaId, Long atendenteId, String guiche) {
-        filaRepository.findByIdComLock(filaId)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Fila", filaId));
+        Usuario atendente = validarAtendente(atendenteId);
+
+        List<Atendimento> candidatos;
+        if (filaId != null) {
+            filaRepository.findByIdComLock(filaId)
+                    .orElseThrow(() -> new RecursoNaoEncontradoException("Fila", filaId));
+            candidatos = atendimentoRepository.findAguardandoNaFila(filaId);
+        } else {
+            candidatos = atendimentoRepository.findAllAguardando();
+        }
+
+        Atendimento proximo = candidatos.stream()
+                .findFirst()
+                .orElseThrow(() -> new RegraNegocioException("Nenhum paciente aguardando na fila no momento."));
+
+        if (filaId == null) {
+            filaRepository.findByIdComLock(proximo.getFila().getId());
+        }
+
+        proximo.chamar(atendente, guiche);
+        return proximo;
+    }
+
+    /**
+     * Chama diretamente um atendimento específico que está aguardando.
+     */
+    @Transactional
+    public Atendimento chamarPorId(Long id, Long atendenteId, String guiche) {
+        Usuario atendente = validarAtendente(atendenteId);
+        Atendimento atendimento = buscarDetalhadoPorId(id);
+        filaRepository.findByIdComLock(atendimento.getFila().getId());
+        atendimento.chamar(atendente, guiche);
+        return atendimento;
+    }
+
+    /**
+     * Rechama um paciente já chamado, atualizando o horário de chamada no painel.
+     */
+    @Transactional
+    public Atendimento rechamar(Long id, Long atendenteId, String guiche) {
+        Usuario atendente = validarAtendente(atendenteId);
+        Atendimento atendimento = buscarDetalhadoPorId(id);
+        atendimento.rechamar(atendente, guiche);
+        return atendimento;
+    }
+
+    private Usuario validarAtendente(Long atendenteId) {
         Usuario atendente = usuarioService.buscarPorId(atendenteId);
         if (!atendente.isAtivo()) {
             throw new RegraNegocioException("O usuário " + atendente.getNome() + " está inativo.");
         }
-
-        Atendimento proximo = atendimentoRepository.findAguardandoNaFila(filaId).stream()
-                .findFirst()
-                .orElseThrow(() -> new RegraNegocioException("Ninguém aguardando agora."));
-
-        proximo.chamar(atendente, guiche);
-        return proximo;
+        return atendente;
     }
 
     @Transactional
@@ -121,7 +181,12 @@ public class AtendimentoService {
 
     @Transactional
     public void finalizar(Long id, String observacao) {
-        buscarPorId(id).finalizar(observacao);
+        buscarPorId(id).finalizar(observacao, null, null);
+    }
+
+    @Transactional
+    public void finalizar(Long id, String observacao, String prescricao, String encaminhamento) {
+        buscarPorId(id).finalizar(observacao, prescricao, encaminhamento);
     }
 
     @Transactional

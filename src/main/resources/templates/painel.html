@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Painel de Chamada · FilaSaúde</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230F3D44'/><rect x='14' y='16' width='7' height='32' rx='3.5' fill='%23F2EDE3'/><rect x='27' y='16' width='23' height='6.5' rx='3.25' fill='%23CB7440'/><rect x='27' y='28.75' width='16' height='6.5' rx='3.25' fill='%236B9784'/><rect x='27' y='41.5' width='10' height='6.5' rx='3.25' fill='%23F2EDE3' opacity='.55'/></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/filasaude.css}">
+    <link rel="stylesheet" th:href="@{/css/painel-demonstracao.css}">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: var(--brand-fill);
+            color: var(--nevoa-50);
+            font-family: var(--font-sans);
+            user-select: none;
+        }
+
+        .painel-tv-app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 24px 32px;
+            box-sizing: border-box;
+            gap: 20px;
+        }
+
+        .painel-conteudo {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #cartaoChamando.animar-chamada {
+            animation: pulsoPainel 1.1s ease-in-out 3;
+        }
+
+        @keyframes pulsoPainel {
+            50% { border-color: var(--accent); box-shadow: 0 0 36px rgba(217, 125, 72, .35); }
+        }
+
+        .painel-topo {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .painel-marca-bloco {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .painel-marca-nome {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            color: var(--nevoa-50);
+        }
+
+        .painel-unidade {
+            font-size: 15px;
+            color: var(--petroleo-200);
+            font-weight: 500;
+        }
+
+        .painel-controles {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .painel-relogio {
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--brand);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 1px;
+        }
+
+        .painel-btn-util {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: var(--radius-pill);
+            color: var(--nevoa-50);
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 150ms ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .painel-btn-util:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        .painel-corpo {
+            display: grid;
+            grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+            gap: 24px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* Cartão Principal: Chamando Agora */
+        .painel-chamando-agora {
+            background: linear-gradient(145deg, #09252B 0%, #06191D 100%);
+            border: 2px solid rgba(140, 200, 203, 0.35);
+            border-radius: 24px;
+            padding: 32px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .painel-chamando-agora.animar-chamada {
+            animation: pulseChamada 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseChamada {
+            0% {
+                border-color: rgba(217, 125, 72, 0.6);
+                box-shadow: 0 0 40px rgba(217, 125, 72, 0.35);
+            }
+            100% {
+                border-color: rgba(140, 200, 203, 0.9);
+                box-shadow: 0 0 60px rgba(140, 200, 203, 0.45);
+            }
+        }
+
+        .painel-badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 18px;
+            border-radius: var(--radius-pill);
+            background: var(--cobre-600);
+            color: #FFFFFF;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            width: fit-content;
+        }
+
+        .painel-senha-destaque {
+            font-family: var(--font-display);
+            font-size: clamp(80px, 12vw, 150px);
+            line-height: 1;
+            font-weight: 600;
+            color: var(--brand);
+            font-variant-numeric: tabular-nums;
+            margin: 12px 0 0 0;
+            text-shadow: 0 4px 20px rgba(140, 200, 203, 0.25);
+        }
+
+        .painel-paciente-destaque {
+            font-size: clamp(28px, 4vw, 44px);
+            line-height: 1.2;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin: 8px 0 12px 0;
+            word-break: break-word;
+        }
+
+        .painel-prioridade-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 700;
+            width: fit-content;
+        }
+
+        .prioridade-superpreferencial {
+            background: #D97D48;
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 16px rgba(217, 125, 72, 0.5);
+        }
+
+        .prioridade-preferencial {
+            background: #2C6B50;
+            color: #B5DACB;
+            border: 1px solid rgba(181, 218, 203, 0.3);
+        }
+
+        .prioridade-normal {
+            background: rgba(255, 255, 255, 0.1);
+            color: #CCD8D9;
+        }
+
+        .painel-destino-caixa {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 18px;
+            padding: 20px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .painel-destino-rotulo {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--petroleo-200);
+        }
+
+        .painel-destino-sala {
+            font-size: clamp(26px, 3.5vw, 40px);
+            font-weight: 700;
+            color: var(--cobre-400);
+            text-transform: uppercase;
+            letter-spacing: -0.01em;
+        }
+
+        .painel-destino-setor {
+            font-size: 16px;
+            color: #CCD8D9;
+            font-weight: 500;
+        }
+
+        /* Coluna Lateral: Histórico de Senhas */
+        .painel-historico-coluna {
+            background: rgba(10, 37, 43, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 24px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow: hidden;
+        }
+
+        .painel-historico-titulo {
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--petroleo-200);
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .painel-historico-lista {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .painel-historico-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .painel-historico-senha {
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--nevoa-50);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .painel-historico-info {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 2px;
+        }
+
+        .painel-historico-paciente {
+            font-size: 15px;
+            font-weight: 600;
+            color: #FFFFFF;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .painel-historico-sala {
+            font-size: 13px;
+            color: var(--cobre-400);
+            font-weight: 600;
+        }
+
+        .painel-historico-hora {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--petroleo-200);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .painel-estado-espera {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            gap: 16px;
+            color: var(--petroleo-200);
+        }
+
+        .painel-estado-espera svg {
+            width: 64px;
+            height: 64px;
+            opacity: 0.5;
+        }
+
+        /* Rodapé com legislação e acessibilidade */
+        .painel-rodape {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--petroleo-300);
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        @media (max-width: 1100px), (max-height: 760px) {
+            html, body { min-height: 100%; height: auto; overflow: auto; }
+            .painel-tv-app { min-height: 100vh; height: auto; padding: 16px 20px; gap: 14px; }
+            .painel-conteudo { flex: none; }
+        }
+
+        @media (max-width: 700px) {
+            .painel-tv-app { padding: 12px; }
+            .painel-topo { align-items: flex-start; flex-direction: column; gap: 14px; }
+            .painel-controles { width: 100%; flex-wrap: wrap; gap: 8px; }
+            .painel-relogio { margin-left: auto; font-size: 15px; }
+            .painel-marca-nome { font-size: 24px; }
+            .painel-unidade { font-size: 13px; }
+            .painel-marca-bloco { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="painel-tv-app">
+    <!-- Topo Institucional da TV -->
+    <header class="painel-topo">
+        <div class="painel-marca-bloco">
+            <svg class="brand-mark" width="34" height="34" viewBox="0 0 64 64" aria-hidden="true">
+                <rect width="64" height="64" rx="14" fill="#0F3D44"/>
+                <rect x="14" y="16" width="7" height="32" rx="3.5" fill="#F2EDE3"/>
+                <rect x="27" y="16" width="23" height="6.5" rx="3.25" fill="#CB7440"/>
+                <rect x="27" y="28.75" width="16" height="6.5" rx="3.25" fill="#6B9784"/>
+                <rect x="27" y="41.5" width="10" height="6.5" rx="3.25" fill="#F2EDE3" opacity=".55"/>
+            </svg>
+            <div>
+                <div class="painel-marca-nome">FilaSaúde</div>
+                <div class="painel-unidade" id="painelUnidade">Unidade de Saúde · Monitor de Chamada</div>
+            </div>
+        </div>
+
+        <div class="painel-controles">
+            <button type="button" class="painel-btn-util" id="btnSom" title="Alternar som da chamada">
+                <span id="iconeSom">🔔</span>
+                <span id="textoSom">Som ativado</span>
+            </button>
+            <button type="button" class="painel-btn-util" id="btnFullscreen" title="Tela cheia (F11)">
+                <span>⛶ Tela cheia</span>
+            </button>
+            <div class="painel-relogio" id="dataAtual">-- de -------- de ----</div>
+        </div>
+    </header>
+
+    <!-- Corpo Central do Painel -->
+    <main class="painel-conteudo">
+        <div th:replace="~{fragments/painel-demonstracao :: visualizacao(true)}"></div>
+    </main>
+
+    <!-- Rodapé Legal e Institucional -->
+    <footer class="painel-rodape">
+        <div>Atendimento prioritário assegurado pela <strong>Lei Federal nº 10.048/2000</strong>, <strong>Estatuto da Pessoa Idosa (Lei 10.741/2003)</strong> e <strong>Superprioridade 80+ (Lei 13.466/2017)</strong>.</div>
+        <div>FilaSaúde · Sistema de Gestão Hospitalar e Ambulatorial</div>
+    </footer>
+</div>
+
+<script>
+(function () {
+    var ultimaChave = null;
+    var primeiraCarga = true;
+    var somAtivo = true;
+    var audioCtx = null;
+
+    // Desbloqueia o AudioContext no primeiro clique/toque de qualquer lugar da tela
+    function desbloquearAudio() {
+        if (!audioCtx) {
+            var AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) audioCtx = new AudioContext();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+    window.addEventListener('click', desbloquearAudio, { once: false });
+    window.addEventListener('keydown', desbloquearAudio, { once: false });
+
+    // Inicialização do Web Audio API para tocar o Bipe Ding-Dong de chamada de TV
+    function tocarChimeChamada() {
+        if (!somAtivo) return;
+        try {
+            desbloquearAudio();
+            if (!audioCtx) return;
+
+            var agora = audioCtx.currentTime;
+
+            // Tom 1: Re5 (587.33 Hz)
+            var osc1 = audioCtx.createOscillator();
+            var gain1 = audioCtx.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(587.33, agora);
+            gain1.gain.setValueAtTime(0.35, agora);
+            gain1.gain.exponentialRampToValueAtTime(0.001, agora + 0.45);
+            osc1.connect(gain1);
+            gain1.connect(audioCtx.destination);
+            osc1.start(agora);
+            osc1.stop(agora + 0.45);
+
+            // Tom 2: La5 (880.00 Hz) - acorde de hospital/aeroporto
+            var osc2 = audioCtx.createOscillator();
+            var gain2 = audioCtx.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(880.00, agora + 0.22);
+            gain2.gain.setValueAtTime(0.4, agora + 0.22);
+            gain2.gain.exponentialRampToValueAtTime(0.001, agora + 0.8);
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.start(agora + 0.22);
+            osc2.stop(agora + 0.8);
+        } catch (e) {
+            console.warn('Erro ao reproduzir alerta sonoro:', e);
+        }
+    }
+
+    // Relógio Digital da TV
+    function atualizarRelogio() {
+        var agora = new Date();
+        var h = String(agora.getHours()).padStart(2, '0');
+        var m = String(agora.getMinutes()).padStart(2, '0');
+        var s = String(agora.getSeconds()).padStart(2, '0');
+        var horarioAtual = h + ':' + m + ':' + s;
+        var dataEl = document.getElementById('dataAtual');
+        var horarioEl = document.getElementById('relogioResumo');
+        if (dataEl) {
+            dataEl.textContent = new Intl.DateTimeFormat('pt-BR', {
+                day: '2-digit', month: 'long', year: 'numeric'
+            }).format(agora);
+        }
+        if (horarioEl) horarioEl.textContent = horarioAtual;
+    }
+    setInterval(atualizarRelogio, 1000);
+    atualizarRelogio();
+
+    // Controle de Som
+    var btnSom = document.getElementById('btnSom');
+    var iconeSom = document.getElementById('iconeSom');
+    var textoSom = document.getElementById('textoSom');
+    if (btnSom) {
+        btnSom.addEventListener('click', function () {
+            somAtivo = !somAtivo;
+            iconeSom.textContent = somAtivo ? '🔔' : '🔕';
+            textoSom.textContent = somAtivo ? 'Som ativado' : 'Silencioso';
+            if (somAtivo) tocarChimeChamada();
+        });
+    }
+
+    // Tela Cheia
+    var btnFullscreen = document.getElementById('btnFullscreen');
+    if (btnFullscreen) {
+        btnFullscreen.addEventListener('click', function () {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(function () {});
+            } else {
+                document.exitFullscreen().catch(function () {});
+            }
+        });
+    }
+
+    // Polling em tempo real (busca atualizações a cada 2 segundos)
+    function verificarAtualizacoes() {
+        fetch('/painel/dados?_=' + Date.now(), {
+            cache: 'no-store',
+            headers: { 'Accept': 'application/json' }
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (dados) {
+                if (!dados) return;
+
+                var atual = dados.atual;
+                var cartao = document.getElementById('cartaoChamando');
+                var blocoAtivo = document.getElementById('blocoAtivo');
+                var blocoVazio = document.getElementById('blocoVazio');
+                var senhaEl = document.getElementById('senhaAtual');
+                var pacienteEl = document.getElementById('pacienteAtual');
+                var guicheEl = document.getElementById('guicheAtual');
+                var filaEl = document.getElementById('filaAtual');
+                var badgePrioridade = document.getElementById('badgePrioridade');
+                var statusEl = document.getElementById('statusAtual');
+
+                var chaveAtual = atual ? (atual.id + '_' + (atual.chamadaTimestamp || '')) : null;
+
+                if (atual) {
+                    if (blocoVazio) blocoVazio.style.display = 'none';
+                    if (blocoAtivo) blocoAtivo.style.display = 'block';
+
+                    if (senhaEl) senhaEl.textContent = atual.senha;
+                    if (pacienteEl) pacienteEl.textContent = atual.paciente;
+                    if (guicheEl) guicheEl.textContent = atual.guiche;
+                    if (filaEl) filaEl.textContent = atual.fila;
+
+                    if (badgePrioridade) {
+                        badgePrioridade.textContent = atual.prioridadeDescricao;
+                        badgePrioridade.className = 'mvp-prioridade';
+                        if (atual.prioridade === 'SUPERPREFERENCIAL') {
+                            badgePrioridade.classList.add('prioridade-superpreferencial');
+                        } else if (atual.prioridade === 'PREFERENCIAL') {
+                            badgePrioridade.classList.add('prioridade-preferencial');
+                        } else {
+                            badgePrioridade.classList.add('prioridade-normal');
+                        }
+                    }
+
+                    if (statusEl) {
+                        statusEl.textContent = 'Chamando';
+                        statusEl.className = 'status-pill status-pill--active';
+                    }
+
+                    var deveTocar = false;
+                    if (primeiraCarga) {
+                        // Primeira verificação ao carregar a página: armazena a chamada existente sem apitar
+                        primeiraCarga = false;
+                    } else if (chaveAtual !== ultimaChave) {
+                        // Nova chamada ou rechamada detectada!
+                        deveTocar = true;
+                    }
+                    ultimaChave = chaveAtual;
+
+                    if (deveTocar) {
+                        tocarChimeChamada();
+                        if (cartao) {
+                            cartao.classList.remove('animar-chamada');
+                            void cartao.offsetWidth; // trigger reflow
+                            cartao.classList.add('animar-chamada');
+                        }
+                    }
+                } else {
+                    primeiraCarga = false;
+                    ultimaChave = null;
+                    if (blocoVazio) blocoVazio.style.display = 'block';
+                    if (blocoAtivo) blocoAtivo.style.display = 'none';
+                    if (senhaEl) senhaEl.textContent = '—';
+                    if (pacienteEl) pacienteEl.textContent = '';
+                    if (statusEl) {
+                        statusEl.textContent = 'Aguardando';
+                        statusEl.className = 'status-pill status-pill--wait';
+                    }
+                }
+
+                // Atualizar histórico lateral
+                var listaHist = document.getElementById('listaHistorico');
+                if (listaHist && dados.historico) {
+                    var escapeHtml = function (valor) {
+                        return String(valor == null ? '' : valor).replace(/[&<>"']/g, function (caractere) {
+                            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[caractere];
+                        });
+                    };
+                    var html = '';
+                    if (atual) {
+                        html += '<tr class="is-next"><td><span class="mvp-code">' + escapeHtml(atual.senha) + '</span></td>' +
+                            '<td>' + escapeHtml(atual.paciente) + '</td><td>' + escapeHtml(atual.guiche) + '</td>' +
+                            '<td><span class="status-pill status-pill--active">Chamando</span></td></tr>';
+                    }
+                    dados.historico.forEach(function (h) {
+                        html += '<tr><td><span class="mvp-code">' + escapeHtml(h.senha) + '</span></td>' +
+                            '<td>' + escapeHtml(h.paciente) + '</td><td>' + escapeHtml(h.guiche) + '</td>' +
+                            '<td><span class="status-pill status-pill--done">Chamado</span></td></tr>';
+                    });
+                    if (!html) html = '<tr><td colspan="4" class="mvp-empty">Nenhuma chamada registrada hoje.</td></tr>';
+                    listaHist.innerHTML = html;
+
+                    var resumo = document.getElementById('resumoHistorico');
+                    if (resumo) resumo.textContent = atual ? 'Chamada atual e anteriores' : 'Sem chamadas recentes';
+                }
+            })
+            .catch(function (err) {
+                console.warn('Erro na consulta do painel:', err);
+            });
+    }
+
+    // Iniciar polling a cada 2 segundos
+    setInterval(verificarAtualizacoes, 2000);
+})();
+</script>
+
+</body>
+</html>
