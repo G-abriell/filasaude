@@ -10,6 +10,11 @@ public enum Prioridade {
 
     NORMAL("Normal", 3),
     PREFERENCIAL("Preferencial (Lei 10.048/2000)", 2),
+    GESTANTE("Preferencial - gestante", 2),
+    OBESIDADE("Preferencial - pessoa com obesidade", 2),
+    PCD("Preferencial - pessoa com deficiência (PCD)", 2),
+    TEA("Preferencial - pessoa autista (TEA)", 2),
+    MULHER_COM_CRIANCA_DE_COLO("Preferencial - mulher com criança de colo", 2),
     SUPERPREFERENCIAL("Superpreferencial 80+ (Lei 13.466/2017)", 1);
 
     private final String descricao;

@@ -17,8 +17,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RegraNegocioException.class)
     public String regraNegocio(RegraNegocioException e, HttpServletRequest request, RedirectAttributes attrs) {
         attrs.addFlashAttribute("erro", e.getMessage());
-        String referer = request.getHeader("Referer");
-        return "redirect:" + (referer != null ? referer : "/");
+        // Referer is untrusted; return to the known application home instead of replaying a POST URL.
+        String contextPath = request.getContextPath();
+        return "redirect:" + (contextPath == null ? "" : contextPath) + "/";
     }
 
     @ExceptionHandler(RecursoNaoEncontradoException.class)

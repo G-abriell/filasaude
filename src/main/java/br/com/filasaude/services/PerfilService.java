@@ -34,6 +34,12 @@ public class PerfilService {
 
     @Transactional
     public Perfil salvar(Perfil perfil) {
+        if (perfil.getId() != null) {
+            Perfil existente = buscarPorId(perfil.getId());
+            if (isEssencial(existente.getNome()) && !existente.getNome().equalsIgnoreCase(perfil.getNome().trim())) {
+                throw new RegraNegocioException("Não é possível renomear um perfil essencial do sistema.");
+            }
+        }
         perfil.setNome(perfil.getNome().trim().toUpperCase());
         perfilRepository.findByNomeIgnoreCase(perfil.getNome())
                 .filter(existente -> !existente.getId().equals(perfil.getId()))
@@ -46,9 +52,18 @@ public class PerfilService {
     @Transactional
     public void excluir(Long id) {
         Perfil perfil = buscarPorId(id);
+        if (isEssencial(perfil.getNome())) {
+            throw new RegraNegocioException("Não é possível excluir um perfil essencial do sistema.");
+        }
         if (usuarioRepository.existsByPerfilId(id)) {
             throw new RegraNegocioException("O perfil " + perfil.getNome() + " possui usuários vinculados.");
         }
         perfilRepository.delete(perfil);
+    }
+
+    private boolean isEssencial(String nome) {
+        return "ADMIN".equalsIgnoreCase(nome)
+                || "RECEPCAO".equalsIgnoreCase(nome)
+                || "PROFISSIONAL_DE_SAUDE".equalsIgnoreCase(nome);
     }
 }

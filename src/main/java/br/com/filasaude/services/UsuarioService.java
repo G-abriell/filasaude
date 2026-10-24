@@ -6,6 +6,9 @@ import br.com.filasaude.exceptions.RegraNegocioException;
 import br.com.filasaude.repositories.AtendimentoRepository;
 import br.com.filasaude.repositories.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,7 +85,25 @@ public class UsuarioService {
     @Transactional
     public void alternarAtivo(Long id) {
         Usuario usuario = buscarPorId(id);
-        usuario.setAtivo(!usuario.isAtivo());
+        boolean desativando = usuario.isAtivo();
+        if (!desativando) {
+            usuario.setAtivo(true);
+            return;
+        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String usuarioAutenticado = authentication == null ? null
+                : authentication.getPrincipal() instanceof UserDetails userDetails
+                ? userDetails.getUsername() : authentication.getName();
+        if (usuarioAutenticado != null && usuarioAutenticado.equalsIgnoreCase(usuario.getEmail())) {
+            throw new RegraNegocioException("Não é possível desativar a própria conta.");
+        }
+        if ("ADMIN".equalsIgnoreCase(usuario.getPerfil().getNome())) {
+            List<Usuario> administradoresAtivos = usuarioRepository.findAdministradoresAtivosComLock();
+            if (administradoresAtivos.size() <= 1) {
+                throw new RegraNegocioException("Não é possível desativar o último administrador ativo.");
+            }
+        }
+        usuario.setAtivo(false);
     }
 
     @Transactional

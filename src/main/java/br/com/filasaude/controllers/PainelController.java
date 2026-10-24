@@ -23,11 +23,8 @@ import java.util.*;
 public class PainelController {
 
     private final AtendimentoService atendimentoService;
-    private final ConfiguracaoController configuracaoController;
-
-    public PainelController(AtendimentoService atendimentoService, ConfiguracaoController configuracaoController) {
+    public PainelController(AtendimentoService atendimentoService) {
         this.atendimentoService = atendimentoService;
-        this.configuracaoController = configuracaoController;
     }
 
     @GetMapping

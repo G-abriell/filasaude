@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AtendimentoService {
@@ -83,7 +84,8 @@ public class AtendimentoService {
 
     /**
      * Emite uma senha para o paciente na fila informada.
-     * Pacientes idosos recebem prioridade preferencial automaticamente.
+     * Idosos recebem prioridade automaticamente; as demais condições preferenciais
+     * são informadas pela recepção ao emitir a senha.
      */
     @Transactional
     public Atendimento emitirSenha(Long pacienteId, Long filaId, Prioridade prioridade) {
@@ -102,10 +104,14 @@ public class AtendimentoService {
         if (paciente.isSuperIdoso()) {
             prioridadeFinal = Prioridade.SUPERPREFERENCIAL;
         } else if (paciente.isIdoso()) {
-            prioridadeFinal = (prioridade == Prioridade.SUPERPREFERENCIAL)
-                    ? Prioridade.SUPERPREFERENCIAL : Prioridade.PREFERENCIAL;
+            prioridadeFinal = Prioridade.PREFERENCIAL;
+        } else if (prioridade == Prioridade.SUPERPREFERENCIAL) {
+            prioridadeFinal = Prioridade.NORMAL;
+        } else if (prioridade == Prioridade.PREFERENCIAL) {
+            prioridadeFinal = Prioridade.PREFERENCIAL;
         } else {
-            prioridadeFinal = (prioridade != null) ? prioridade : Prioridade.NORMAL;
+            prioridadeFinal = (prioridade != null && prioridade.isLegal())
+                    ? prioridade : Prioridade.NORMAL;
         }
 
         LocalDateTime agora = LocalDateTime.now();
@@ -122,22 +128,20 @@ public class AtendimentoService {
     public Atendimento chamarProximo(Long filaId, Long atendenteId, String guiche) {
         Usuario atendente = validarAtendente(atendenteId);
 
-        List<Atendimento> candidatos;
+        Optional<Atendimento> candidato;
         if (filaId != null) {
-            filaRepository.findByIdComLock(filaId)
+            Fila fila = filaRepository.findById(filaId)
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Fila", filaId));
-            candidatos = atendimentoRepository.findAguardandoNaFila(filaId);
+            if (!fila.isAtiva()) {
+                throw new RegraNegocioException("A fila " + fila.getNome() + " está inativa.");
+            }
+            candidato = atendimentoRepository.chamarProximoNaFila(filaId);
         } else {
-            candidatos = atendimentoRepository.findAllAguardando();
+            candidato = atendimentoRepository.chamarProximoGeral();
         }
 
-        Atendimento proximo = candidatos.stream()
-                .findFirst()
+        Atendimento proximo = candidato
                 .orElseThrow(() -> new RegraNegocioException("Nenhum paciente aguardando na fila no momento."));
-
-        if (filaId == null) {
-            filaRepository.findByIdComLock(proximo.getFila().getId());
-        }
 
         proximo.chamar(atendente, guiche);
         return proximo;

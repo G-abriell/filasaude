@@ -39,14 +39,16 @@ CREATE TABLE public.atendimentos (
     data_referencia date NOT NULL,
     guiche character varying(30),
     numero integer NOT NULL,
-    observacao character varying(500),
-    prioridade character varying(20) NOT NULL,
-    senha character varying(20) NOT NULL,
-    status character varying(20) NOT NULL,
+    observacao character varying(1000),
+    prescricao character varying(3000),
+    encaminhamento character varying(500),
+    prioridade character varying(30) NOT NULL,
+    senha character varying(30) NOT NULL,
+    status character varying(30) NOT NULL,
     atendente_id bigint,
     fila_id bigint NOT NULL,
     paciente_id bigint NOT NULL,
-    CONSTRAINT atendimentos_prioridade_check CHECK (((prioridade)::text = ANY ((ARRAY['NORMAL'::character varying, 'PREFERENCIAL'::character varying])::text[]))),
+    CONSTRAINT atendimentos_prioridade_check CHECK (((prioridade)::text = ANY ((ARRAY['NORMAL'::character varying, 'PREFERENCIAL'::character varying, 'SUPERPREFERENCIAL'::character varying])::text[]))),
     CONSTRAINT atendimentos_status_check CHECK (((status)::text = ANY ((ARRAY['AGUARDANDO'::character varying, 'CHAMADO'::character varying, 'EM_ATENDIMENTO'::character varying, 'FINALIZADO'::character varying, 'NAO_COMPARECEU'::character varying, 'CANCELADO'::character varying])::text[])))
 );
 

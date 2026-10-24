@@ -44,6 +44,19 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
             """)
     List<Atendimento> findAguardandoNaFila(Long filaId);
 
+    @Query(value = """
+            select a.* from atendimentos a
+            where a.fila_id = :filaId and a.status = 'AGUARDANDO'
+            order by case a.prioridade
+                        when 'SUPERPREFERENCIAL' then 0
+                        when 'PREFERENCIAL' then 1
+                        else 2
+                     end, a.data_hora_chegada asc
+            limit 1
+            for update skip locked
+            """, nativeQuery = true)
+    Optional<Atendimento> chamarProximoNaFila(Long filaId);
+
     /** Todos os pacientes aguardando em filas ativas: preferenciais primeiro, depois por ordem de chegada. */
     @Query("""
             select a from Atendimento a
@@ -58,6 +71,20 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
                      a.dataHoraChegada asc
             """)
     List<Atendimento> findAllAguardando();
+
+    @Query(value = """
+            select a.* from atendimentos a
+            join filas f on f.id = a.fila_id
+            where f.ativa = true and a.status = 'AGUARDANDO'
+            order by case a.prioridade
+                        when 'SUPERPREFERENCIAL' then 0
+                        when 'PREFERENCIAL' then 1
+                        else 2
+                     end, a.data_hora_chegada asc
+            limit 1
+            for update of a skip locked
+            """, nativeQuery = true)
+    Optional<Atendimento> chamarProximoGeral();
 
     @Query("""
             select a from Atendimento a

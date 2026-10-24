@@ -94,11 +94,11 @@
                     </div>
 
                     <div class="campo">
-                        <label for="prioridade">Prioridade de Atendimento</label>
+                        <label for="prioridade">Condição de prioridade</label>
                         <select class="entrada" id="prioridade" name="prioridade">
                             <option th:each="pr : ${prioridades}" th:value="${pr}" th:text="${pr.descricao}">Normal</option>
                         </select>
-                        <p class="dica">Lei Federal 10.048/2000 e Estatuto do Idoso: 80+ anos têm superprioridade sobre os demais; 60+, PCD, gestantes e TEA têm prioridade legal.</p>
+                        <p class="dica">Selecione a condição informada pelo paciente. Pessoas com 60 anos ou mais recebem prioridade automaticamente; pessoas com 80 anos ou mais têm superprioridade.</p>
                     </div>
 
                     <button class="btn btn-primario btn-bloco">Gerar senha e adicionar à fila</button>
