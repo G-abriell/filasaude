@@ -1,6 +1,6 @@
 # FilaSaúde — Gestão de Atendimento
 
-O FilaSaúde é um sistema web desenvolvido como projeto acadêmico na disciplina de **PBL (Problem-Based Learning)**. O trabalho está alinhado ao tema semestral:
+O FilaSaúde é um sistema web desenvolvido como projeto acadêmico **PBL (Problem-Based Learning)**. O trabalho está alinhado ao tema semestral:
 
 > “Soluções Digitais como Meio de Transformação de Processos”
 
