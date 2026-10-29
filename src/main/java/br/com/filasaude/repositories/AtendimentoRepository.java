@@ -29,7 +29,7 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
             """)
     int findUltimoNumero(Long filaId, LocalDate data);
 
-    /** Pacientes aguardando na fila: preferenciais primeiro, depois por ordem de chegada. */
+    /** Pacientes aguardando na fila: superpreferenciais e preferenciais primeiro, depois por ordem de chegada. */
     @Query("""
             select a from Atendimento a
             join fetch a.paciente
@@ -37,27 +37,14 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
             where a.fila.id = :filaId and a.status = br.com.filasaude.entities.enums.StatusAtendimento.AGUARDANDO
             order by case
                         when a.prioridade = br.com.filasaude.entities.enums.Prioridade.SUPERPREFERENCIAL then 0
-                        when a.prioridade = br.com.filasaude.entities.enums.Prioridade.PREFERENCIAL then 1
-                        else 2
+                        when a.prioridade = br.com.filasaude.entities.enums.Prioridade.NORMAL then 2
+                        else 1
                      end,
                      a.dataHoraChegada asc
             """)
     List<Atendimento> findAguardandoNaFila(Long filaId);
 
-    @Query(value = """
-            select a.* from atendimentos a
-            where a.fila_id = :filaId and a.status = 'AGUARDANDO'
-            order by case a.prioridade
-                        when 'SUPERPREFERENCIAL' then 0
-                        when 'PREFERENCIAL' then 1
-                        else 2
-                     end, a.data_hora_chegada asc
-            limit 1
-            for update skip locked
-            """, nativeQuery = true)
-    Optional<Atendimento> chamarProximoNaFila(Long filaId);
-
-    /** Todos os pacientes aguardando em filas ativas: preferenciais primeiro, depois por ordem de chegada. */
+    /** Todos os pacientes aguardando em filas ativas: superpreferenciais e preferenciais primeiro, depois por ordem de chegada. */
     @Query("""
             select a from Atendimento a
             join fetch a.paciente
@@ -65,26 +52,22 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
             where a.fila.ativa = true and a.status = br.com.filasaude.entities.enums.StatusAtendimento.AGUARDANDO
             order by case
                         when a.prioridade = br.com.filasaude.entities.enums.Prioridade.SUPERPREFERENCIAL then 0
-                        when a.prioridade = br.com.filasaude.entities.enums.Prioridade.PREFERENCIAL then 1
-                        else 2
+                        when a.prioridade = br.com.filasaude.entities.enums.Prioridade.NORMAL then 2
+                        else 1
                      end,
                      a.dataHoraChegada asc
             """)
     List<Atendimento> findAllAguardando();
 
-    @Query(value = """
-            select a.* from atendimentos a
-            join filas f on f.id = a.fila_id
-            where f.ativa = true and a.status = 'AGUARDANDO'
-            order by case a.prioridade
-                        when 'SUPERPREFERENCIAL' then 0
-                        when 'PREFERENCIAL' then 1
-                        else 2
-                     end, a.data_hora_chegada asc
-            limit 1
-            for update of a skip locked
-            """, nativeQuery = true)
-    Optional<Atendimento> chamarProximoGeral();
+    /** Histórico de chamadas do dia (mais recentes primeiro) para cálculo da intercalação 2x1. */
+    @Query("""
+            select a from Atendimento a
+            where a.dataReferencia = :data
+              and a.dataHoraChamada is not null
+              and (:filaId is null or a.fila.id = :filaId)
+            order by a.dataHoraChamada desc, a.id desc
+            """)
+    List<Atendimento> findUltimosChamadosDoDia(LocalDate data, Long filaId);
 
     @Query("""
             select a from Atendimento a

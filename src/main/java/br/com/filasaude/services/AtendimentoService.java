@@ -15,12 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AtendimentoService {
+
+    /** Regra de intercalação 2 por 1: a cada 2 atendimentos preferenciais chamados, intercala 1 normal (se houver). */
+    public static final int PROPORCAO_PREFERENCIAL_POR_NORMAL = 2;
 
     private final AtendimentoRepository atendimentoRepository;
     private final FilaRepository filaRepository;
@@ -58,10 +61,75 @@ public class AtendimentoService {
 
     @Transactional(readOnly = true)
     public List<Atendimento> listarAguardando(Long filaId) {
-        if (filaId == null) {
-            return atendimentoRepository.findAllAguardando();
+        List<Atendimento> aguardando = (filaId == null)
+                ? atendimentoRepository.findAllAguardando()
+                : atendimentoRepository.findAguardandoNaFila(filaId);
+        int preferenciaisConsecutivos = contarPreferenciaisConsecutivos(filaId);
+        return intercalarFila2Por1(aguardando, preferenciaisConsecutivos);
+    }
+
+    /**
+     * Conta quantos atendimentos preferenciais consecutivos foram chamados por último hoje
+     * (até o limite da proporção 2 por 1).
+     */
+    private int contarPreferenciaisConsecutivos(Long filaId) {
+        List<Atendimento> ultimosChamados = atendimentoRepository.findUltimosChamadosDoDia(LocalDate.now(), filaId);
+        int consecutivos = 0;
+        for (Atendimento chamado : ultimosChamados) {
+            if (chamado.getPrioridade().isLegal()) {
+                consecutivos++;
+                if (consecutivos >= PROPORCAO_PREFERENCIAL_POR_NORMAL) {
+                    break;
+                }
+            } else {
+                break;
+            }
         }
-        return atendimentoRepository.findAguardandoNaFila(filaId);
+        return consecutivos;
+    }
+
+    /**
+     * Organiza a fila aplicando a regra de intercalação 2 por 1:
+     * a cada 2 pacientes preferenciais (Superpreferencial 80+ e Preferencial),
+     * intercala 1 paciente da fila Normal (se houver).
+     */
+    public static List<Atendimento> intercalarFila2Por1(List<Atendimento> aguardando, int preferenciaisConsecutivos) {
+        if (aguardando == null || aguardando.size() <= 1) {
+            return aguardando;
+        }
+
+        List<Atendimento> preferenciais = new ArrayList<>();
+        List<Atendimento> normais = new ArrayList<>();
+        for (Atendimento a : aguardando) {
+            if (a.getPrioridade().isLegal()) {
+                preferenciais.add(a);
+            } else {
+                normais.add(a);
+            }
+        }
+
+        if (preferenciais.isEmpty() || normais.isEmpty()) {
+            return aguardando;
+        }
+
+        List<Atendimento> resultado = new ArrayList<>(aguardando.size());
+        int prefRestantesNoCiclo = Math.max(0, PROPORCAO_PREFERENCIAL_POR_NORMAL - preferenciaisConsecutivos);
+        int iPref = 0;
+        int iNorm = 0;
+
+        while (iPref < preferenciais.size() || iNorm < normais.size()) {
+            int chamadosNesteBloco = 0;
+            while (chamadosNesteBloco < prefRestantesNoCiclo && iPref < preferenciais.size()) {
+                resultado.add(preferenciais.get(iPref++));
+                chamadosNesteBloco++;
+            }
+            if (iNorm < normais.size()) {
+                resultado.add(normais.get(iNorm++));
+            }
+            prefRestantesNoCiclo = PROPORCAO_PREFERENCIAL_POR_NORMAL;
+        }
+
+        return resultado;
     }
 
     /** Atendimentos chamados ou em andamento (para o painel e os guichês). */
@@ -104,10 +172,9 @@ public class AtendimentoService {
         if (paciente.isSuperIdoso()) {
             prioridadeFinal = Prioridade.SUPERPREFERENCIAL;
         } else if (paciente.isIdoso()) {
-            prioridadeFinal = Prioridade.PREFERENCIAL;
+            prioridadeFinal = (prioridade != null && prioridade.isLegal() && prioridade != Prioridade.SUPERPREFERENCIAL)
+                    ? prioridade : Prioridade.PREFERENCIAL;
         } else if (prioridade == Prioridade.SUPERPREFERENCIAL) {
-            prioridadeFinal = Prioridade.NORMAL;
-        } else if (prioridade == Prioridade.PREFERENCIAL) {
             prioridadeFinal = Prioridade.PREFERENCIAL;
         } else {
             prioridadeFinal = (prioridade != null && prioridade.isLegal())
@@ -122,26 +189,28 @@ public class AtendimentoService {
 
     /**
      * Chama o próximo paciente aguardando (da fila selecionada ou de qualquer fila ativa,
-     * respeitando prioridade preferencial primeiro e depois ordem de chegada).
+     * aplicando a regra de intercalação 2 preferenciais para 1 normal e ordem de chegada).
      */
     @Transactional
     public Atendimento chamarProximo(Long filaId, Long atendenteId, String guiche) {
         Usuario atendente = validarAtendente(atendenteId);
 
-        Optional<Atendimento> candidato;
         if (filaId != null) {
-            Fila fila = filaRepository.findById(filaId)
+            Fila fila = filaRepository.findByIdComLock(filaId)
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Fila", filaId));
             if (!fila.isAtiva()) {
                 throw new RegraNegocioException("A fila " + fila.getNome() + " está inativa.");
             }
-            candidato = atendimentoRepository.chamarProximoNaFila(filaId);
-        } else {
-            candidato = atendimentoRepository.chamarProximoGeral();
         }
 
-        Atendimento proximo = candidato
+        List<Atendimento> candidatos = listarAguardando(filaId);
+        Atendimento proximo = candidatos.stream()
+                .findFirst()
                 .orElseThrow(() -> new RegraNegocioException("Nenhum paciente aguardando na fila no momento."));
+
+        if (filaId == null) {
+            filaRepository.findByIdComLock(proximo.getFila().getId());
+        }
 
         proximo.chamar(atendente, guiche);
         return proximo;

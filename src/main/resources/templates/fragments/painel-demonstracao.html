@@ -13,7 +13,7 @@
                         <span id="filaAtual" th:text="${atual?.fila?.nome} ?: 'Consulta'">Consulta</span>
                     </div>
                     <span id="badgePrioridade" class="mvp-prioridade"
-                          th:classappend="${atual != null} ? (${atual.prioridade.name() == 'SUPERPREFERENCIAL'} ? ' prioridade-superpreferencial' : (${atual.prioridade.name() == 'PREFERENCIAL'} ? ' prioridade-preferencial' : ' prioridade-normal')) : ''"
+                          th:classappend="${atual != null} ? (${atual.prioridade.name() == 'SUPERPREFERENCIAL'} ? ' prioridade-superpreferencial' : (${atual.prioridade.legal} ? ' prioridade-preferencial' : ' prioridade-normal')) : ''"
                           th:text="${atual?.prioridade?.descricao} ?: 'Normal'">Normal</span>
                 </div>
                 <div th:if="${aoVivo}" id="blocoVazio" class="mvp-vazio" th:style="${atual != null} ? 'display:none' : ''">

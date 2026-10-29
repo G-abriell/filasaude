@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR" data-theme="light" data-tema="claro">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,6 +12,32 @@
     <link rel="stylesheet" th:href="@{/css/filasaude.css}">
     <link rel="stylesheet" th:href="@{/css/painel-demonstracao.css}">
     <style>
+        /* Painel de TV permanece claro, mesmo com tema escuro salvo no navegador. */
+        html[data-theme], html[data-tema] {
+            color-scheme: light !important;
+            --surface: #FAF8F4;
+            --surface-raised: #FFFFFF;
+            --surface-sunken: #F1EEE7;
+            --ink: #16262A;
+            --ink-muted: #4B5F64;
+            --line: #DDD8CC;
+            --line-strong: #6F8286;
+            --brand: #0F3D44;
+            --brand-fill: #0F3D44;
+            --brand-soft: #E1EEEE;
+            --on-brand: #FFFFFF;
+            --accent: #CB7440;
+            --accent-text: #98481A;
+            --accent-soft: #F6E3D5;
+            --support-soft: #E4EDE8;
+            --support-ink: #2F5547;
+        }
+        html[data-theme] body, html[data-tema] body {
+            color-scheme: light !important;
+            background-color: #0F3D44 !important;
+            color: #FAF8F4 !important;
+        }
+
         html, body {
             height: 100%;
             margin: 0;
@@ -552,7 +578,7 @@
                         badgePrioridade.className = 'mvp-prioridade';
                         if (atual.prioridade === 'SUPERPREFERENCIAL') {
                             badgePrioridade.classList.add('prioridade-superpreferencial');
-                        } else if (atual.prioridade === 'PREFERENCIAL') {
+                        } else if (atual.prioridade && atual.prioridade !== 'NORMAL') {
                             badgePrioridade.classList.add('prioridade-preferencial');
                         } else {
                             badgePrioridade.classList.add('prioridade-normal');

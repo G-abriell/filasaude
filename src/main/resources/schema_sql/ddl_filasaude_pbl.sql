@@ -48,7 +48,7 @@ CREATE TABLE public.atendimentos (
     atendente_id bigint,
     fila_id bigint NOT NULL,
     paciente_id bigint NOT NULL,
-    CONSTRAINT atendimentos_prioridade_check CHECK (((prioridade)::text = ANY ((ARRAY['NORMAL'::character varying, 'PREFERENCIAL'::character varying, 'SUPERPREFERENCIAL'::character varying])::text[]))),
+    CONSTRAINT atendimentos_prioridade_check CHECK (((prioridade)::text = ANY ((ARRAY['NORMAL'::character varying, 'PREFERENCIAL'::character varying, 'GESTANTE'::character varying, 'OBESIDADE'::character varying, 'PCD'::character varying, 'TEA'::character varying, 'MULHER_COM_CRIANCA_DE_COLO'::character varying, 'SUPERPREFERENCIAL'::character varying])::text[]))),
     CONSTRAINT atendimentos_status_check CHECK (((status)::text = ANY ((ARRAY['AGUARDANDO'::character varying, 'CHAMADO'::character varying, 'EM_ATENDIMENTO'::character varying, 'FINALIZADO'::character varying, 'NAO_COMPARECEU'::character varying, 'CANCELADO'::character varying])::text[])))
 );
 

@@ -84,9 +84,7 @@ public class AtendimentoController {
 
         List<Atendimento> aguardando = (filaId == null)
                 ? todosAguardando
-                : todosAguardando.stream()
-                        .filter(a -> a.getFila().getId().equals(filaId))
-                        .toList();
+                : atendimentoService.listarAguardando(filaId);
 
         model.addAttribute("filas", filaService.listarAtivas());
         model.addAttribute("emAndamento", atendimentoService.listarEmAndamento());

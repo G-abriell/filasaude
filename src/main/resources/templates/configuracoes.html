@@ -21,7 +21,8 @@
         (function () {
             try {
                 var t = localStorage.getItem('fs-tema-manual');
-                var theme = (t === 'dark') ? 'dark' : 'light';
+                var legacyTheme = localStorage.getItem('filasaude-tema');
+                var theme = (t === 'dark' || (t !== 'light' && legacyTheme === 'escuro')) ? 'dark' : 'light';
                 document.documentElement.dataset.theme = theme;
                 document.documentElement.style.colorScheme = theme;
             } catch (e) {
@@ -1510,6 +1511,18 @@
                             <span class="fs-help">Ajusta o tamanho de leitura sem desestruturar a diagramação do painel.</span>
                         </div>
 
+                        <!-- Tema Visual (Claro / Escuro) -->
+                        <div class="fs-option-row">
+                            <div>
+                                <div class="fs-option-title">Tema visual</div>
+                                <p class="fs-option-sub">Alterne entre os temas claro e escuro em todas as telas do sistema.</p>
+                            </div>
+                            <div class="a11y-btn-group" role="group" aria-label="Tema visual">
+                                <button type="button" class="a11y-btn" id="btn-theme-light" aria-pressed="false">Claro</button>
+                                <button type="button" class="a11y-btn" id="btn-theme-dark" aria-pressed="false">Escuro</button>
+                            </div>
+                        </div>
+
                         <!-- Opções de Acessibilidade com Switches -->
                         <div class="fs-option-row">
                             <div>
@@ -1979,7 +1992,8 @@
             root.setAttribute('data-theme', theme);
             root.dataset.theme = theme;
             root.style.colorScheme = theme;
-            try { localStorage.setItem('fs-tema-manual', theme); } catch (e) {}
+            root.setAttribute('data-tema', theme === 'dark' ? 'escuro' : 'claro');
+            try { localStorage.setItem('fs-tema-manual', theme); localStorage.setItem('filasaude-tema', theme === 'dark' ? 'escuro' : 'claro'); } catch (e) {}
             if (btnThemeLight) {
                 btnThemeLight.classList.toggle('is-active', theme === 'light');
                 btnThemeLight.setAttribute('aria-pressed', String(theme === 'light'));
@@ -2083,7 +2097,9 @@
             }
         }
 
-        var savedTheme = (root.dataset.theme === 'dark' || localStorage.getItem('fs-tema-manual') === 'dark') ? 'dark' : 'light';
+            var savedManualTheme = localStorage.getItem('fs-tema-manual');
+            var savedLegacyTheme = localStorage.getItem('filasaude-tema');
+            var savedTheme = savedManualTheme === 'dark' || (savedManualTheme !== 'light' && savedLegacyTheme === 'escuro') ? 'dark' : 'light';
         setTheme(savedTheme);
         setFontScale(savedFont);
         setContrast(savedContrast);

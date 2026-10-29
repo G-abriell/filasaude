@@ -12,7 +12,11 @@
         (function () {
             try {
                 var current = document.documentElement.getAttribute('data-theme') || (document.documentElement.getAttribute('data-tema') === 'escuro' ? 'dark' : null);
-                var stored = localStorage.getItem('fs-tema-manual') || (localStorage.getItem('filasaude-tema') === 'escuro' ? 'dark' : null);
+                var storedManual = localStorage.getItem('fs-tema-manual');
+                var storedLegacy = localStorage.getItem('filasaude-tema');
+                var stored = storedManual === 'dark' || storedManual === 'light'
+                    ? storedManual
+                    : (storedLegacy === 'escuro' ? 'dark' : (storedLegacy === 'claro' ? 'light' : null));
                 var theme = stored || current || 'light';
                 if (theme === 'escuro') theme = 'dark';
                 document.documentElement.dataset.theme = theme;

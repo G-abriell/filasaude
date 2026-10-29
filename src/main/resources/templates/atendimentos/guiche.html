@@ -19,13 +19,14 @@
             <a class="aba-fila" th:classappend="${filaId == null} ? 'ativa'"
                th:href="@{/atendimentos/guiche}">
                 <span>Todas as filas</span>
-                <span class="aba-contador" th:text="${totalAguardando}">0</span>
+                <span class="aba-contador" th:attr="data-vazia=${totalAguardando == 0}" th:text="${totalAguardando}">0</span>
             </a>
             <a th:each="f : ${filas}" class="aba-fila"
                th:classappend="${f.id == filaId} ? 'ativa'"
                th:href="@{/atendimentos/guiche(filaId=${f.id})}">
                 <span th:text="${f.nome}">Consulta</span>
-                <span class="aba-contador" th:text="${contagemPorFila.getOrDefault(f.id, 0L)}">0</span>
+                <span class="aba-contador" th:with="quantidade=${contagemPorFila.getOrDefault(f.id, 0L)}"
+                      th:attr="data-vazia=${quantidade == 0}" th:text="${quantidade}">0</span>
             </a>
         </nav>
 
@@ -40,12 +41,16 @@
                             <div class="acoes">
                                 <span class="proximo-nome" th:text="${aguardando[0].paciente.nome}">Maria Silva</span>
                                 <span class="etiqueta-prioridade"
-                                      th:classappend="${aguardando[0].prioridade.name() == 'PREFERENCIAL'} ? 'etiqueta-preferencial' : 'etiqueta-normal'"
+                                      th:classappend="${aguardando[0].prioridade.legal} ? 'etiqueta-preferencial' : 'etiqueta-normal'"
                                       th:text="${aguardando[0].prioridade.descricao}">Preferencial</span>
                             </div>
                             <span class="apoio body-sm num"
-                                  th:text="|${aguardando[0].fila.nome} · ${aguardando[0].paciente.idade} anos · Aguardando há ${aguardando[0].minutosEspera} min|">
-                                Consulta · 64 anos · Aguardando há 12 min
+                                  th:text="|${aguardando[0].fila.nome} · ${aguardando[0].paciente.idade} anos|">
+                                Consulta · 64 anos
+                            </span>
+                            <span class="tempo-espera-badge" role="status"
+                                  th:text="${aguardando[0].minutosEspera >= 1440} ? |Aguardando há ${aguardando[0].minutosEspera / 1440}d ${(aguardando[0].minutosEspera % 1440) / 60}h| : (${aguardando[0].minutosEspera >= 60} ? |Aguardando há ${aguardando[0].minutosEspera / 60}h ${aguardando[0].minutosEspera % 60}min| : |Aguardando há ${aguardando[0].minutosEspera} min|)">
+                                Aguardando há 12 min
                             </span>
                         </div>
                     </div>
@@ -96,7 +101,7 @@
                                 <span class="senha-celula" th:text="${a.senha}">A001</span>
                                 <span th:replace="~{fragments/layout :: status(${a.status})}"></span>
                                 <span class="etiqueta-prioridade"
-                                      th:classappend="${a.prioridade.name() == 'PREFERENCIAL'} ? 'etiqueta-preferencial' : 'etiqueta-normal'"
+                                      th:classappend="${a.prioridade.legal} ? 'etiqueta-preferencial' : 'etiqueta-normal'"
                                       th:text="${a.prioridade.descricao}">Normal</span>
                             </div>
                             <h3 class="paciente-prontuario-titulo" th:text="${a.paciente.nome}">Carlos Lima</h3>
@@ -131,7 +136,7 @@
                               data-consequencia="A senha sai da fila e o status passará para Não compareceu."
                               data-acao="Sim, registrar">
                             <input type="hidden" name="filaId" th:value="${filaId}">
-                            <button class="btn btn-secundario">Não compareceu</button>
+                            <button class="btn btn-secundario btn-perigo">Não compareceu</button>
                         </form>
                     </div>
 
@@ -191,7 +196,7 @@
                         </div>
 
                         <div class="acoes-formulario" style="margin-top: 12px;">
-                            <button class="btn btn-primario">Finalizar e enviar para a recepção</button>
+                            <button class="btn btn-primario btn-finalizar">Finalizar e enviar para a recepção</button>
                         </div>
                     </form>
                 </article>
@@ -228,11 +233,12 @@
                         <td><strong th:text="${a.fila.nome}">Consulta</strong></td>
                         <td>
                             <span class="etiqueta-prioridade"
-                                  th:classappend="${a.prioridade.name() == 'PREFERENCIAL'} ? 'etiqueta-preferencial' : 'etiqueta-normal'"
+                                  th:classappend="${a.prioridade.legal} ? 'etiqueta-preferencial' : 'etiqueta-normal'"
                                   th:text="${a.prioridade.descricao}">Preferencial</span>
                         </td>
                         <td class="num" th:text="${#temporals.format(a.dataHoraChegada, 'HH:mm')}">08:42</td>
-                        <td class="num" th:text="|${a.minutosEspera} min|">18 min</td>
+                        <td><span class="tempo-espera-badge"
+                                  th:text="${a.minutosEspera >= 1440} ? |${a.minutosEspera / 1440}d ${(a.minutosEspera % 1440) / 60}h| : (${a.minutosEspera >= 60} ? |${a.minutosEspera / 60}h ${a.minutosEspera % 60}min| : |${a.minutosEspera} min|)">18 min</span></td>
                         <td class="acoes-celula">
                             <form method="post" th:action="@{/atendimentos/{id}/chamar(id=${a.id})}">
                                 <input type="hidden" name="filaId" th:value="${filaId}">

@@ -18,7 +18,8 @@
   try {
     localStorage.removeItem('fs-tema');
     var t = localStorage.getItem('fs-tema-manual');
-    var theme = (t === 'dark') ? 'dark' : 'light';
+    var legacyTheme = localStorage.getItem('filasaude-tema');
+    var theme = (t === 'dark' || (t !== 'light' && legacyTheme === 'escuro')) ? 'dark' : 'light';
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
 
@@ -81,14 +82,14 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --petroleo-700: #1B5862;
+  --petroleo-700: #8CC8CB;
   --cobre-500:    #D97D48;
-  --bg:           #06171A;
-  --surface:      #0F2D33;
-  --surface-2:    #091F24;
+  --bg:           #111820;
+  --surface:      #202A35;
+  --surface-2:    #18212B;
   --text:         #F5F3EC;
-  --text-2:       #96ACB0;
-  --linha:        rgba(255, 255, 255, 0.09);
+  --text-2:       #BAC5CF;
+  --linha:        rgba(220, 230, 240, 0.16);
   --accent-soft:  #382418;
   --status-wait-bg:   #4A3511;
   --status-wait-fg:   #F5CF8A;
@@ -96,63 +97,63 @@
   --status-active-fg: #A9CCF0;
   --status-done-bg:   #13432F;
   --status-done-fg:   #9CDDB9;
-  --support-soft:     #163E38;
+  --support-soft:     #263D38;
   --support-ink:      #B5DACB;
-  --header-bg:        rgba(6, 23, 26, 0.88);
-  --shadow: 0 4px 16px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --header-bg:        rgba(17, 24, 32, 0.92);
+  --shadow: 0 5px 18px rgba(0, 0, 0, 0.24);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.22);
 }
 
 [data-theme="dark"] .concept {
-  background: linear-gradient(180deg, #0C333A 0%, #082126 100%);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  background: #18212B;
+  border-top: 1px solid var(--linha);
+  border-bottom: 1px solid var(--linha);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
 }
 
 [data-theme="dark"] .board {
-  background: #081B1E;
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+  background: #18212B;
+  border-color: var(--linha);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 [data-theme="dark"] .final {
-  background: linear-gradient(180deg, #103B43 0%, #092328 100%);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: #202A35;
+  border-top: 1px solid var(--linha);
 }
 
 [data-theme="dark"] .site-footer {
-  background: #051315;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: #171F28;
+  border-top: 1px solid var(--linha);
 }
 
 [data-theme="dark"] .mvp-card,
 [data-theme="dark"] .profile,
 [data-theme="dark"] .demo-panel {
-  border-color: rgba(255, 255, 255, 0.09);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  border-color: var(--linha);
+  box-shadow: var(--shadow);
 }
 
 [data-theme="dark"] .field .value,
 [data-theme="dark"] .mock {
   background: var(--surface-2);
-  border-color: rgba(255, 255, 255, 0.06);
+  border-color: var(--linha);
 }
 
 [data-theme="dark"] .chip {
   background: var(--surface);
-  border-color: rgba(255, 255, 255, 0.09);
+  border-color: var(--linha);
 }
 
 [data-theme="dark"] .btn--ghost {
   background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(220, 230, 240, 0.3);
   color: var(--text);
 }
 
 [data-theme="dark"] .btn--ghost:hover {
   background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.35);
+  border-color: rgba(220, 230, 240, 0.48);
 }
 
 /* ============================================================
@@ -280,6 +281,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .btn--primary:hover { background: var(--petroleo-900); }
 [data-theme="dark"] .btn--primary { background: #8CC8CB; color: #0A2A30; }
 [data-theme="dark"] .btn--primary:hover { background: #B7D3D5; }
+[data-theme="dark"] .btn--primary { color: #10242B; }
 .btn--ghost { background: var(--surface); border-color: #6F8286; color: var(--text); }
 .btn--ghost:hover { background: var(--surface-2); color: var(--text); }
 .btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
@@ -731,8 +733,8 @@ html.no-anim [data-reveal] {
   transition: background-color .18s ease;
 }
 .mock-link:hover { background: #0C333A; }
-[data-theme="dark"] .mock-link { background: #E9E2D2; color: #14262D; }
-[data-theme="dark"] .mock-link:hover { background: #F4EEE0; }
+[data-theme="dark"] .mock-link { background: #8CC8CB; color: #10242B; }
+[data-theme="dark"] .mock-link:hover { background: #B7D3D5; }
 .mock-link--accent { background: var(--cobre-500); color: var(--grafite-900); }
 .mock-link--accent:hover { background: #B86534; }
 [data-theme="dark"] .mock-link--accent { background: var(--cobre-500); color: var(--grafite-900); }
@@ -836,6 +838,25 @@ html.no-anim [data-reveal] {
 }
 .seg button[aria-pressed="true"] { background: var(--petroleo-700); color: #fff; }
 [data-theme="dark"] .seg button[aria-pressed="true"] { background: #8CC8CB; color: #0A2A30; }
+
+/* Contraste e leitura do tema escuro também nos metadados dos mockups. */
+[data-theme="dark"] .field label,
+[data-theme="dark"] .mock__queue small,
+[data-theme="dark"] .mock__stats small,
+[data-theme="dark"] .bars-labels,
+[data-theme="dark"] .board__head,
+[data-theme="dark"] .board__now small,
+[data-theme="dark"] .board__type,
+[data-theme="dark"] .board__foot { color: #BAC5CF; }
+[data-theme="dark"] .mock__stats small,
+[data-theme="dark"] .bars-labels { font-size: .8125rem; }
+[data-theme="dark"] .field label { font-size: .8125rem; }
+[data-theme="dark"] .mock__result,
+[data-theme="dark"] .mock__timer { color: #BAC5CF; }
+[data-theme="dark"] .queue-item.is-next {
+  background: #263D38;
+  border-color: #6B9784;
+}
 
 .demo-panel .field-label { font-size: .875rem; font-weight: 600; color: var(--text); margin-bottom: 8px; display: block; }
 
@@ -1368,12 +1389,11 @@ dialog.access::backdrop { background: rgba(10, 42, 48, .55); backdrop-filter: bl
 <dialog class="access" id="access-dialog" aria-labelledby="access-title">
   <div class="access__inner">
     <h2 id="access-title">Acesso ao sistema</h2>
-    <p sec:authorize="!isAuthenticated()">Entre com o e-mail e a senha cadastrados pelo administrador da unidade, ou experimente a fila na demonstração abaixo.</p>
-    <a class="btn btn--primary" sec:authorize="!isAuthenticated()" th:href="@{/login}">Entrar com e-mail e senha</a>
-    <p sec:authorize="isAuthenticated()">Você já está conectado como <strong sec:authentication="principal.nome">Nome</strong>.</p>
-    <a class="btn btn--primary" sec:authorize="isAuthenticated()" th:href="@{/inicio}">Ir para o sistema</a>
-    <a class="btn btn--ghost" sec:authorize="hasRole('ADMIN')" th:href="@{/configuracoes}">Abrir configurações da unidade</a>
-    <button class="btn btn--ghost" type="button" id="access-go-demo">Ir para a demonstração</button>
+    <p sec:authorize="!isAuthenticated()">Entre com seu e-mail e senha para acessar o sistema.</p>
+    <a class="btn btn--primary" sec:authorize="!isAuthenticated()" th:href="@{/login}">Entrar no sistema</a>
+    <p sec:authorize="isAuthenticated()">Conectado como <strong sec:authentication="principal.nome">Nome</strong>.</p>
+    <a class="btn btn--primary" sec:authorize="isAuthenticated()" th:href="@{/inicio}">Abrir sistema</a>
+    <button class="btn btn--ghost" type="button" id="access-go-demo">Ver demonstração</button>
     <button class="access__close" type="button" id="access-close">Fechar</button>
   </div>
 </dialog>
@@ -1389,7 +1409,7 @@ dialog.access::backdrop { background: rgba(10, 42, 48, .55); backdrop-filter: bl
   var themeMeta = document.querySelector('meta[name="theme-color"]');
 
   function applyThemeMeta(theme) {
-    if (themeMeta) themeMeta.setAttribute("content", theme === "dark" ? "#0C1B1F" : "#FAF8F4");
+    if (themeMeta) themeMeta.setAttribute("content", theme === "dark" ? "#111820" : "#FAF8F4");
   }
   applyThemeMeta(root.dataset.theme);
 
@@ -1397,7 +1417,11 @@ dialog.access::backdrop { background: rgba(10, 42, 48, .55); backdrop-filter: bl
     var next = root.dataset.theme === "dark" ? "light" : "dark";
     root.dataset.theme = next;
     root.style.colorScheme = next;
-    try { localStorage.setItem("fs-tema-manual", next); } catch (e) {}
+    root.setAttribute("data-tema", next === "dark" ? "escuro" : "claro");
+    try {
+      localStorage.setItem("fs-tema-manual", next);
+      localStorage.setItem("filasaude-tema", next === "dark" ? "escuro" : "claro");
+    } catch (e) {}
     applyThemeMeta(next);
   });
 
