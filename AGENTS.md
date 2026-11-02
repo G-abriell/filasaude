@@ -67,3 +67,8 @@ Se faltar uma informação essencial, faça uma pergunta objetiva antes de pross
 ## 8. Princípio geral
 
 Priorize a solução mais simples que atenda corretamente ao requisito, respeite o código existente e possa ser compreendida e mantida por um estudante. Não faça refatorações ou melhorias adicionais fora do escopo sem necessidade.
+
+<!-- context-first:begin -->
+## Context references
+Review [current state](docs/STATE.md), [handoff](docs/HANDOFF.md), [project context](docs/CONTEXT.md) when relevant to the task. Follow existing project instructions.
+<!-- context-first:end -->
