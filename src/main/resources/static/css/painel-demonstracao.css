@@ -159,28 +159,59 @@
 .mvp-kpi-foot { display: block; margin-top: 2px; color: var(--text-2, var(--ink-muted, #4B5F64)); font-size: 13px; }
 
 .painel-tv-app .mvp-showcase {
-    width: min(100%, 1120px);
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    min-height: 0;
     display: grid;
     grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-    align-content: center;
-    gap: 18px;
+    grid-template-rows: minmax(0, 1fr) minmax(96px, 18%);
+    align-content: stretch;
+    gap: clamp(10px, 1.4vw, 24px);
     margin-inline: auto;
 }
 
 .painel-tv-app .mvp-kpis { grid-column: 1 / -1; }
-.painel-tv-app .mvp-card { align-self: stretch; }
-.painel-tv-app .mvp-ticket-top { min-height: 100%; align-items: center; }
-.painel-tv-app .mvp-senha { font-size: clamp(64px, 9vw, 112px); }
-.painel-tv-app .mvp-patient-meta { font-size: clamp(18px, 2vw, 24px); }
-.painel-tv-app .mvp-vazio { padding-block: 26px; font-size: clamp(20px, 2.5vw, 30px); }
-.painel-tv-app .mvp-table td { padding-block: 12px; }
-.painel-tv-app .mvp-kpi-value { font-size: clamp(26px, 3.5vw, 40px); }
+.painel-tv-app .mvp-card,
+.painel-tv-app .mvp-kpi-card { align-self: stretch; min-width: 0; min-height: 0; container-type: inline-size; }
+.painel-tv-app #cartaoChamando { display: flex; align-items: center; overflow: auto; container-type: inline-size; }
+.painel-tv-app #cartaoChamando .mvp-ticket-top { min-height: 0; width: 100%; align-items: center; gap: clamp(16px, 2cqi, 36px); }
+.painel-tv-app #cartaoChamando .mvp-ticket-conteudo { flex: 1 1 auto; min-width: 0; }
+.painel-tv-app #cartaoChamando .mvp-caption { font-size: clamp(18px, 1.8vw, 32px); line-height: 1.3; margin-bottom: .35em; }
+.painel-tv-app #cartaoChamando .mvp-senha { font-size: clamp(72px, min(13vw, 16vh), 200px); line-height: .95; overflow-wrap: anywhere; }
+.painel-tv-app #cartaoChamando .mvp-patient-meta { font-size: clamp(26px, min(2.8vw, 4vh), 48px); line-height: 1.15; margin-top: .3em; overflow-wrap: anywhere; }
+.painel-tv-app #cartaoChamando .mvp-detalhe-chamada { font-size: clamp(19px, min(1.8vw, 2.7vh), 32px); gap: .35em; margin-top: .45em; overflow-wrap: anywhere; }
+.painel-tv-app #cartaoChamando .mvp-prioridade { font-size: clamp(15px, min(1.5vw, 2.2vh), 26px); padding: .4em .8em; margin-top: .65em; white-space: normal; }
+.painel-tv-app #cartaoChamando .status-pill { flex: 0 1 auto; max-width: 30%; white-space: normal; text-align: center; padding: .5em .9em; font-size: clamp(16px, min(1.6vw, 2.4vh), 26px); }
+.painel-tv-app .mvp-queue-title { font-size: clamp(18px, 2.2cqi, 32px); }
+.painel-tv-app .mvp-table th { font-size: clamp(13px, 1.45cqi, 22px); }
+.painel-tv-app .mvp-table td { padding-block: clamp(10px, 1.5cqi, 22px); font-size: clamp(14px, 1.8cqi, 28px); }
+.painel-tv-app .mvp-code { font-size: clamp(18px, 2.2cqi, 34px); }
+.painel-tv-app .mvp-showcase .status-pill { padding: .4em .8em; font-size: clamp(12px, 1.45cqi, 22px); }
+.painel-tv-app .mvp-vazio { padding-block: clamp(16px, 3cqi, 48px); font-size: clamp(18px, 2.6cqi, 36px); }
+.painel-tv-app .mvp-kpi-card { display: flex; flex-direction: column; justify-content: center; padding: clamp(12px, 1.5vw, 28px) clamp(16px, 2vw, 36px); }
+.painel-tv-app .mvp-kpi-label { font-size: clamp(15px, 1.8cqi, 26px); }
+.painel-tv-app .mvp-kpi-value { font-size: clamp(28px, min(4cqi, 5vh), 56px); line-height: 1.15; font-variant-numeric: tabular-nums; }
+.painel-tv-app .mvp-kpi-foot { font-size: clamp(13px, 1.5cqi, 22px); }
 
 @media (max-width: 760px) {
     .painel-tv-app .mvp-showcase { grid-template-columns: minmax(0, 1fr); }
     .painel-tv-app .mvp-kpis { grid-column: auto; }
+    .painel-tv-app .mvp-showcase { height: auto; grid-template-rows: minmax(320px, 48vh) minmax(240px, auto) auto; }
+    .painel-tv-app #cartaoChamando { overflow: visible; }
+    .painel-tv-app #cartaoChamando .mvp-senha { font-size: clamp(64px, 14cqi, 120px); }
+    .painel-tv-app #cartaoChamando .mvp-patient-meta { font-size: clamp(22px, 4cqi, 34px); }
+    .painel-tv-app #cartaoChamando .mvp-detalhe-chamada { font-size: clamp(16px, 2.8cqi, 24px); }
+    .painel-tv-app #cartaoChamando .mvp-prioridade { font-size: clamp(14px, 2.4cqi, 20px); }
     .mvp-card { padding: 16px; }
     .mvp-table th, .mvp-table td { padding-inline: 6px; }
+}
+
+@media (max-height: 620px) and (min-width: 761px) {
+    .painel-tv-app .mvp-showcase { grid-template-rows: minmax(0, 1fr) minmax(88px, 18%); }
+    .painel-tv-app .mvp-card { padding-block: clamp(12px, 1.5vh, 20px); }
+    .painel-tv-app #cartaoChamando .mvp-senha { font-size: clamp(72px, 12vh, 120px); }
+    .painel-tv-app #cartaoChamando .mvp-patient-meta { font-size: clamp(24px, 4vh, 34px); }
 }
 
 @media (max-width: 420px) {
