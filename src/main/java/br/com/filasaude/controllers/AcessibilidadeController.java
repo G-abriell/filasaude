@@ -1,5 +1,6 @@
 package br.com.filasaude.controllers;
 
+import br.com.filasaude.config.PreferenciasAcessibilidade;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,19 +13,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/acessibilidade")
 public class AcessibilidadeController {
 
-    private String tamanhoFonte = "padrao";
-    private boolean altoContraste;
-    private boolean focoReforcado = true;
-    private boolean reducaoMovimento;
-    private boolean legibilidadeAprimorada;
+    private final PreferenciasAcessibilidade preferencias;
+
+    public AcessibilidadeController(PreferenciasAcessibilidade preferencias) {
+        this.preferencias = preferencias;
+    }
 
     @GetMapping
     public String exibir(Model model) {
-        model.addAttribute("tamanhoFonte", tamanhoFonte);
-        model.addAttribute("altoContraste", altoContraste);
-        model.addAttribute("focoReforcado", focoReforcado);
-        model.addAttribute("reducaoMovimento", reducaoMovimento);
-        model.addAttribute("legibilidadeAprimorada", legibilidadeAprimorada);
+        preferencias.adicionarAo(model);
         return "acessibilidade";
     }
 
@@ -36,11 +33,7 @@ public class AcessibilidadeController {
             @RequestParam(value = "reducaoMovimento", defaultValue = "false") boolean reducaoMovimento,
             @RequestParam(value = "legibilidadeAprimorada", defaultValue = "false") boolean legibilidadeAprimorada,
             RedirectAttributes redirectAttributes) {
-        this.tamanhoFonte = tamanhoFonte;
-        this.altoContraste = altoContraste;
-        this.focoReforcado = focoReforcado;
-        this.reducaoMovimento = reducaoMovimento;
-        this.legibilidadeAprimorada = legibilidadeAprimorada;
+        preferencias.atualizar(tamanhoFonte, altoContraste, focoReforcado, reducaoMovimento, legibilidadeAprimorada);
         redirectAttributes.addFlashAttribute("mensagemSucesso", "Preferências de acessibilidade salvas.");
         return "redirect:/acessibilidade";
     }

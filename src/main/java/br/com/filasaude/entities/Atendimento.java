@@ -34,10 +34,15 @@ public class Atendimento {
     @JoinColumn(name = "fila_id", nullable = false)
     private Fila fila;
 
-    /** Usuário que chamou/atendeu o paciente. */
+    /** Profissional responsável pelo paciente (aparece nas telas e na assinatura do resumo). */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "atendente_id")
     private Usuario atendente;
+
+    /** Quem executou a chamada em contingência (ex.: recepção). Nulo quando o próprio atendente chamou. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chamado_por_id")
+    private Usuario chamadoPor;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "prioridade", nullable = false, length = 30)
@@ -102,9 +107,15 @@ public class Atendimento {
     // ---------- Transições de estado ----------
 
     public void chamar(Usuario atendente, String guiche) {
+        chamar(atendente, null, guiche);
+    }
+
+    /** Chamada em contingência: {@code chamadoPor} executa a chamada em favor de {@code atendente}. */
+    public void chamar(Usuario atendente, Usuario chamadoPor, String guiche) {
         exigirStatus(StatusAtendimento.AGUARDANDO, "chamar");
         this.atendente = atendente;
-        this.guiche = (guiche != null && !guiche.isBlank()) ? guiche.trim() : null;
+        this.chamadoPor = chamadoPor;
+        this.guiche = textoOuNulo(guiche);
         this.dataHoraChamada = LocalDateTime.now();
         this.status = StatusAtendimento.CHAMADO;
     }
@@ -112,8 +123,8 @@ public class Atendimento {
     public void rechamar(Usuario atendente, String guiche) {
         exigirStatus(StatusAtendimento.CHAMADO, "rechamar");
         this.atendente = atendente;
-        if (guiche != null && !guiche.isBlank()) {
-            this.guiche = guiche.trim();
+        if (textoOuNulo(guiche) != null) {
+            this.guiche = textoOuNulo(guiche);
         }
         this.dataHoraChamada = LocalDateTime.now();
     }
@@ -124,23 +135,19 @@ public class Atendimento {
         this.status = StatusAtendimento.EM_ATENDIMENTO;
     }
 
-    public void finalizar(String observacao) {
-        finalizar(observacao, null, null);
-    }
-
     public void finalizar(String observacao, String prescricao, String encaminhamento) {
         exigirStatus(StatusAtendimento.EM_ATENDIMENTO, "finalizar");
-        this.observacao = (observacao != null && !observacao.isBlank()) ? observacao.trim() : null;
-        this.prescricao = (prescricao != null && !prescricao.isBlank()) ? prescricao.trim() : null;
-        this.encaminhamento = (encaminhamento != null && !encaminhamento.isBlank()) ? encaminhamento.trim() : null;
+        this.observacao = textoOuNulo(observacao);
+        this.prescricao = textoOuNulo(prescricao);
+        this.encaminhamento = textoOuNulo(encaminhamento);
         this.dataHoraFim = LocalDateTime.now();
         this.status = StatusAtendimento.FINALIZADO;
     }
 
     public boolean possuiRegistroClinico() {
-        return (observacao != null && !observacao.isBlank())
-                || (prescricao != null && !prescricao.isBlank())
-                || (encaminhamento != null && !encaminhamento.isBlank());
+        return textoOuNulo(observacao) != null
+                || textoOuNulo(prescricao) != null
+                || textoOuNulo(encaminhamento) != null;
     }
 
     public void registrarNaoComparecimento() {
@@ -160,8 +167,13 @@ public class Atendimento {
     private void exigirStatus(StatusAtendimento esperado, String acao) {
         if (status != esperado) {
             throw new RegraNegocioException(String.format(
-                    "Não é possível %s o atendimento %s: status atual é %s", acao, senha, status.getDescricao()) + ".");
+                    "Não é possível %s o atendimento %s: status atual é %s.", acao, senha, status.getDescricao()));
         }
+    }
+
+    /** Texto sem espaços nas pontas, ou null quando vazio/em branco. */
+    private static String textoOuNulo(String texto) {
+        return (texto == null || texto.isBlank()) ? null : texto.trim();
     }
 
     /** Minutos entre a chegada e a chamada (ou até agora, se ainda aguardando). */
@@ -186,6 +198,10 @@ public class Atendimento {
 
     public Usuario getAtendente() {
         return atendente;
+    }
+
+    public Usuario getChamadoPor() {
+        return chamadoPor;
     }
 
     public Prioridade getPrioridade() {

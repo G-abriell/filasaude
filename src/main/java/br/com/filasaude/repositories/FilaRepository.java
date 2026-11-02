@@ -29,4 +29,9 @@ public interface FilaRepository extends JpaRepository<Fila, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select f from Fila f where f.id = :id")
     Optional<Fila> findByIdComLock(Long id);
+
+    /** Trava todas as filas ativas, sempre na mesma ordem (por id) para evitar deadlock entre guichês. */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select f from Fila f where f.ativa = true order by f.id")
+    List<Fila> findAtivasComLock();
 }

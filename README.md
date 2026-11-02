@@ -14,8 +14,8 @@ O projeto propõe apoiar a organização do acolhimento e da triagem em unidades
 
 ## Tecnologias
 
-- **Linguagem:** Java 17 ou superior
-- **Framework:** Spring Boot 3
+- **Linguagem:** Java 21 ou superior
+- **Framework:** Spring Boot 4
 - **Web e páginas:** Spring MVC e Thymeleaf
 - **Persistência:** Spring Data JPA e Hibernate
 - **Banco de dados:** PostgreSQL
@@ -25,7 +25,7 @@ O projeto propõe apoiar a organização do acolhimento e da triagem em unidades
 
 ### Pré-requisitos
 
-- JDK 17 ou superior instalado.
+- JDK 21 ou superior instalado.
 - PostgreSQL instalado e em execução na porta `5432`.
 - Git instalado.
 
@@ -39,6 +39,8 @@ cd filasaude
 ### 2. Configurar o banco de dados
 
 As configurações de conexão com o PostgreSQL ficam em `src/main/resources/application.properties`. Confira os valores de conexão e ajuste-os para o seu ambiente antes de iniciar a aplicação. O esquema SQL disponibilizado pelo projeto está em `src/main/resources/schema_sql/ddl_filasaude_pbl.sql`.
+
+> **Segurança:** os valores padrão de `application.properties` (senha do banco `admin123` e senha do administrador `123456`) existem só para facilitar o ambiente local. Em qualquer ambiente compartilhado ou publicado, defina as variáveis `DB_PASSWORD` e `FILASAUDE_ADMIN_SENHA` e troque a senha do administrador após o primeiro login.
 
 ### 3. Iniciar a aplicação
 
@@ -65,3 +67,9 @@ Para executar os testes automatizados do projeto:
 ```
 
 No Windows, use `.\mvnw.cmd test` no PowerShell.
+
+O teste `FilasaudeApplicationTests` (integração) sobe a aplicação completa e usa o PostgreSQL configurado em `application.properties`, portanto o banco precisa estar em execução. Para rodar apenas os testes unitários, que não dependem do banco:
+
+```bash
+./mvnw test -Dtest='!FilasaudeApplicationTests'
+```

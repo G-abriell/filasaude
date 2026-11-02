@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -24,6 +25,11 @@ public class AtendimentoService {
 
     /** Regra de intercalação 2 por 1: a cada 2 atendimentos preferenciais chamados, intercala 1 normal (se houver). */
     public static final int PROPORCAO_PREFERENCIAL_POR_NORMAL = 2;
+
+    /** Ordem da fila de espera: maior prioridade legal primeiro e, empatando, quem chegou antes. */
+    private static final Comparator<Atendimento> ORDEM_DA_FILA = Comparator
+            .comparingInt((Atendimento a) -> a.getPrioridade().getOrdem())
+            .thenComparing(Atendimento::getDataHoraChegada);
 
     private final AtendimentoRepository atendimentoRepository;
     private final FilaRepository filaRepository;
@@ -61,9 +67,10 @@ public class AtendimentoService {
 
     @Transactional(readOnly = true)
     public List<Atendimento> listarAguardando(Long filaId) {
-        List<Atendimento> aguardando = (filaId == null)
+        List<Atendimento> aguardando = new ArrayList<>((filaId == null)
                 ? atendimentoRepository.findAllAguardando()
-                : atendimentoRepository.findAguardandoNaFila(filaId);
+                : atendimentoRepository.findAguardandoNaFila(filaId));
+        aguardando.sort(ORDEM_DA_FILA);
         int preferenciaisConsecutivos = contarPreferenciaisConsecutivos(filaId);
         return intercalarFila2Por1(aguardando, preferenciaisConsecutivos);
     }
@@ -193,26 +200,43 @@ public class AtendimentoService {
      */
     @Transactional
     public Atendimento chamarProximo(Long filaId, Long atendenteId, String guiche) {
-        Usuario atendente = validarAtendente(atendenteId);
+        return chamarProximoDaFila(filaId, validarAtendente(atendenteId), null, guiche);
+    }
 
+    /**
+     * Contingência (ex.: o computador do profissional quebrou): a recepção chama o próximo paciente
+     * escolhendo o profissional de saúde que vai atendê-lo. O profissional escolhido fica como
+     * responsável pelo atendimento; quem executou a chamada fica registrado em chamadoPor.
+     * Respeita a mesma ordem de prioridade; iniciar e finalizar continuam sendo do profissional.
+     */
+    @Transactional
+    public Atendimento chamarProximoEmNomeDe(Long filaId, Long executorId, Long profissionalId, String guiche) {
+        Usuario executor = validarAtendente(executorId);
+        Usuario profissional = validarAtendente(profissionalId);
+        if (!"PROFISSIONAL_DE_SAUDE".equalsIgnoreCase(profissional.getPerfil().getNome())) {
+            throw new RegraNegocioException("O usuário " + profissional.getNome() + " não é um profissional de saúde.");
+        }
+        return chamarProximoDaFila(filaId, profissional, executor, guiche);
+    }
+
+    private Atendimento chamarProximoDaFila(Long filaId, Usuario atendente, Usuario chamadoPor, String guiche) {
+        // As filas são travadas ANTES de ler os pacientes aguardando: assim, dois guichês nunca
+        // escolhem o mesmo paciente a partir de uma leitura desatualizada.
         if (filaId != null) {
             Fila fila = filaRepository.findByIdComLock(filaId)
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Fila", filaId));
             if (!fila.isAtiva()) {
                 throw new RegraNegocioException("A fila " + fila.getNome() + " está inativa.");
             }
+        } else {
+            filaRepository.findAtivasComLock();
         }
 
-        List<Atendimento> candidatos = listarAguardando(filaId);
-        Atendimento proximo = candidatos.stream()
+        Atendimento proximo = listarAguardando(filaId).stream()
                 .findFirst()
                 .orElseThrow(() -> new RegraNegocioException("Nenhum paciente aguardando na fila no momento."));
 
-        if (filaId == null) {
-            filaRepository.findByIdComLock(proximo.getFila().getId());
-        }
-
-        proximo.chamar(atendente, guiche);
+        proximo.chamar(atendente, chamadoPor, guiche);
         return proximo;
     }
 
@@ -222,8 +246,11 @@ public class AtendimentoService {
     @Transactional
     public Atendimento chamarPorId(Long id, Long atendenteId, String guiche) {
         Usuario atendente = validarAtendente(atendenteId);
+        // Trava a fila antes de carregar o atendimento, para enxergar o status já confirmado por outro guichê.
+        Long filaId = atendimentoRepository.findFilaIdById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Atendimento", id));
+        filaRepository.findByIdComLock(filaId);
         Atendimento atendimento = buscarDetalhadoPorId(id);
-        filaRepository.findByIdComLock(atendimento.getFila().getId());
         atendimento.chamar(atendente, guiche);
         return atendimento;
     }
@@ -250,11 +277,6 @@ public class AtendimentoService {
     @Transactional
     public void iniciar(Long id) {
         buscarPorId(id).iniciar();
-    }
-
-    @Transactional
-    public void finalizar(Long id, String observacao) {
-        buscarPorId(id).finalizar(observacao, null, null);
     }
 
     @Transactional

@@ -318,7 +318,6 @@ html[data-font-scale="medio"] textarea,
 html[data-font-scale="medio"] .btn,
 html[data-font-scale="medio"] .btn-fs-primary,
 html[data-font-scale="medio"] .btn-fs-secondary,
-html[data-font-scale="medio"] .tabela-filasaude,
 html[data-font-scale="medio"] table,
 html[data-font-scale="medio"] .sidebar-link,
 html[data-font-scale="medio"] .profile-role,
@@ -349,7 +348,6 @@ html[data-font-scale="grande"] textarea,
 html[data-font-scale="grande"] .btn,
 html[data-font-scale="grande"] .btn-fs-primary,
 html[data-font-scale="grande"] .btn-fs-secondary,
-html[data-font-scale="grande"] .tabela-filasaude,
 html[data-font-scale="grande"] table,
 html[data-font-scale="grande"] .sidebar-link,
 html[data-font-scale="grande"] .profile-role,
@@ -825,13 +823,6 @@ a:hover {
     box-sizing: border-box;
 }
 
-.sidebar-btn-a11y {
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 500;
-    line-height: inherit;
-}
-
 /* Ícones persistentes ancorados no mesmo eixo vertical (12px + 13px = 25px) */
 .app-sidebar .sidebar-link svg {
     width: 22px;
@@ -1295,19 +1286,6 @@ h2.titulo-secao {
     width: 100%;
 }
 
-.btn-link {
-    height: auto;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: var(--brand);
-    font-size: 14px;
-    font-weight: 600;
-}
-.btn-link:hover {
-    text-decoration: underline;
-}
-
 .acoes {
     display: flex;
     flex-wrap: wrap;
@@ -1471,7 +1449,6 @@ select.entrada {
 .status-aguardando { background-color: var(--status-wait-bg); color: var(--status-wait-fg); }
 .status-atendimento { background-color: var(--status-active-bg); color: var(--status-active-fg); }
 .status-concluido   { background-color: var(--status-done-bg); color: var(--status-done-fg); }
-.status-erro        { background-color: var(--status-error-bg); color: var(--status-error-fg); }
 .status-neutro      { background-color: var(--surface-sunken); color: var(--ink-muted); }
 
 /* ============================================================
@@ -1530,19 +1507,6 @@ select.entrada {
 
 .cartao-ativo {
     border: 2px solid var(--status-active-fg);
-}
-
-.lista-andamento {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--space-4);
-}
-
-.linha-senha {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-3);
 }
 
 /* ============================================================
@@ -1962,7 +1926,6 @@ select.entrada {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .btn-bloco-movel,
     .acoes-formulario .btn,
     .cabecalho-pagina .btn {
         width: 100%;
@@ -2440,13 +2403,9 @@ select.entrada {
 @media (max-width: 1080px) {
     .grade-2,
     .painel-chamada,
-    .grade-prontuario,
-    .fs-grid-2 {
+    .grade-prontuario {
         grid-template-columns: minmax(0, 1fr) !important;
         gap: var(--space-4) !important;
-    }
-    .lista-andamento {
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     }
 }
 

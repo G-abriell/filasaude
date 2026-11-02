@@ -30,6 +30,34 @@
             <noscript><button class="btn btn-secundario">Filtrar</button></noscript>
         </form>
 
+        <!-- Contingência: a recepção chama o próximo em favor de um profissional (sem usar o login dele) -->
+        <section class="cartao" sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')" aria-labelledby="titulo-contingencia">
+            <h2 id="titulo-contingencia" class="cartao-titulo">Chamar paciente em contingência</h2>
+            <p class="dica">Use quando o profissional não conseguir chamar pelo próprio acesso. A chamada respeita a ordem de prioridade e fica registrada em seu nome.</p>
+            <p class="dica" th:if="${#lists.isEmpty(profissionais)}">Nenhum profissional de saúde ativo cadastrado.</p>
+            <form class="busca" method="post" th:action="@{/atendimentos/chamar-em-nome-de}" th:unless="${#lists.isEmpty(profissionais)}">
+                <div class="campo">
+                    <label for="profissionalId">Profissional</label>
+                    <select class="entrada" id="profissionalId" name="profissionalId" required>
+                        <option value="">Selecione o profissional</option>
+                        <option th:each="p : ${profissionais}" th:value="${p.id}" th:text="${p.nome}">Dra. Ana</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label for="filaContingencia">Fila</label>
+                    <select class="entrada" id="filaContingencia" name="filaId">
+                        <option value="">Qualquer fila ativa</option>
+                        <option th:each="f : ${filasAtivas}" th:value="${f.id}" th:text="${f.nome}">Consulta</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label for="guicheContingencia">Sala ou guichê</label>
+                    <input class="entrada" id="guicheContingencia" name="guiche" maxlength="30" placeholder="Consultório 1">
+                </div>
+                <button class="btn btn-primario">Chamar próximo</button>
+            </form>
+        </section>
+
         <p th:if="${#lists.isEmpty(atendimentos)}" class="estado-vazio">Nenhum atendimento registrado hoje.</p>
         <div class="tabela-caixa" th:unless="${#lists.isEmpty(atendimentos)}">
             <table class="tabela">
@@ -57,6 +85,7 @@
                     <td><span th:replace="~{fragments/layout :: status(${a.status})}"></span></td>
                     <td>
                         <div th:text="${a.atendente?.nome} ?: '—'">Dra. Ana</div>
+                        <div class="dica" th:if="${a.chamadoPor != null}" th:text="|Chamado pela recepção: ${a.chamadoPor.nome}|">Chamado pela recepção: Rita</div>
                         <div class="apoio body-sm" th:if="${a.guiche}" th:text="${a.guiche}">Consultório 1</div>
                     </td>
                     <td>
@@ -76,6 +105,15 @@
                                th:href="@{/atendimentos/{id}/resumo(id=${a.id})}">
                                 Ver receita / Registro
                             </a>
+                            <form method="post" sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')"
+                                  th:if="${a.status.name() == 'CHAMADO'}"
+                                  th:action="@{/atendimentos/{id}/nao-compareceu(id=${a.id})}"
+                                  th:data-confirmar="|Registrar que ${a.senha} (${a.paciente.nome}) não compareceu?|"
+                                  data-consequencia="A senha sai da fila e o status passará para Não compareceu."
+                                  data-acao="Sim, registrar">
+                                <input type="hidden" name="retorno" value="lista">
+                                <button class="btn btn-secundario btn-compacto">Não compareceu</button>
+                            </form>
                             <form method="post" sec:authorize="hasAnyRole('RECEPCAO', 'ADMIN')"
                                   th:if="${a.status.name() == 'AGUARDANDO' or a.status.name() == 'CHAMADO'}"
                                   th:action="@{/atendimentos/{id}/cancelar(id=${a.id})}"

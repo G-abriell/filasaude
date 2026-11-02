@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Erros do sistema')}"></head>
+<body>
+<div class="app">
+    <nav th:replace="~{fragments/layout :: menu('erros')}"></nav>
+    <main class="conteudo">
+        <header class="cabecalho-pagina">
+            <div>
+                <h1>Erros do sistema</h1>
+                <p>Só o que o usuário não resolve sozinho: falhas do servidor, requisições adulteradas e alertas de segurança.
+                    Erros de uso, como CPF duplicado, não aparecem aqui. Ocorrências iguais em sequência ficam numa só linha.
+                    <strong th:text="|${ultimas24h} problema(s) distinto(s) nas últimas 24 horas|">3 problemas distintos nas últimas 24 horas</strong>.</p>
+            </div>
+        </header>
+
+        <form class="busca" method="get" th:action="@{/erros}">
+            <div class="campo">
+                <label for="tipo">Tipo</label>
+                <select class="entrada" id="tipo" name="tipo" onchange="this.form.submit()">
+                    <option value="">Todos os tipos</option>
+                    <option th:each="t : ${tipos}" th:value="${t.name()}" th:selected="${t == tipo}" th:text="${t.descricao}">Regra de negócio</option>
+                </select>
+            </div>
+            <noscript><button class="btn btn-secundario">Filtrar</button></noscript>
+        </form>
+
+        <p th:if="${pagina.empty}" class="estado-vazio">Nenhum erro registrado.</p>
+        <div class="tabela-caixa" th:unless="${pagina.empty}">
+            <table class="tabela">
+                <thead>
+                <tr>
+                    <th>Última vez</th>
+                    <th>Vezes</th>
+                    <th>Tipo</th>
+                    <th>Usuário</th>
+                    <th>Onde</th>
+                    <th>Mensagem</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="e : ${pagina.content}">
+                    <td class="num">
+                        <div th:text="${#temporals.format(e.ultimaOcorrencia != null ? e.ultimaOcorrencia : e.dataHora, 'dd/MM/yyyy HH:mm:ss')}">02/11/2026 18:30:00</div>
+                        <div class="dica" th:if="${e.ocorrencias > 1}" th:text="|desde ${#temporals.format(e.dataHora, 'dd/MM HH:mm')}|">desde 02/11 18:00</div>
+                    </td>
+                    <td class="num" th:text="${e.ocorrencias}">1</td>
+                    <td th:text="${e.tipo.descricao}">Erro do servidor</td>
+                    <td th:text="${e.usuarioEmail} ?: '—'">recepcao@clinica.com</td>
+                    <td th:text="${e.caminho} != null ? |${e.metodo} ${e.caminho}| : '—'">POST /pacientes</td>
+                    <td>
+                        <div th:text="${e.mensagem}">Já existe um paciente com o CPF informado.</div>
+                        <details th:if="${e.detalhe != null}">
+                            <summary>Detalhe técnico</summary>
+                            <pre style="white-space: pre-wrap; font-size: 12px; max-width: 60ch;" th:text="${e.detalhe}">stack trace</pre>
+                        </details>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="acoes" th:if="${pagina.totalPages > 1}" aria-label="Paginação">
+            <a class="btn btn-secundario btn-compacto" th:if="${pagina.hasPrevious()}"
+               th:href="@{/erros(tipo=${tipo},pagina=${pagina.number - 1})}">Mais recentes</a>
+            <span th:text="|Página ${pagina.number + 1} de ${pagina.totalPages}|">Página 1 de 3</span>
+            <a class="btn btn-secundario btn-compacto" th:if="${pagina.hasNext()}"
+               th:href="@{/erros(tipo=${tipo},pagina=${pagina.number + 1})}">Mais antigos</a>
+        </nav>
+    </main>
+</div>
+</body>
+</html>

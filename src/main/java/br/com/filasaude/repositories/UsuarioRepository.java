@@ -13,7 +13,6 @@ import java.util.Optional;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
-    /** Usado pelo UserDetailsService quando o Spring Security for adicionado. */
     Optional<Usuario> findByEmailIgnoreCase(String email);
 
     boolean existsByPerfilId(Long perfilId);
@@ -24,5 +23,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     List<Usuario> findAllByOrderByNomeAsc();
 
-    List<Usuario> findByAtivoTrueOrderByNomeAsc();
+    @Query("select u from Usuario u where u.ativo = true and upper(u.perfil.nome) = upper(:perfil) order by u.nome")
+    List<Usuario> findAtivosPorPerfil(String perfil);
 }

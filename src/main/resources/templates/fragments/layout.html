@@ -164,6 +164,17 @@
             </a>
         </li>
         <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/erros}" class="sidebar-link" th:classappend="${ativo == 'erros'} ? 'is-active ativo'"
+               th:aria-current="${ativo == 'erros'} ? 'page'" title="Erros do sistema">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 3 2 20h20L12 3Z"/>
+                    <path d="M12 10v4"/>
+                    <path d="M12 17h.01"/>
+                </svg>
+                <span>Erros</span>
+            </a>
+        </li>
+        <li sec:authorize="hasRole('ADMIN')">
             <a th:href="@{/configuracoes}" class="sidebar-link" th:classappend="${ativo == 'configuracoes'} ? 'is-active ativo'"
                th:aria-current="${ativo == 'configuracoes'} ? 'page'" title="Configurações">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

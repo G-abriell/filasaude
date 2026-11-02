@@ -1,5 +1,6 @@
 package br.com.filasaude.controllers;
 
+import br.com.filasaude.config.PreferenciasAcessibilidade;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,13 +30,12 @@ public class ConfiguracaoController {
     private boolean alertaSonoro = true;
     private boolean exibirHistoricoPainel = true;
 
-    // Preferências de Acessibilidade (IHC / WCAG 2.2)
-    private String tamanhoFonte = "padrao"; // padrao, medio, grande
-    private boolean altoContraste = false;
-    private boolean focoReforcado = true;
-    private boolean reducaoMovimento = false;
-    private boolean legibilidadeAprimorada = false;
+    // Preferências de Acessibilidade (IHC / WCAG 2.2): compartilhadas com a tela /acessibilidade
+    private final PreferenciasAcessibilidade preferenciasAcessibilidade;
 
+    public ConfiguracaoController(PreferenciasAcessibilidade preferenciasAcessibilidade) {
+        this.preferenciasAcessibilidade = preferenciasAcessibilidade;
+    }
 
     @GetMapping
     public String exibirConfiguracoes(Model model) {
@@ -51,12 +51,7 @@ public class ConfiguracaoController {
         model.addAttribute("alertaSonoro", alertaSonoro);
         model.addAttribute("exibirHistoricoPainel", exibirHistoricoPainel);
 
-        // Acessibilidade
-        model.addAttribute("tamanhoFonte", tamanhoFonte);
-        model.addAttribute("altoContraste", altoContraste);
-        model.addAttribute("focoReforcado", focoReforcado);
-        model.addAttribute("reducaoMovimento", reducaoMovimento);
-        model.addAttribute("legibilidadeAprimorada", legibilidadeAprimorada);
+        preferenciasAcessibilidade.adicionarAo(model);
         return "configuracoes";
     }
 
@@ -99,11 +94,8 @@ public class ConfiguracaoController {
         this.alertaSonoro = alertaSonoro;
         this.exibirHistoricoPainel = exibirHistoricoPainel;
 
-        this.tamanhoFonte = tamanhoFonte;
-        this.altoContraste = altoContraste;
-        this.focoReforcado = focoReforcado;
-        this.reducaoMovimento = reducaoMovimento;
-        this.legibilidadeAprimorada = legibilidadeAprimorada;
+        preferenciasAcessibilidade.atualizar(tamanhoFonte, altoContraste, focoReforcado,
+                reducaoMovimento, legibilidadeAprimorada);
 
         redirectAttributes.addFlashAttribute("mensagemSucesso", "Configurações salvas com sucesso.");
         return "redirect:/configuracoes";

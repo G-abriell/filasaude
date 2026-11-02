@@ -39,9 +39,10 @@ public class UsuarioService {
         return usuarioRepository.findAllByOrderByNomeAsc();
     }
 
+    /** Profissionais de saúde ativos, para a recepção escolher na chamada em contingência. */
     @Transactional(readOnly = true)
-    public List<Usuario> listarAtivos() {
-        return usuarioRepository.findByAtivoTrueOrderByNomeAsc();
+    public List<Usuario> listarProfissionaisAtivos() {
+        return usuarioRepository.findAtivosPorPerfil("PROFISSIONAL_DE_SAUDE");
     }
 
     @Transactional(readOnly = true)
@@ -67,8 +68,18 @@ public class UsuarioService {
         }
         usuario.setPerfil(perfilService.buscarPorId(usuario.getPerfil().getId()));
 
+        Usuario atual = usuario.getId() == null ? null : buscarPorId(usuario.getId());
+        if (atual != null && atual.isAtivo()) {
+            if (!usuario.isAtivo()) {
+                exigirQueNaoSejaALogada(atual, "desativar");
+                exigirOutroAdministradorAtivo(atual, "desativar");
+            } else if (ehAdmin(atual) && !ehAdmin(usuario)) {
+                exigirOutroAdministradorAtivo(atual, "rebaixar");
+            }
+        }
+
         boolean senhaInformada = usuario.getSenha() != null && !usuario.getSenha().isBlank();
-        if (usuario.getId() == null && !senhaInformada) {
+        if (atual == null && !senhaInformada) {
             throw new RegraNegocioException("A senha é obrigatória no cadastro.");
         }
         if (senhaInformada) {
@@ -77,7 +88,7 @@ public class UsuarioService {
             }
             usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         } else {
-            usuario.setSenha(buscarPorId(usuario.getId()).getSenha());
+            usuario.setSenha(atual.getSenha());
         }
         return usuarioRepository.save(usuario);
     }
@@ -85,33 +96,46 @@ public class UsuarioService {
     @Transactional
     public void alternarAtivo(Long id) {
         Usuario usuario = buscarPorId(id);
-        boolean desativando = usuario.isAtivo();
-        if (!desativando) {
+        if (!usuario.isAtivo()) {
             usuario.setAtivo(true);
             return;
         }
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String usuarioAutenticado = authentication == null ? null
-                : authentication.getPrincipal() instanceof UserDetails userDetails
-                ? userDetails.getUsername() : authentication.getName();
-        if (usuarioAutenticado != null && usuarioAutenticado.equalsIgnoreCase(usuario.getEmail())) {
-            throw new RegraNegocioException("Não é possível desativar a própria conta.");
-        }
-        if ("ADMIN".equalsIgnoreCase(usuario.getPerfil().getNome())) {
-            List<Usuario> administradoresAtivos = usuarioRepository.findAdministradoresAtivosComLock();
-            if (administradoresAtivos.size() <= 1) {
-                throw new RegraNegocioException("Não é possível desativar o último administrador ativo.");
-            }
-        }
+        exigirQueNaoSejaALogada(usuario, "desativar");
+        exigirOutroAdministradorAtivo(usuario, "desativar");
         usuario.setAtivo(false);
     }
 
     @Transactional
     public void excluir(Long id) {
         Usuario usuario = buscarPorId(id);
+        exigirQueNaoSejaALogada(usuario, "excluir");
+        exigirOutroAdministradorAtivo(usuario, "excluir");
         if (atendimentoRepository.existsByAtendenteId(id)) {
             throw new RegraNegocioException("Este usuário tem atendimentos registrados. Desative o usuário em vez de excluir.");
         }
         usuarioRepository.delete(usuario);
+    }
+
+    /** Ninguém pode desativar ou excluir a conta com a qual está logado. */
+    private void exigirQueNaoSejaALogada(Usuario usuario, String acao) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String emailLogado = authentication == null ? null
+                : authentication.getPrincipal() instanceof UserDetails userDetails
+                ? userDetails.getUsername() : authentication.getName();
+        if (emailLogado != null && emailLogado.equalsIgnoreCase(usuario.getEmail())) {
+            throw new RegraNegocioException("Não é possível " + acao + " a própria conta.");
+        }
+    }
+
+    /** O sistema precisa manter ao menos um administrador ativo; a consulta trava as linhas para evitar corrida. */
+    private void exigirOutroAdministradorAtivo(Usuario usuario, String acao) {
+        if (usuario.isAtivo() && ehAdmin(usuario)
+                && usuarioRepository.findAdministradoresAtivosComLock().size() <= 1) {
+            throw new RegraNegocioException("Não é possível " + acao + " o último administrador ativo.");
+        }
+    }
+
+    private boolean ehAdmin(Usuario usuario) {
+        return usuario.getPerfil() != null && "ADMIN".equalsIgnoreCase(usuario.getPerfil().getNome());
     }
 }

@@ -17,7 +17,6 @@ public class PacienteController {
 
     private final PacienteService pacienteService;
     private final AtendimentoService atendimentoService;
-
     public PacienteController(PacienteService pacienteService, AtendimentoService atendimentoService) {
         this.pacienteService = pacienteService;
         this.atendimentoService = atendimentoService;

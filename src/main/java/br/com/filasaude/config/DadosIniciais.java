@@ -3,6 +3,7 @@ package br.com.filasaude.config;
 import br.com.filasaude.entities.Perfil;
 import br.com.filasaude.entities.Usuario;
 import br.com.filasaude.entities.enums.Prioridade;
+import br.com.filasaude.entities.enums.TipoErro;
 import br.com.filasaude.repositories.PerfilRepository;
 import br.com.filasaude.repositories.UsuarioRepository;
 import org.slf4j.Logger;
@@ -12,7 +13,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -58,10 +58,14 @@ public class DadosIniciais implements CommandLineRunner {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * Sem transação única de propósito: se o ajuste da constraint falhar, o PostgreSQL abortaria
+     * a transação inteira e impediria a criação dos perfis e do administrador logo em seguida.
+     */
     @Override
-    @Transactional
     public void run(String... args) {
-        atualizarConstraintPrioridade();
+        sincronizarConstraintEnum("atendimentos", "prioridade", Prioridade.values(), false);
+        sincronizarConstraintEnum("registros_erro", "tipo", TipoErro.values(), true);
         renomearPerfilAtendente();
 
         PERFIS.forEach((nome, descricao) -> {
@@ -95,23 +99,31 @@ public class DadosIniciais implements CommandLineRunner {
         perfilRepository.findByNomeIgnoreCase("ATENDENTE").ifPresent(perfil -> {
             perfil.setNome("PROFISSIONAL_DE_SAUDE");
             perfil.setDescricao(PERFIS.get("PROFISSIONAL_DE_SAUDE"));
+            perfilRepository.save(perfil);
             log.info("Perfil ATENDENTE renomeado para PROFISSIONAL_DE_SAUDE");
         });
     }
 
     /**
-     * Sincroniza a constraint CHECK da coluna prioridade na tabela atendimentos
-     * com todas as constantes do enum Prioridade (incluindo GESTANTE, OBESIDADE, PCD, TEA, etc.).
+     * O Hibernate cria uma constraint CHECK com os valores de cada enum no momento em que a tabela nasce e
+     * o ddl-auto=update não a atualiza. Esta sincronização a recria com todas as constantes atuais do enum
+     * (valores só vêm do código, nunca de entrada do usuário).
+     *
+     * @param removerLinhasInvalidas apaga linhas com valores que o enum não tem mais; só para tabelas
+     *                               descartáveis, como o registro de erros, nunca para dados do negócio
      */
-    private void atualizarConstraintPrioridade() {
+    private void sincronizarConstraintEnum(String tabela, String coluna, Enum<?>[] valores, boolean removerLinhasInvalidas) {
+        String restricao = tabela + "_" + coluna + "_check";
         try {
-            String valoresPermitidos = Arrays.stream(Prioridade.values())
-                    .map(p -> "'" + p.name() + "'")
-                    .collect(Collectors.joining(", "));
-            jdbcTemplate.execute("ALTER TABLE atendimentos DROP CONSTRAINT IF EXISTS atendimentos_prioridade_check");
-            jdbcTemplate.execute("ALTER TABLE atendimentos ADD CONSTRAINT atendimentos_prioridade_check CHECK (prioridade IN (" + valoresPermitidos + "))");
+            String permitidos = Arrays.stream(valores).map(v -> "'" + v.name() + "'").collect(Collectors.joining(", "));
+            if (removerLinhasInvalidas) {
+                jdbcTemplate.update("DELETE FROM " + tabela + " WHERE " + coluna + " NOT IN (" + permitidos + ")");
+            }
+            jdbcTemplate.execute("ALTER TABLE " + tabela + " DROP CONSTRAINT IF EXISTS " + restricao);
+            jdbcTemplate.execute("ALTER TABLE " + tabela + " ADD CONSTRAINT " + restricao
+                    + " CHECK (" + coluna + " IN (" + permitidos + "))");
         } catch (Exception e) {
-            log.warn("Não foi possível atualizar a constraint atendimentos_prioridade_check: {}", e.getMessage());
+            log.warn("Não foi possível atualizar a constraint {}: {}", restricao, e.getMessage());
         }
     }
 }

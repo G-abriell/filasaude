@@ -19,6 +19,7 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
             join fetch a.paciente
             join fetch a.fila
             left join fetch a.atendente
+            left join fetch a.chamadoPor
             where a.id = :id
             """)
     Optional<Atendimento> findByIdDetalhado(Long id);
@@ -29,33 +30,27 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
             """)
     int findUltimoNumero(Long filaId, LocalDate data);
 
-    /** Pacientes aguardando na fila: superpreferenciais e preferenciais primeiro, depois por ordem de chegada. */
+    /** Id da fila do atendimento, sem carregar a entidade (permite travar a fila antes de ler o atendimento). */
+    @Query("select a.fila.id from Atendimento a where a.id = :id")
+    Optional<Long> findFilaIdById(Long id);
+
+    /** Pacientes aguardando na fila, por ordem de chegada. A prioridade é aplicada pelo AtendimentoService. */
     @Query("""
             select a from Atendimento a
             join fetch a.paciente
             join fetch a.fila
             where a.fila.id = :filaId and a.status = br.com.filasaude.entities.enums.StatusAtendimento.AGUARDANDO
-            order by case
-                        when a.prioridade = br.com.filasaude.entities.enums.Prioridade.SUPERPREFERENCIAL then 0
-                        when a.prioridade = br.com.filasaude.entities.enums.Prioridade.NORMAL then 2
-                        else 1
-                     end,
-                     a.dataHoraChegada asc
+            order by a.dataHoraChegada asc
             """)
     List<Atendimento> findAguardandoNaFila(Long filaId);
 
-    /** Todos os pacientes aguardando em filas ativas: superpreferenciais e preferenciais primeiro, depois por ordem de chegada. */
+    /** Todos os pacientes aguardando em filas ativas, por ordem de chegada. A prioridade é aplicada pelo AtendimentoService. */
     @Query("""
             select a from Atendimento a
             join fetch a.paciente
             join fetch a.fila
             where a.fila.ativa = true and a.status = br.com.filasaude.entities.enums.StatusAtendimento.AGUARDANDO
-            order by case
-                        when a.prioridade = br.com.filasaude.entities.enums.Prioridade.SUPERPREFERENCIAL then 0
-                        when a.prioridade = br.com.filasaude.entities.enums.Prioridade.NORMAL then 2
-                        else 1
-                     end,
-                     a.dataHoraChegada asc
+            order by a.dataHoraChegada asc
             """)
     List<Atendimento> findAllAguardando();
 
@@ -74,6 +69,7 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
             join fetch a.paciente
             join fetch a.fila
             left join fetch a.atendente
+            left join fetch a.chamadoPor
             where a.dataHoraChamada is not null
               and (a.dataReferencia = :data or a.status in (br.com.filasaude.entities.enums.StatusAtendimento.CHAMADO, br.com.filasaude.entities.enums.StatusAtendimento.EM_ATENDIMENTO))
             order by a.dataHoraChamada desc
@@ -85,6 +81,7 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
             join fetch a.paciente
             join fetch a.fila
             left join fetch a.atendente
+            left join fetch a.chamadoPor
             where a.dataReferencia = :data
               and (:filaId is null or a.fila.id = :filaId)
             order by a.dataHoraChegada desc
@@ -96,6 +93,7 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
             join fetch a.paciente
             join fetch a.fila
             left join fetch a.atendente
+            left join fetch a.chamadoPor
             where a.status in :status
             order by a.dataHoraChamada desc
             """)
@@ -106,6 +104,7 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
             join fetch a.paciente
             join fetch a.fila
             left join fetch a.atendente
+            left join fetch a.chamadoPor
             where a.paciente.id = :pacienteId
             order by a.dataHoraChegada desc
             """)

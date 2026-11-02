@@ -6,6 +6,7 @@ import br.com.filasaude.security.UsuarioAutenticado;
 import br.com.filasaude.services.AtendimentoService;
 import br.com.filasaude.services.FilaService;
 import br.com.filasaude.services.PacienteService;
+import br.com.filasaude.services.UsuarioService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -26,12 +27,14 @@ public class AtendimentoController {
     private final AtendimentoService atendimentoService;
     private final FilaService filaService;
     private final PacienteService pacienteService;
+    private final UsuarioService usuarioService;
 
     public AtendimentoController(AtendimentoService atendimentoService, FilaService filaService,
-                                 PacienteService pacienteService) {
+                                 PacienteService pacienteService, UsuarioService usuarioService) {
         this.atendimentoService = atendimentoService;
         this.filaService = filaService;
         this.pacienteService = pacienteService;
+        this.usuarioService = usuarioService;
     }
 
     /** Atendimentos do dia, com filtro opcional por fila. */
@@ -40,6 +43,9 @@ public class AtendimentoController {
         model.addAttribute("atendimentos", atendimentoService.listarDoDia(filaId));
         model.addAttribute("filas", filaService.listar());
         model.addAttribute("filaId", filaId);
+        // Para a chamada em contingência feita pela recepção
+        model.addAttribute("filasAtivas", filaService.listarAtivas());
+        model.addAttribute("profissionais", usuarioService.listarProfissionaisAtivos());
         return "atendimentos/lista";
     }
 
@@ -110,6 +116,22 @@ public class AtendimentoController {
         return redirectGuiche(filaId);
     }
 
+    /**
+     * Contingência: a recepção chama o próximo paciente em favor de um profissional escolhido na lista,
+     * sem usar o login dele. Volta para a lista do dia, que a recepção pode acessar.
+     */
+    @PostMapping("/chamar-em-nome-de")
+    public String chamarEmNomeDe(@RequestParam(required = false) Long filaId,
+                                 @RequestParam Long profissionalId,
+                                 @RequestParam(required = false) String guiche,
+                                 @AuthenticationPrincipal UsuarioAutenticado usuario,
+                                 RedirectAttributes attrs) {
+        Atendimento atendimento = atendimentoService.chamarProximoEmNomeDe(filaId, usuario.getId(), profissionalId, guiche);
+        attrs.addFlashAttribute("sucesso", "Senha " + atendimento.getSenha() + " (" + atendimento.getPaciente().getNome()
+                + ") chamada em nome de " + atendimento.getAtendente().getNome() + ".");
+        return "redirect:/atendimentos";
+    }
+
     /** Chama diretamente um paciente específico da lista de espera. */
     @PostMapping("/{id}/chamar")
     public String chamarPorId(@PathVariable Long id,
@@ -163,10 +185,12 @@ public class AtendimentoController {
 
     @PostMapping("/{id}/nao-compareceu")
     public String naoCompareceu(@PathVariable Long id, @RequestParam(required = false) Long filaId,
+                                @RequestParam(required = false) String retorno,
                                 RedirectAttributes attrs) {
         atendimentoService.registrarNaoComparecimento(id);
         attrs.addFlashAttribute("sucesso", "Registrado como não compareceu.");
-        return redirectGuiche(filaId);
+        // A recepção não acessa o guichê: quem age pela lista do dia volta para ela.
+        return "lista".equals(retorno) ? "redirect:/atendimentos" : redirectGuiche(filaId);
     }
 
     @PostMapping("/{id}/cancelar")

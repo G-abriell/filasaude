@@ -46,6 +46,7 @@ CREATE TABLE public.atendimentos (
     senha character varying(30) NOT NULL,
     status character varying(30) NOT NULL,
     atendente_id bigint,
+    chamado_por_id bigint,
     fila_id bigint NOT NULL,
     paciente_id bigint NOT NULL,
     CONSTRAINT atendimentos_prioridade_check CHECK (((prioridade)::text = ANY ((ARRAY['NORMAL'::character varying, 'PREFERENCIAL'::character varying, 'GESTANTE'::character varying, 'OBESIDADE'::character varying, 'PCD'::character varying, 'TEA'::character varying, 'MULHER_COM_CRIANCA_DE_COLO'::character varying, 'SUPERPREFERENCIAL'::character varying])::text[]))),
@@ -327,6 +328,13 @@ ALTER TABLE ONLY public.atendimentos
 
 ALTER TABLE ONLY public.atendimentos
     ADD CONSTRAINT fkk9ip8vx1v0mly2ba7vjtjf284 FOREIGN KEY (atendente_id) REFERENCES public.usuarios(id);
+
+--
+-- Chamada em contingência: usuário que executou a chamada em favor do atendente (nulo no fluxo normal).
+--
+
+ALTER TABLE ONLY public.atendimentos
+    ADD CONSTRAINT fk_atendimento_chamado_por FOREIGN KEY (chamado_por_id) REFERENCES public.usuarios(id);
 
 
 --

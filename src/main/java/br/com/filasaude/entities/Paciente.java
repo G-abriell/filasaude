@@ -74,6 +74,11 @@ public class Paciente {
         if (telefone == null || telefone.isBlank()) {
             return telefone;
         }
+        return formatarTelefone(telefone);
+    }
+
+    /** Aplica a máscara quando o número tem 10 ou 11 dígitos; caso contrário, mantém o texto informado. */
+    private static String formatarTelefone(String telefone) {
         String digitos = telefone.replaceAll("\\D", "");
         if (digitos.length() == 11) {
             return "(" + digitos.substring(0, 2) + ") " + digitos.substring(2, 3) + " "
@@ -82,7 +87,7 @@ public class Paciente {
         if (digitos.length() == 10) {
             return "(" + digitos.substring(0, 2) + ") " + digitos.substring(2, 6) + "-" + digitos.substring(6);
         }
-        return telefone;
+        return telefone.trim();
     }
 
     /** Idosos com 80 anos ou mais têm superprioridade sobre os demais idosos (Lei 13.466/2017). */
@@ -145,19 +150,7 @@ public class Paciente {
     }
 
     public void setTelefone(String telefone) {
-        if (telefone == null || telefone.isBlank()) {
-            this.telefone = null;
-            return;
-        }
-        String digitos = telefone.replaceAll("\\D", "");
-        if (digitos.length() == 11) {
-            this.telefone = "(" + digitos.substring(0, 2) + ") " + digitos.substring(2, 3) + " "
-                    + digitos.substring(3, 7) + "-" + digitos.substring(7);
-        } else if (digitos.length() == 10) {
-            this.telefone = "(" + digitos.substring(0, 2) + ") " + digitos.substring(2, 6) + "-" + digitos.substring(6);
-        } else {
-            this.telefone = telefone.trim();
-        }
+        this.telefone = (telefone == null || telefone.isBlank()) ? null : formatarTelefone(telefone);
     }
 
     public LocalDateTime getDataCadastro() {
